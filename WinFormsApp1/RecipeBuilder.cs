@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Constructors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ namespace SPTLauncher
 {
     public partial class RecipeBuilder : Form
     {
+        Dictionary<string, Recipe> _recipes = new Dictionary<string, Recipe>();
         public RecipeBuilder()
         {
             InitializeComponent();
@@ -35,12 +37,15 @@ namespace SPTLauncher
             Debug.Write("loading " + Form1.productionPath);
             Form1.form.log("loading " + Form1.productionPath);
             JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
-            foreach(JToken recipe in production)
+            foreach (JToken recipe in production)
             {
                 Form1.form.log("Checking ID " + recipe["_id"]);
                 if (recipe["requirements"] != null)
                 {
-                    listBox1.Items.Add(recipe["_id"]);
+                    Recipe recipe2 = new Recipe(recipe);
+                    listBox1.Items.Add(recipe2.getID()/*recipe["_id"]*/);
+                    _recipes[recipe2.getID()] = recipe2;
+
                     Form1.form.log("Has Requirements");
                 }
             }
@@ -49,6 +54,24 @@ namespace SPTLauncher
         private void RecipeBuilder_Load(object sender, EventArgs e)
         {
             LoadRecipes();
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string id = listBox1.SelectedItem.ToString();
+            Recipe recipe = _recipes[id];
+            LoadShit(recipe);
+        }
+
+        public void LoadShit(Recipe recipe)
+        {
+            endProductBox.Text = recipe.getEndProduct();
+            CraftAmount.Value = recipe.getCount();
+            PowerRequirement.Checked = recipe.isPowerNeeded();
+            foreach (RecipeRequirement requirement in recipe.GetRecipeRequirements())
+            {
+                //requirementList.Items.Add(requirement.getID());
+            }
         }
     }
 }

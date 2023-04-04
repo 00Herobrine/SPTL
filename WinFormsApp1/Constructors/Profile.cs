@@ -19,5 +19,20 @@ namespace SPTLauncher.Constructors
             this.profileInfo = profileInfo;
             this.accountInfo = accountInfo;
         }
+
+        public string getID()
+        {
+            return id;
+        }
+
+        public ProfileInfo getProfileInfo()
+        {
+            return profileInfo;
+        }
+
+        public AccountInfo getAccountInfo()
+        {
+            return accountInfo;
+        }
     }
 }

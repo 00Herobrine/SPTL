@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,22 +23,72 @@ namespace SPTLauncher.Constructors
         WORKBENCH = 10,
     }
 
-    internal class Recipe
+    public class Recipe
     {
-        private int _id;
+        private string _id;
         private Module module;
-        private List<RecipeRequirement> requirements;
+        private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
         private int productionTime;
         private bool powerNeeded;
         private string endProduct;
-        private int craftAmount;
+        private int count;
         private int requiredModuleLevel;
         private int requiredModule;
 
+        //types are Item, Tool and Resource
+        // Item is pretty basic
+        // Tool is like a toolset that gets returned after the craft
+        // Resource is a water filter that gets used over time.
         public Recipe(Module module)
         {
             this.module = module;
             string des = GetEnumDescription(module);
+        }
+
+        public Recipe(JToken jToken)
+        {
+            _id = jToken["_id"].ToString();
+            //areaType = module;
+            JArray reqs = JArray.Parse(jToken["requirements"].ToString());
+            foreach(JToken req in reqs)
+            {
+                //Debug.Write("\nIterating " + req);
+                RecipeRequirement rr = new RecipeRequirement(req);
+                requirements.Add(rr);
+            }
+            productionTime = (int)jToken["productionTime"];
+            endProduct = jToken["endProduct"].ToString();
+            count = (int)jToken["count"];
+        }
+
+        public string getID()
+        {
+            return _id;
+        }
+
+        public int getProductionTime()
+        {
+            return productionTime;
+        }
+
+        public string getEndProduct()
+        {
+            return endProduct;
+        }
+
+        public int getCount()
+        {
+            return count;
+        }
+
+        public List<RecipeRequirement> GetRecipeRequirements()
+        {
+            return requirements;
+        }
+
+        public bool isPowerNeeded()
+        {
+            return powerNeeded;
         }
 
         private string GetEnumDescription(Enum value)
@@ -63,6 +115,32 @@ namespace SPTLauncher.Constructors
             this.itemID = itemID;
             this.count = count;
             this.returnOnCraft = returnOnCraft;
-        }   
+        } 
+        
+        public RecipeRequirement(JToken jToken)
+        {
+            if (jToken["areaType"] == null && jToken["questId"] == null)
+            {
+                itemID = jToken["templateId"].ToString();
+                if (jToken["count"] == null) count = 1;
+                else count = (int)jToken["count"];
+                returnOnCraft = jToken["type"].ToString().Equals("Tool");
+            }
+        }
+
+        public string getID()
+        {
+            return itemID;
+        }
+
+        public int getCount()
+        {
+            return count;
+        }
+
+        public bool getReturnOnCraft()
+        {
+            return returnOnCraft;
+        }
     }
 }

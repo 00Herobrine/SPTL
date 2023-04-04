@@ -50,6 +50,7 @@
             nameLabel = new Label();
             profilesList = new ComboBox();
             settingsGroup = new GroupBox();
+            checkBox2 = new CheckBox();
             label7 = new Label();
             label4 = new Label();
             numericUpDown1 = new NumericUpDown();
@@ -64,7 +65,7 @@
             saveSkillsButton = new Button();
             label2 = new Label();
             comboBox1 = new ComboBox();
-            button5 = new Button();
+            ToolsButton = new Button();
             settingsButton = new Button();
             label5 = new Label();
             startServerButton = new Button();
@@ -80,7 +81,6 @@
             killServerButton = new Button();
             autoKillCheckBox = new CheckBox();
             serverConsole = new RichTextBox();
-            checkBox2 = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
@@ -331,6 +331,18 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Checked = true;
+            checkBox2.CheckState = CheckState.Checked;
+            checkBox2.Location = new Point(6, 241);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(107, 19);
+            checkBox2.TabIndex = 32;
+            checkBox2.Text = "Profile Backups";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
             // label7
             // 
             label7.AutoSize = true;
@@ -469,15 +481,15 @@
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
-            // button5
+            // ToolsButton
             // 
-            button5.Location = new Point(25, 178);
-            button5.Name = "button5";
-            button5.Size = new Size(75, 23);
-            button5.TabIndex = 17;
-            button5.Text = "Tools";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
+            ToolsButton.Location = new Point(25, 178);
+            ToolsButton.Name = "ToolsButton";
+            ToolsButton.Size = new Size(75, 23);
+            ToolsButton.TabIndex = 17;
+            ToolsButton.Text = "Tools";
+            ToolsButton.UseVisualStyleBackColor = true;
+            ToolsButton.Click += ToolsButton_Click;
             // 
             // settingsButton
             // 
@@ -537,7 +549,7 @@
             groupBox2.Controls.Add(linkLabel1);
             groupBox2.Controls.Add(killServerButton);
             groupBox2.Controls.Add(label5);
-            groupBox2.Controls.Add(button5);
+            groupBox2.Controls.Add(ToolsButton);
             groupBox2.Controls.Add(stateLabel);
             groupBox2.Controls.Add(startServerButton);
             groupBox2.Controls.Add(label6);
@@ -641,18 +653,7 @@
             serverConsole.Size = new Size(789, 345);
             serverConsole.TabIndex = 7;
             serverConsole.Text = "";
-            // 
-            // checkBox2
-            // 
-            checkBox2.AutoSize = true;
-            checkBox2.Checked = true;
-            checkBox2.CheckState = CheckState.Checked;
-            checkBox2.Location = new Point(6, 241);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(107, 19);
-            checkBox2.TabIndex = 32;
-            checkBox2.Text = "Profile Backups";
-            checkBox2.UseVisualStyleBackColor = true;
+            serverConsole.KeyPress += serverConsole_KeyPress;
             // 
             // Form1
             // 
@@ -709,7 +710,7 @@
         private Button settingsButton;
         private Button bottomButton;
         private Label label1;
-        private Button button5;
+        private Button ToolsButton;
         private Button button6;
         private Button button7;
         private Button button8;

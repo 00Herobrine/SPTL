@@ -65,7 +65,7 @@
             listBox1.ItemHeight = 15;
             listBox1.Location = new Point(0, 0);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(207, 469);
+            listBox1.Size = new Size(207, 454);
             listBox1.TabIndex = 0;
             listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
@@ -269,6 +269,7 @@
             requirementList.Name = "requirementList";
             requirementList.Size = new Size(166, 154);
             requirementList.TabIndex = 0;
+            requirementList.SelectedIndexChanged += requirementList_SelectedIndexChanged;
             // 
             // button2
             // 

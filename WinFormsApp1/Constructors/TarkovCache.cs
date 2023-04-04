@@ -1,12 +1,6 @@
-﻿
-
-using Microsoft.VisualBasic.Logging;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Net.Http.Headers;
-using System.Security.AccessControl;
-using System.Security.Cryptography.X509Certificates;
 using WinFormsApp1;
 
 namespace SPTLauncher.Constructors

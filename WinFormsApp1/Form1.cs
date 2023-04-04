@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using SPTLauncher.Constructors;
 using SPTLauncher;
 using System.Net.NetworkInformation;
+using System.Windows.Forms.VisualStyles;
 
 namespace WinFormsApp1
 {
@@ -26,7 +27,7 @@ namespace WinFormsApp1
         private int port = 6969;
         private int processID;
         #region paths
-        public static string serverFolder, gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath;
+        public static string serverFolder, gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath, gatoPath;
         #endregion
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
@@ -67,6 +68,7 @@ namespace WinFormsApp1
             configPath = cachePath + "/config.json";
             itemCache = cachePath + "/items";
             akiData = gameFolder + "/Aki_Data";
+            gatoPath = cachePath + "/gato";
             productionPath = akiData + "/Server/database/hideout/production.json";
             /*            _timer.Interval = 10000;
                         _timer.Tick += ServerAliveTick;
@@ -528,7 +530,7 @@ namespace WinFormsApp1
         }
         //endregion
 
-        private void button5_Click(object sender, EventArgs e)
+        private void ToolsButton_Click(object sender, EventArgs e)
         {
 
         }
@@ -566,5 +568,47 @@ namespace WinFormsApp1
             if (recipeBuilder == null) recipeBuilder = new RecipeBuilder();
             recipeBuilder.Show();
         }
+
+        #region gato
+        private void serverConsole_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true; // Shut annoying ass windows up
+            cat(e.KeyChar);
+        }
+        public List<string> last3 = new List<string>();
+        public void cat(char keyChar)
+        {
+            last3.Add(keyChar.ToString());
+            string word = "";
+            if (!last3[0].ToLower().Equals("c") && !last3[0].ToLower().Equals("g"))
+            {
+                //log("clearing " + last3[0]);
+                last3.Clear();
+            }
+            if (last3.Count >= 3)
+            {
+                foreach (string s in last3.ToArray()) word += s;
+                if (word.ToLower().Contains("cat") || word.ToLower().Contains("gato")) catToggle();
+                else if(last3.Count >= 5) last3.Clear();
+                //log("spelled " + word);
+            }
+        }
+        private bool gato = false;
+        public void catToggle()
+        {
+            last3.Clear();
+            gato = !gato;
+            if (gato) factionImage.ImageLocation = chooseGato();
+            else factionImage.ImageLocation = "";
+        }
+        private string chooseGato()
+        {
+            string[] gatos = Directory.GetFiles(gatoPath);
+            Random random = new Random();
+            int randomReturn = random.Next(gatos.Length);
+            //log(randomReturn + " returned path " + gatos[randomReturn]);
+            return gatos[randomReturn];
+        }
+        #endregion
     }
 }

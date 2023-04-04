@@ -45,7 +45,6 @@ namespace SPTLauncher
                     Recipe recipe2 = new Recipe(recipe);
                     listBox1.Items.Add(recipe2.getID()/*recipe["_id"]*/);
                     _recipes[recipe2.getID()] = recipe2;
-
                     Form1.form.log("Has Requirements");
                 }
             }
@@ -61,16 +60,50 @@ namespace SPTLauncher
             string id = listBox1.SelectedItem.ToString();
             Recipe recipe = _recipes[id];
             LoadShit(recipe);
+            if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
         }
 
         public void LoadShit(Recipe recipe)
         {
+            nameTextBox.Text = recipe.getID();
+            ModuleComboBox.Text = Recipe.GetEnumDescription(recipe.getModule());
             endProductBox.Text = recipe.getEndProduct();
             CraftAmount.Value = recipe.getCount();
             PowerRequirement.Checked = recipe.isPowerNeeded();
-            foreach (RecipeRequirement requirement in recipe.GetRecipeRequirements())
+            requirementList.Items.Clear();
+            foreach (RecipeRequirement requirement in recipe.GetRecipeRequirements().Values)
             {
-                //requirementList.Items.Add(requirement.getID());
+                string id = requirement.getID();
+                if (id != null) requirementList.Items.Add(id);
+                //if(requirement!= null) requirementList.Items.Add(requirement.getID());
+            }
+        }
+
+        private void requirementList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            setRequirement(requirementList.SelectedIndex);
+            //LoadRequirement(requirement);
+        }
+
+        public void setRequirement(int index = 0)
+        {
+            //requirementList.SelectedIndex = index;
+            RecipeRequirement requirement = getSelectedRecipe().GetRecipeRequirement(requirementList.SelectedItem.ToString());
+            LoadRequirement(requirement);
+        }
+
+        public Recipe getSelectedRecipe()
+        {
+            return _recipes[listBox1.SelectedItem.ToString()];
+        }
+
+        public void LoadRequirement(RecipeRequirement requirement)
+        {
+            if (requirement != null)
+            {
+                Recipe recipe = _recipes[listBox1.SelectedItem.ToString()];
+                requirementID.Text = requirement.getID();
+                RequiredAmount.Value = requirement.getCount();
             }
         }
     }

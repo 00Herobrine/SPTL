@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,21 +14,58 @@ namespace SPTLauncher.Constructors
 {
     public enum Module
     {
+        [Description("Air Filtering Unit")]
+        AIRFILTER,
         [Description("Bitcoin")]
         BTC,
-        [Description("Scav Case")]
-        SCAVBOX,
+        [Description("Booze Generator")]
+        BOOZEGENERATOR,
         [Description("Generator")]
         GENERATOR,
+        [Description("Gym")]
+        GYM,
+        [Description("Heating")]
+        HEATING,
+        [Description("Illumination")]
+        LIGHTING,
+        [Description("Intelligence Center")]
+        INTELLIGENCE,
+        [Description("Lavoratory")]
+        LAVORATORY,
+        [Description("Library")]
+        LIBRARY,
+        [Description("Medstation")]
+        MEDICAL,
+        [Description("Nutrition Unit")]
+        NUTRITION,
+        [Description("Rest Space")]
+        RESTSPACE,
+        [Description("Scav Case")]
+        SCAVBOX,
+        [Description("Security")]
+        SECURITY,
+        [Description("Shooting Range")]
+        SHOOTINGRANGE,
+        [Description("Solar Power")]
+        SOLAR,
+        [Description("Stash")]
+        STASH,
+        [Description("Vents")]
+        VENTS,
+        [Description("Water Collector")]
+        WATER,
         [Description("Workbench")]
         WORKBENCH = 10,
+        [Description("Christmas Tree")]
+        CHRISTMAS
     }
 
     public class Recipe
     {
         private string _id;
         private Module module;
-        private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
+        private Dictionary<string, RecipeRequirement> requirements = new Dictionary<string, RecipeRequirement>();
+        //private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
         private int productionTime;
         private bool powerNeeded;
         private string endProduct;
@@ -53,8 +91,11 @@ namespace SPTLauncher.Constructors
             foreach(JToken req in reqs)
             {
                 //Debug.Write("\nIterating " + req);
-                RecipeRequirement rr = new RecipeRequirement(req);
-                requirements.Add(rr);
+                if (req["areaType"] == null && req["questId"] == null)
+                {
+                    requirements[_id] = new RecipeRequirement(req);
+                }
+                //requirements.Add(new(req));
             }
             productionTime = (int)jToken["productionTime"];
             endProduct = jToken["endProduct"].ToString();
@@ -65,33 +106,32 @@ namespace SPTLauncher.Constructors
         {
             return _id;
         }
-
         public int getProductionTime()
         {
             return productionTime;
         }
-
         public string getEndProduct()
         {
             return endProduct;
         }
-
         public int getCount()
         {
             return count;
         }
-
-        public List<RecipeRequirement> GetRecipeRequirements()
+        public Dictionary<string, RecipeRequirement> GetRecipeRequirements()
         {
             return requirements;
         }
-
         public bool isPowerNeeded()
         {
             return powerNeeded;
         }
+        public Module getModule()
+        {
+            return module;
+        }
 
-        private string GetEnumDescription(Enum value)
+        public static string GetEnumDescription(Enum value)
         {
             // Get the Description attribute value for the enum value
             FieldInfo fi = value.GetType().GetField(value.ToString());
@@ -101,6 +141,12 @@ namespace SPTLauncher.Constructors
                 return attributes[0].Description;
             else
                 return value.ToString();
+        }
+
+        public RecipeRequirement? GetRecipeRequirement(string id)
+        {
+            if (requirements.ContainsKey(id)) return GetRecipeRequirements()["rid"];
+            return null;
         }
     }
 
@@ -119,13 +165,12 @@ namespace SPTLauncher.Constructors
         
         public RecipeRequirement(JToken jToken)
         {
-            if (jToken["areaType"] == null && jToken["questId"] == null)
-            {
+
                 itemID = jToken["templateId"].ToString();
+                Debug.Write("\nCaching requirement " + itemID);
                 if (jToken["count"] == null) count = 1;
                 else count = (int)jToken["count"];
                 returnOnCraft = jToken["type"].ToString().Equals("Tool");
-            }
         }
 
         public string getID()

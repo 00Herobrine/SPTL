@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using SPTLauncher.Constructors;
 using SPTLauncher;
+using System.Net.NetworkInformation;
 
 namespace WinFormsApp1
 {
@@ -24,17 +25,26 @@ namespace WinFormsApp1
         private Timer _timer = new Timer();
         private int port = 6969;
         private int processID;
-        private static string serverFolder, gameFolder, profilesFolder, serverURL, configPath, cachePath;
+        #region paths
+        public static string serverFolder, gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath;
+        #endregion
         private string Prefix = "[Hero's Launcher] ";
-        private int creatingAccount;
-        private GroupBox activeGroupBox;
-        private Config config;
-        private TarkovCache cache;
         public static Form1 form;
+        // do automatic profile backups, let the user set how often they should occur.
 
         public enum STATE { OFFLINE, STARTING, ONLINE }
 
+        public delegate void PingServer(out bool returnValue);
+
+        #region Launcher Stuff
+        private Config config;
         private Character selectedCharacter;
+        private TarkovCache cache;
+        private Encyclopedia encyclopedia;
+        private RecipeBuilder recipeBuilder;
+        private GroupBox activeGroupBox;
+        private int creatingAccount;
+        #endregion
 
         private delegate void TextCallBack(string text);
         private delegate void ProfileCallBack(bool refresh);
@@ -53,21 +63,24 @@ namespace WinFormsApp1
             profilesFolder = serverFolder + "/user/profiles";
             gameFolder = serverFolder;
             serverURL = "127.0.0.1:" + port;
-            configPath = gameFolder + "/config.json";
             cachePath = gameFolder + "/Launcher-Cache";
-            //_timer.Interval = 10000;
-            //_timer.Tick += ServerAliveTick;
-            //_timer.Start();
+            configPath = cachePath + "/config.json";
+            itemCache = cachePath + "/items";
+            akiData = gameFolder + "/Aki_Data";
+            productionPath = akiData + "/Server/database/hideout/production.json";
+            /*            _timer.Interval = 10000;
+                        _timer.Tick += ServerAliveTick;
+                        _timer.Start();*/
             form = this;
         }
 
         public void StartUp()
         {
-            bindToAki();
+            bindToAkiAsync();
             LoadConfig();
             LoadCache();
             //ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
-            /*if (aliveCheck()) bindToAki();
+            /*if(aliveCheck()) bindToAki();
             else */
             // server check
             //ConnectServer();
@@ -85,9 +98,14 @@ namespace WinFormsApp1
             cache = new TarkovCache(cachePath);
         }
 
-        public void bindToAki()
+        public async Task bindToAkiAsync()
         {
-            ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
+            await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
+            //var delInstance = new PingServer(Ping);
+            //var asyncResult = delInstance.BeginInvoke(out response, null, null);
+            //delInstance.EndInvoke(out response, asyncResult);
+            //var valueWhenDone = response;
+            //bool online = ServerManager.PingServer();
             log("Attemping to bind to Aki.");
             if (Process.GetProcessesByName("Aki.Server").Length > 0)
             {
@@ -265,23 +283,27 @@ namespace WinFormsApp1
             serverState = state;
         }
 
-        /*        public async void ServerAliveTick(object sender, EventArgs e)
-                {
-                    Task<bool> alive = new Ping();
-                    log("alive? " + alive);
-                    if (alive)
-                    {
-                        if (serverState != STATE.ONLINE) SetState(STATE.ONLINE);
-                    }
-                    else
-                    {
-                        if (serverState != STATE.OFFLINE && serverState != STATE.STARTING) SetState(STATE.OFFLINE);
-                    }
-                }*/
-
-        public bool Ping()
+        public void ServerAliveTick(object sender, EventArgs e)
         {
-            RequestHandler.SendPing();
+            string response = RequestHandler.SendPing();
+            log(response);
+            /*            if ()
+                        {
+                            if (serverState != STATE.ONLINE) SetState(STATE.ONLINE);
+                        }
+                        else
+                        {
+                            if (serverState != STATE.OFFLINE && serverState != STATE.STARTING) SetState(STATE.OFFLINE);
+                        }*/
+        }
+
+        public static bool Ping()
+        {
+            /*            if(ServerManager.SelectedServer == null)
+                        {
+                            ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
+                        }*/
+            //RequestHandler.SendPing();
             return ServerManager.PingServer();
         }
 
@@ -289,20 +311,6 @@ namespace WinFormsApp1
         {
             serverConsole.Text += Prefix + text + "\n";
         }
-
-        /*        public void log(string text)
-                {
-                    if (serverConsole.InvokeRequired)
-                    {
-                        TextCallBack d = new TextCallBack(log);
-                        Invoke(d, new object[] { text });
-                    }
-                    else
-                    {
-                        serverConsole.Text += text;
-                        if (autoScrollBox.Checked) serverConsole.Select(serverConsole.Text.Length, 0);
-                    }
-                }*/
 
         public void ToggleConsole()
         {
@@ -343,11 +351,20 @@ namespace WinFormsApp1
                 {
                     ServerProfileInfo profile = profiles[i];
                     //Debug.Write("logging " + profile.username + " [" + i + "]");
+                    if (checkBox1.Checked) cacheProfile(profile.username);
                     profilesList.Items.Add(profile.username);
                 }
             }
             profilesList.Items.Add("New Profile...");
             profilesList.SelectedIndex = 1;
+        }
+
+        public void cacheProfile(string username)
+        {
+            AccountManager.Login(username, "");
+            new Profile(AccountManager.SelectedAccount.id, AccountManager.SelectedProfileInfo, AccountManager.SelectedAccount);
+            AccountManager.Logout();
+            log("Offline cached profile " + username);
         }
 
         public void StartClient(string uid)
@@ -513,7 +530,7 @@ namespace WinFormsApp1
 
         private void button5_Click(object sender, EventArgs e)
         {
-            
+
         }
 
 
@@ -536,6 +553,18 @@ namespace WinFormsApp1
         {
             Form df = new DictionaryForm();
             df.Show();
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            if (encyclopedia == null) encyclopedia = new Encyclopedia();
+            encyclopedia.Show();
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            if (recipeBuilder == null) recipeBuilder = new RecipeBuilder();
+            recipeBuilder.Show();
         }
     }
 }

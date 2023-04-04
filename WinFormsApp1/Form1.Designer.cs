@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
+            button14 = new Button();
+            button13 = new Button();
             IDLabel = new Label();
             button12 = new Button();
             button11 = new Button();
@@ -37,10 +39,8 @@
             button8 = new Button();
             button7 = new Button();
             button6 = new Button();
-            button5 = new Button();
             button3 = new Button();
             label1 = new Label();
-            settingsButton = new Button();
             factionImage = new PictureBox();
             linkLabel2 = new LinkLabel();
             PlayButton = new Button();
@@ -50,6 +50,10 @@
             nameLabel = new Label();
             profilesList = new ComboBox();
             settingsGroup = new GroupBox();
+            label7 = new Label();
+            label4 = new Label();
+            numericUpDown1 = new NumericUpDown();
+            checkBox1 = new CheckBox();
             button4 = new Button();
             linkLabel3 = new LinkLabel();
             textBox1 = new TextBox();
@@ -60,11 +64,14 @@
             saveSkillsButton = new Button();
             label2 = new Label();
             comboBox1 = new ComboBox();
+            button5 = new Button();
+            settingsButton = new Button();
             label5 = new Label();
             startServerButton = new Button();
             label6 = new Label();
             stateLabel = new Label();
             groupBox2 = new GroupBox();
+            dictionaryButton = new Button();
             bottomButton = new Button();
             button2 = new Button();
             autoStartCheckBox = new CheckBox();
@@ -73,10 +80,11 @@
             killServerButton = new Button();
             autoKillCheckBox = new CheckBox();
             serverConsole = new RichTextBox();
-            dictionaryButton = new Button();
+            checkBox2 = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
             groupBox2.SuspendLayout();
@@ -84,6 +92,8 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(button14);
+            groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
             groupBox1.Controls.Add(button12);
             groupBox1.Controls.Add(button11);
@@ -110,6 +120,26 @@
             groupBox1.Size = new Size(653, 302);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
+            // 
+            // button14
+            // 
+            button14.Location = new Point(488, 146);
+            button14.Name = "button14";
+            button14.Size = new Size(75, 23);
+            button14.TabIndex = 28;
+            button14.Text = "Recipes";
+            button14.UseVisualStyleBackColor = true;
+            button14.Click += button14_Click;
+            // 
+            // button13
+            // 
+            button13.Location = new Point(488, 273);
+            button13.Name = "button13";
+            button13.Size = new Size(156, 23);
+            button13.TabIndex = 27;
+            button13.Text = "Encyclopedia";
+            button13.UseVisualStyleBackColor = true;
+            button13.Click += button13_Click;
             // 
             // IDLabel
             // 
@@ -184,16 +214,6 @@
             button6.Text = "Name";
             button6.UseVisualStyleBackColor = true;
             // 
-            // button5
-            // 
-            button5.Location = new Point(28, 178);
-            button5.Name = "button5";
-            button5.Size = new Size(75, 23);
-            button5.TabIndex = 17;
-            button5.Text = "Tools";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
-            // 
             // button3
             // 
             button3.Location = new Point(569, 30);
@@ -214,19 +234,9 @@
             label1.TabIndex = 16;
             label1.Text = "Account Functions:";
             // 
-            // settingsButton
-            // 
-            settingsButton.Location = new Point(6, 228);
-            settingsButton.Name = "settingsButton";
-            settingsButton.Size = new Size(123, 23);
-            settingsButton.TabIndex = 15;
-            settingsButton.Text = "Settings";
-            settingsButton.UseVisualStyleBackColor = true;
-            settingsButton.Click += settingsButton_Click;
-            // 
             // factionImage
             // 
-            factionImage.Location = new Point(37, 161);
+            factionImage.Location = new Point(37, 154);
             factionImage.Name = "factionImage";
             factionImage.Size = new Size(135, 135);
             factionImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -305,6 +315,11 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(checkBox2);
+            settingsGroup.Controls.Add(label7);
+            settingsGroup.Controls.Add(label4);
+            settingsGroup.Controls.Add(numericUpDown1);
+            settingsGroup.Controls.Add(checkBox1);
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
             settingsGroup.Controls.Add(textBox1);
@@ -316,9 +331,48 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(98, 215);
+            label7.Name = "label7";
+            label7.Size = new Size(41, 15);
+            label7.TabIndex = 31;
+            label7.Text = "Min(s)";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(6, 193);
+            label4.Name = "label4";
+            label4.Size = new Size(91, 15);
+            label4.TabIndex = 30;
+            label4.Text = "Backup Interval:";
+            // 
+            // numericUpDown1
+            // 
+            numericUpDown1.Location = new Point(6, 211);
+            numericUpDown1.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
+            numericUpDown1.Name = "numericUpDown1";
+            numericUpDown1.Size = new Size(91, 23);
+            numericUpDown1.TabIndex = 29;
+            numericUpDown1.Value = new decimal(new int[] { 1440, 0, 0, 0 });
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Checked = true;
+            checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Location = new Point(6, 261);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(107, 19);
+            checkBox1.TabIndex = 28;
+            checkBox1.Text = "Profile Caching";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
             // button4
             // 
-            button4.Location = new Point(189, 45);
+            button4.Location = new Point(189, 37);
             button4.Name = "button4";
             button4.Size = new Size(58, 23);
             button4.TabIndex = 3;
@@ -329,7 +383,7 @@
             // linkLabel3
             // 
             linkLabel3.AutoSize = true;
-            linkLabel3.Location = new Point(6, 27);
+            linkLabel3.Location = new Point(6, 19);
             linkLabel3.Name = "linkLabel3";
             linkLabel3.Size = new Size(138, 15);
             linkLabel3.TabIndex = 2;
@@ -339,7 +393,7 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(6, 45);
+            textBox1.Location = new Point(6, 37);
             textBox1.Name = "textBox1";
             textBox1.PasswordChar = '*';
             textBox1.Size = new Size(177, 23);
@@ -415,6 +469,26 @@
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
+            // button5
+            // 
+            button5.Location = new Point(25, 178);
+            button5.Name = "button5";
+            button5.Size = new Size(75, 23);
+            button5.TabIndex = 17;
+            button5.Text = "Tools";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
+            // 
+            // settingsButton
+            // 
+            settingsButton.Location = new Point(6, 228);
+            settingsButton.Name = "settingsButton";
+            settingsButton.Size = new Size(123, 23);
+            settingsButton.TabIndex = 15;
+            settingsButton.Text = "Settings";
+            settingsButton.UseVisualStyleBackColor = true;
+            settingsButton.Click += settingsButton_Click;
+            // 
             // label5
             // 
             label5.AutoSize = true;
@@ -474,6 +548,16 @@
             groupBox2.Size = new Size(135, 302);
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
+            // 
+            // dictionaryButton
+            // 
+            dictionaryButton.Location = new Point(6, 149);
+            dictionaryButton.Name = "dictionaryButton";
+            dictionaryButton.Size = new Size(121, 23);
+            dictionaryButton.TabIndex = 13;
+            dictionaryButton.Text = "Dictionary";
+            dictionaryButton.UseVisualStyleBackColor = true;
+            dictionaryButton.Click += dictionaryButton_Click;
             // 
             // bottomButton
             // 
@@ -558,15 +642,17 @@
             serverConsole.TabIndex = 7;
             serverConsole.Text = "";
             // 
-            // dictionaryButton
+            // checkBox2
             // 
-            dictionaryButton.Location = new Point(6, 149);
-            dictionaryButton.Name = "dictionaryButton";
-            dictionaryButton.Size = new Size(121, 23);
-            dictionaryButton.TabIndex = 13;
-            dictionaryButton.Text = "Dictionary";
-            dictionaryButton.UseVisualStyleBackColor = true;
-            dictionaryButton.Click += dictionaryButton_Click;
+            checkBox2.AutoSize = true;
+            checkBox2.Checked = true;
+            checkBox2.CheckState = CheckState.Checked;
+            checkBox2.Location = new Point(6, 241);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(107, 19);
+            checkBox2.TabIndex = 32;
+            checkBox2.Text = "Profile Backups";
+            checkBox2.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -587,6 +673,7 @@
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).EndInit();
@@ -643,5 +730,12 @@
         private Label IDLabel;
         private Button button4;
         private Button dictionaryButton;
+        private Button button13;
+        private CheckBox checkBox1;
+        private Button button14;
+        private Label label7;
+        private Label label4;
+        private NumericUpDown numericUpDown1;
+        private CheckBox checkBox2;
     }
 }

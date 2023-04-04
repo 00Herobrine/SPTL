@@ -10,12 +10,20 @@ namespace SPTLauncher.Constructors {
 {
         private string path;
         private string apiKey;
+        private long lastBackupTime;
         private JObject jObject;
         public Config(string path) {
             this.path = path;
+            Load();
+        }
+
+        public void Load()
+        {
             string text = File.ReadAllText(path);
             jObject = JObject.Parse(text);
+            if (jObject == null) return;
             setApiKey(jObject["apiKey"].ToString());
+            SetLastBackUpTime(long.Parse(jObject["LastBackup"].ToString()));
         }
 
         public void setApiKey(string apiKey)
@@ -27,6 +35,16 @@ namespace SPTLauncher.Constructors {
         public string getApiKey()
         {
             return apiKey;
+        }
+        public void SetLastBackUpTime(long time)
+        {
+            jObject["LastBackup"] = time;
+            lastBackupTime = time;
+            save();
+        }
+        public long GetLastBackupTime()
+        {
+            return lastBackupTime;
         }
 
         public void save()

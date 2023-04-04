@@ -92,7 +92,6 @@
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(button14);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
             groupBox1.Controls.Add(button12);
@@ -123,9 +122,9 @@
             // 
             // button14
             // 
-            button14.Location = new Point(488, 146);
+            button14.Location = new Point(67, 178);
             button14.Name = "button14";
-            button14.Size = new Size(75, 23);
+            button14.Size = new Size(60, 23);
             button14.TabIndex = 28;
             button14.Text = "Recipes";
             button14.UseVisualStyleBackColor = true;
@@ -483,9 +482,9 @@
             // 
             // ToolsButton
             // 
-            ToolsButton.Location = new Point(25, 178);
+            ToolsButton.Location = new Point(6, 178);
             ToolsButton.Name = "ToolsButton";
-            ToolsButton.Size = new Size(75, 23);
+            ToolsButton.Size = new Size(59, 23);
             ToolsButton.TabIndex = 17;
             ToolsButton.Text = "Tools";
             ToolsButton.UseVisualStyleBackColor = true;
@@ -493,7 +492,7 @@
             // 
             // settingsButton
             // 
-            settingsButton.Location = new Point(6, 228);
+            settingsButton.Location = new Point(6, 231);
             settingsButton.Name = "settingsButton";
             settingsButton.Size = new Size(123, 23);
             settingsButton.TabIndex = 15;
@@ -555,6 +554,7 @@
             groupBox2.Controls.Add(label6);
             groupBox2.Controls.Add(settingsButton);
             groupBox2.Controls.Add(autoKillCheckBox);
+            groupBox2.Controls.Add(button14);
             groupBox2.Location = new Point(656, -6);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(135, 302);

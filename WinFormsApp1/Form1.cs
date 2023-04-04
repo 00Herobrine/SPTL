@@ -572,8 +572,8 @@ namespace WinFormsApp1
         #region gato
         private void serverConsole_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = true; // Shut annoying ass windows up
             cat(e.KeyChar);
+            e.Handled = true; // Shut annoying ass windows up
         }
         public List<string> last3 = new List<string>();
         public void cat(char keyChar)
@@ -589,7 +589,7 @@ namespace WinFormsApp1
             {
                 foreach (string s in last3.ToArray()) word += s;
                 if (word.ToLower().Contains("cat") || word.ToLower().Contains("gato")) catToggle();
-                else if(last3.Count >= 5) last3.Clear();
+                else if (last3.Count >= 5) last3.Clear();
                 //log("spelled " + word);
             }
         }
@@ -598,7 +598,11 @@ namespace WinFormsApp1
         {
             last3.Clear();
             gato = !gato;
-            if (gato) factionImage.ImageLocation = chooseGato();
+            if (gato)
+            {
+                //factionImage.Enabled = true;
+                factionImage.Image = Image.FromFile(chooseGato());
+            }
             else factionImage.ImageLocation = "";
         }
         private string chooseGato()
@@ -610,5 +614,6 @@ namespace WinFormsApp1
             return gatos[randomReturn];
         }
         #endregion
+
     }
 }

@@ -31,6 +31,10 @@
             listBox1 = new ListBox();
             NewRecipeButton = new Button();
             groupBox1 = new GroupBox();
+            LockedBox = new CheckBox();
+            SaveRecipeButton = new Button();
+            label9 = new Label();
+            productionTime = new NumericUpDown();
             label5 = new Label();
             CraftAmount = new NumericUpDown();
             PowerRequirement = new CheckBox();
@@ -38,24 +42,27 @@
             endProductBox = new TextBox();
             nameTextBox = new TextBox();
             groupBox2 = new GroupBox();
+            linkLabel1 = new LinkLabel();
+            requiredModuleLvl = new NumericUpDown();
             label8 = new Label();
             RequiredAmount = new NumericUpDown();
             label7 = new Label();
             label6 = new Label();
-            requiredModuleLvl = new ComboBox();
             requiredModuleBox = new ComboBox();
             button3 = new Button();
             label3 = new Label();
             requirementID = new ComboBox();
-            checkBox1 = new CheckBox();
+            craftReturnCheckBox = new CheckBox();
             requirementList = new ListBox();
             button2 = new Button();
             ModuleComboBox = new ComboBox();
             label2 = new Label();
             label1 = new Label();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)productionTime).BeginInit();
             ((System.ComponentModel.ISupportInitialize)CraftAmount).BeginInit();
             groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)requiredModuleLvl).BeginInit();
             ((System.ComponentModel.ISupportInitialize)RequiredAmount).BeginInit();
             SuspendLayout();
             // 
@@ -81,6 +88,10 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(LockedBox);
+            groupBox1.Controls.Add(SaveRecipeButton);
+            groupBox1.Controls.Add(label9);
+            groupBox1.Controls.Add(productionTime);
             groupBox1.Controls.Add(label5);
             groupBox1.Controls.Add(CraftAmount);
             groupBox1.Controls.Add(PowerRequirement);
@@ -99,10 +110,47 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Selected Recipe";
             // 
+            // LockedBox
+            // 
+            LockedBox.AutoSize = true;
+            LockedBox.Location = new Point(476, 49);
+            LockedBox.Name = "LockedBox";
+            LockedBox.Size = new Size(64, 19);
+            LockedBox.TabIndex = 16;
+            LockedBox.Text = "Locked";
+            LockedBox.UseVisualStyleBackColor = true;
+            // 
+            // SaveRecipeButton
+            // 
+            SaveRecipeButton.Location = new Point(497, 0);
+            SaveRecipeButton.Name = "SaveRecipeButton";
+            SaveRecipeButton.Size = new Size(43, 23);
+            SaveRecipeButton.TabIndex = 15;
+            SaveRecipeButton.Text = "Save";
+            SaveRecipeButton.UseVisualStyleBackColor = true;
+            SaveRecipeButton.Click += SaveRecipeButton_Click;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(6, 82);
+            label9.Name = "label9";
+            label9.Size = new Size(98, 15);
+            label9.TabIndex = 14;
+            label9.Text = "Production Time:";
+            // 
+            // productionTime
+            // 
+            productionTime.Location = new Point(110, 80);
+            productionTime.Maximum = new decimal(new int[] { 604800, 0, 0, 0 });
+            productionTime.Name = "productionTime";
+            productionTime.Size = new Size(88, 23);
+            productionTime.TabIndex = 13;
+            // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(193, 54);
+            label5.Location = new Point(204, 54);
             label5.Name = "label5";
             label5.Size = new Size(83, 15);
             label5.TabIndex = 12;
@@ -110,7 +158,7 @@
             // 
             // CraftAmount
             // 
-            CraftAmount.Location = new Point(282, 51);
+            CraftAmount.Location = new Point(293, 51);
             CraftAmount.Maximum = new decimal(new int[] { 999, 0, 0, 0 });
             CraftAmount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             CraftAmount.Name = "CraftAmount";
@@ -121,7 +169,7 @@
             // PowerRequirement
             // 
             PowerRequirement.AutoSize = true;
-            PowerRequirement.Location = new Point(424, 24);
+            PowerRequirement.Location = new Point(476, 24);
             PowerRequirement.Name = "PowerRequirement";
             PowerRequirement.Size = new Size(103, 19);
             PowerRequirement.TabIndex = 10;
@@ -131,38 +179,39 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(193, 25);
+            label4.Location = new Point(204, 25);
             label4.Name = "label4";
-            label4.Size = new Size(72, 15);
+            label4.Size = new Size(75, 15);
             label4.TabIndex = 9;
-            label4.Text = "endProduct:";
+            label4.Text = "End Product:";
             // 
             // endProductBox
             // 
-            endProductBox.Location = new Point(271, 22);
+            endProductBox.Location = new Point(293, 22);
             endProductBox.Name = "endProductBox";
-            endProductBox.Size = new Size(147, 23);
+            endProductBox.Size = new Size(158, 23);
             endProductBox.TabIndex = 8;
             // 
             // nameTextBox
             // 
             nameTextBox.Location = new Point(63, 22);
             nameTextBox.Name = "nameTextBox";
-            nameTextBox.Size = new Size(121, 23);
+            nameTextBox.Size = new Size(135, 23);
             nameTextBox.TabIndex = 7;
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(linkLabel1);
+            groupBox2.Controls.Add(requiredModuleLvl);
             groupBox2.Controls.Add(label8);
             groupBox2.Controls.Add(RequiredAmount);
             groupBox2.Controls.Add(label7);
             groupBox2.Controls.Add(label6);
-            groupBox2.Controls.Add(requiredModuleLvl);
             groupBox2.Controls.Add(requiredModuleBox);
             groupBox2.Controls.Add(button3);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(requirementID);
-            groupBox2.Controls.Add(checkBox1);
+            groupBox2.Controls.Add(craftReturnCheckBox);
             groupBox2.Controls.Add(requirementList);
             groupBox2.Controls.Add(button2);
             groupBox2.Location = new Point(6, 262);
@@ -171,6 +220,24 @@
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
             groupBox2.Text = "Requirements:";
+            // 
+            // linkLabel1
+            // 
+            linkLabel1.AutoSize = true;
+            linkLabel1.Location = new Point(303, 19);
+            linkLabel1.Name = "linkLabel1";
+            linkLabel1.Size = new Size(25, 15);
+            linkLabel1.TabIndex = 16;
+            linkLabel1.TabStop = true;
+            linkLabel1.Text = "List";
+            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
+            // 
+            // requiredModuleLvl
+            // 
+            requiredModuleLvl.Location = new Point(519, 38);
+            requiredModuleLvl.Name = "requiredModuleLvl";
+            requiredModuleLvl.Size = new Size(41, 23);
+            requiredModuleLvl.TabIndex = 15;
             // 
             // label8
             // 
@@ -209,14 +276,6 @@
             label6.TabIndex = 12;
             label6.Text = "Module:";
             // 
-            // requiredModuleLvl
-            // 
-            requiredModuleLvl.FormattingEnabled = true;
-            requiredModuleLvl.Location = new Point(519, 37);
-            requiredModuleLvl.Name = "requiredModuleLvl";
-            requiredModuleLvl.Size = new Size(41, 23);
-            requiredModuleLvl.TabIndex = 11;
-            // 
             // requiredModuleBox
             // 
             requiredModuleBox.FormattingEnabled = true;
@@ -251,15 +310,15 @@
             requirementID.Size = new Size(178, 23);
             requirementID.TabIndex = 7;
             // 
-            // checkBox1
+            // craftReturnCheckBox
             // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(451, 155);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(120, 19);
-            checkBox1.TabIndex = 6;
-            checkBox1.Text = "Returned on Craft";
-            checkBox1.UseVisualStyleBackColor = true;
+            craftReturnCheckBox.AutoSize = true;
+            craftReturnCheckBox.Location = new Point(451, 155);
+            craftReturnCheckBox.Name = "craftReturnCheckBox";
+            craftReturnCheckBox.Size = new Size(120, 19);
+            craftReturnCheckBox.TabIndex = 6;
+            craftReturnCheckBox.Text = "Returned on Craft";
+            craftReturnCheckBox.UseVisualStyleBackColor = true;
             // 
             // requirementList
             // 
@@ -285,7 +344,7 @@
             ModuleComboBox.FormattingEnabled = true;
             ModuleComboBox.Location = new Point(63, 51);
             ModuleComboBox.Name = "ModuleComboBox";
-            ModuleComboBox.Size = new Size(121, 23);
+            ModuleComboBox.Size = new Size(135, 23);
             ModuleComboBox.TabIndex = 3;
             // 
             // label2
@@ -318,9 +377,11 @@
             Load += RecipeBuilder_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)productionTime).EndInit();
             ((System.ComponentModel.ISupportInitialize)CraftAmount).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)requiredModuleLvl).EndInit();
             ((System.ComponentModel.ISupportInitialize)RequiredAmount).EndInit();
             ResumeLayout(false);
         }
@@ -336,7 +397,7 @@
         private ComboBox ModuleComboBox;
         private GroupBox groupBox2;
         private Button button2;
-        private CheckBox checkBox1;
+        private CheckBox craftReturnCheckBox;
         private Label label3;
         private ComboBox requirementID;
         private Button button3;
@@ -346,11 +407,16 @@
         private CheckBox PowerRequirement;
         private NumericUpDown CraftAmount;
         private Label label5;
-        private ComboBox requiredModuleLvl;
         private ComboBox requiredModuleBox;
         private Label label7;
         private Label label6;
         private Label label8;
         private NumericUpDown RequiredAmount;
+        private Label label9;
+        private NumericUpDown productionTime;
+        private NumericUpDown requiredModuleLvl;
+        private Button SaveRecipeButton;
+        private CheckBox LockedBox;
+        private LinkLabel linkLabel1;
     }
 }

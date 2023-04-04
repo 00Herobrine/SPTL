@@ -1,69 +1,71 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
+using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
 {
     public enum Module
     {
-        [Description("Air Filtering Unit")]
-        AIRFILTER,
-        [Description("Bitcoin")]
-        BTC,
-        [Description("Booze Generator")]
-        BOOZEGENERATOR,
-        [Description("Generator")]
-        GENERATOR,
-        [Description("Gym")]
-        GYM,
-        [Description("Heating")]
-        HEATING,
-        [Description("Illumination")]
-        LIGHTING,
-        [Description("Intelligence Center")]
-        INTELLIGENCE,
-        [Description("Lavoratory")]
-        LAVORATORY,
-        [Description("Library")]
-        LIBRARY,
-        [Description("Medstation")]
-        MEDICAL,
-        [Description("Nutrition Unit")]
-        NUTRITION,
-        [Description("Rest Space")]
-        RESTSPACE,
-        [Description("Scav Case")]
-        SCAVBOX,
-        [Description("Security")]
-        SECURITY,
-        [Description("Shooting Range")]
-        SHOOTINGRANGE,
-        [Description("Solar Power")]
-        SOLAR,
-        [Description("Stash")]
-        STASH,
-        [Description("Vents")]
-        VENTS,
-        [Description("Water Collector")]
-        WATER,
-        [Description("Workbench")]
+        [Description("Vents"), Range(1, 3)]
+        VENTS = 0,
+        [Description("Security"), Range(1, 3)]
+        SECURITY = 1,
+        [Description("Lavoratory"), Range(1, 3)]
+        LAVORATORY = 2,
+        [Description("Stash"), Range(1, 4)]
+        STASH = 3,
+        [Description("Generator"), Range(1, 3)]
+        GENERATOR = 4,
+        [Description("Heating"), Range(1, 3)]
+        HEATING = 5,
+        [Description("Water Collector"), Range(1, 3)]
+        WATER = 6,
+        [Description("Medstation"), Range(1, 3)]
+        MEDICAL = 7,
+        [Description("Nutrition Unit"), Range(1, 3)]
+        NUTRITION = 8,
+        [Description("Rest Space"), Range(1, 3)]
+        RESTSPACE = 9,
+        [Description("Workbench"), Range(1, 3)]
         WORKBENCH = 10,
-        [Description("Christmas Tree")]
-        CHRISTMAS
+        [Description("Intelligence Center"), Range(1, 3)]
+        INTELLIGENCE = 11,
+        [Description("Shooting Range"), Range(1, 3)]
+        SHOOTINGRANGE = 12,
+        [Description("Library"), Range(1, 1)]
+        LIBRARY = 13,
+        [Description("Scav Case"), Range(1, 1)]
+        SCAVBOX = 14,
+        [Description("Illumination"), Range(1, 3)]
+        LIGHTING = 15,
+/*        [Description("Place of Fame"), Range(1, 1)]
+        FAME = 16,*/
+        [Description("Air Filtering Unit"), Range(1, 1)]
+        AIRFILTER = 17,
+        [Description("Solar Power"), Range(1, 1)]
+        SOLAR = 18,
+        [Description("Booze Generator"), Range(1, 1)]
+        BOOZEGENERATOR = 19,
+        [Description("Bitcoin Farm"), Range(1, 3)]
+        BTC = 20,
+        [Description("Christmas Tree"), Range(1, 1)]
+        CHRISTMAS = 21,
+        [Description("Broken Wall"), Range(1, 6)]
+        BROKENWALL = 22,
+        [Description("Gym"), Range(1, 2)]
+        GYM = 23
     }
 
     public class Recipe
     {
         private string _id;
+        private string name;
         private Module module;
+        private RecipeRequirement requiredModule;
         private Dictionary<string, RecipeRequirement> requirements = new Dictionary<string, RecipeRequirement>();
         //private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
         private int productionTime;
@@ -71,9 +73,9 @@ namespace SPTLauncher.Constructors
         private string endProduct;
         private int count;
         private int requiredModuleLevel;
-        private int requiredModule;
+        public JToken jToken; // the little section of the JSON it's in
 
-        //types are Item, Tool and Resource
+        // types are Item, Tool and Resource
         // Item is pretty basic
         // Tool is like a toolset that gets returned after the craft
         // Resource is a water filter that gets used over time.
@@ -83,41 +85,79 @@ namespace SPTLauncher.Constructors
             string des = GetEnumDescription(module);
         }
 
-        public Recipe(JToken jToken)
+        public Recipe(JToken token)
         {
-            _id = jToken["_id"].ToString();
+            jToken = token;
+            _id = jToken["_id"].ToString(); // recipe id, generate something
             //areaType = module;
+            name = "";
+            module = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
+            if (jToken["name"] != null) name = jToken["name"].ToString();
             JArray reqs = JArray.Parse(jToken["requirements"].ToString());
             foreach(JToken req in reqs)
             {
+                if (req["areaType"] != null) requiredModule = new RecipeRequirement(req, this);
                 //Debug.Write("\nIterating " + req);
-                if (req["areaType"] == null && req["questId"] == null)
+                else if (req["questId"] == null && req["templateId"] != null)
                 {
-                    requirements[_id] = new RecipeRequirement(req);
+                    requirements[req["templateId"].ToString()] = new RecipeRequirement(req, this);
                 }
                 //requirements.Add(new(req));
             }
+            powerNeeded = (bool)jToken["needFuelForAllProductionTime"];
             productionTime = (int)jToken["productionTime"];
             endProduct = jToken["endProduct"].ToString();
             count = (int)jToken["count"];
         }
-
         public string getID()
         {
             return _id;
+        }
+        public string getName(bool format = false)
+        {
+            if (name == "" && format) return _id;
+            return name;
+        }
+
+        public JToken GetJToken()
+        {
+            return jToken;
+        }
+        public void setName(string name)
+        {
+            jToken["name"] = name;
+            this.name = name;
         }
         public int getProductionTime()
         {
             return productionTime;
         }
+        public void setProductionTime(int productionTime)
+        {
+            jToken["productionTime"] = productionTime;
+            this.productionTime = productionTime;
+        }
+
         public string getEndProduct()
         {
             return endProduct;
         }
+        public void setEndProduct(string id)
+        {
+            endProduct = id;
+            jToken["endProduct"] = id;
+        }
+
         public int getCount()
         {
             return count;
         }
+        public void setCount(int count)
+        {
+            this.count = count;
+            jToken["count"] = count;
+        }
+
         public Dictionary<string, RecipeRequirement> GetRecipeRequirements()
         {
             return requirements;
@@ -126,15 +166,54 @@ namespace SPTLauncher.Constructors
         {
             return powerNeeded;
         }
+        public void setPowerNeeded(bool powerNeeded)
+        {
+            this.powerNeeded = powerNeeded;
+            jToken["needFuelForAllProductionTime"] = powerNeeded;
+        }
+
         public Module getModule()
         {
             return module;
+        }
+        public void setModule(Module module)
+        {
+            this.module = module;
+            jToken["areaType"] = (int)module;
+        }
+
+        public RecipeRequirement getModuleRequirement()
+        {
+            return requiredModule;
+        }
+        public Module getRequiredModule()
+        {
+            return requiredModule.getRequiredModule();
+        }
+        public int getRequiredModuleLevel()
+        {
+            return requiredModule.getRequiredModuleLvl();
+        }
+        public bool hasRequiredModule()
+        {
+            return requiredModule != null;
+        }
+
+        public void updateSettings()
+        {
+            RecipeBuilder.UpdateRecipesFile(jToken);
+        }
+
+        public string ToString()
+        {
+            return getName(true);
         }
 
         public static string GetEnumDescription(Enum value)
         {
             // Get the Description attribute value for the enum value
             FieldInfo fi = value.GetType().GetField(value.ToString());
+            if (fi == null) return "NULL";
             DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
 
             if (attributes.Length > 0)
@@ -143,9 +222,28 @@ namespace SPTLauncher.Constructors
                 return value.ToString();
         }
 
+        public static string[] GetEnumMinMax(Enum value)
+        {
+            Debug.Write("\nChecking for enum " + value);
+            Enum myEnumValue = value;
+            FieldInfo fi = value.GetType().GetField(value.ToString());
+            if (fi == null) return null;
+            RangeAttribute rangeAttribute = (RangeAttribute)fi.GetCustomAttribute(typeof(RangeAttribute), false);
+            List<string> values = new List<string>
+            {
+                rangeAttribute.Minimum.ToString(),
+                rangeAttribute.Maximum.ToString()
+            };
+            return values.ToArray();
+        }
+
         public RecipeRequirement? GetRecipeRequirement(string id)
         {
-            if (requirements.ContainsKey(id)) return GetRecipeRequirements()["rid"];
+            if (requirements.ContainsKey(id))
+            {
+                Debug.Write("\nGetting Requirements for " + id + " questID " + getID());
+                return requirements[id];
+            }
             return null;
         }
     }
@@ -156,6 +254,11 @@ namespace SPTLauncher.Constructors
         private int count;
         private bool returnOnCraft;
 
+        private Module requiredModule;
+        private int requiredModuleLvl = -1;
+        private Recipe parent;
+        private JToken jToken;
+
         public RecipeRequirement(string itemID, int count = 1, bool returnOnCraft = false)
         {
             this.itemID = itemID;
@@ -163,14 +266,23 @@ namespace SPTLauncher.Constructors
             this.returnOnCraft = returnOnCraft;
         } 
         
-        public RecipeRequirement(JToken jToken)
+        public RecipeRequirement(JToken token, Recipe parent)
         {
-
+            this.parent = parent;
+            jToken = token;
+            if (jToken["areaType"] != null)
+            {
+                requiredModule = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
+                requiredModuleLvl = (int)jToken["requiredLevel"];
+            }
+            else
+            {
                 itemID = jToken["templateId"].ToString();
                 Debug.Write("\nCaching requirement " + itemID);
                 if (jToken["count"] == null) count = 1;
                 else count = (int)jToken["count"];
                 returnOnCraft = jToken["type"].ToString().Equals("Tool");
+            }
         }
 
         public string getID()
@@ -182,10 +294,60 @@ namespace SPTLauncher.Constructors
         {
             return count;
         }
+        public void setCount(int count)
+        {
+            jToken["count"] = count;
+            this.count = count;
+            updateRequirements("count", count);
+        }
 
-        public bool getReturnOnCraft()
+        public bool isReturnedOnCraft()
         {
             return returnOnCraft;
+        }
+        public void returnedOnCraft(bool returned)
+        {
+            returnOnCraft = returned;
+            //setType to "Tool"
+        }
+
+        public Module getRequiredModule()
+        {
+            return requiredModule;
+        }
+        public void setRequiredModule(Module module)
+        {
+            requiredModule = module;
+            updateRequirements("areaType", module.ToString());
+        }
+        public int getRequiredModuleLvl()
+        {
+            return requiredModuleLvl;
+        }
+        public void setRequiredModuleLvl(int level)
+        {
+            requiredModuleLvl = level;
+            updateRequirements("requiredLevel", level);
+        }
+
+        public void updateRequirements(string name, int updated)
+        {
+            jToken[name] = updated;
+            JToken token = jToken.Parent;
+            parent.jToken["requirements"] = jToken.Parent;
+            Form1.form.log($"Updated requirements for {token}");
+        }
+        public void updateRequirements(string name, string updated)
+        {
+            jToken[name] = updated;
+            JToken token = jToken.Parent;
+            parent.jToken["requirements"] = jToken.Parent;
+            Form1.form.log($"Updated requirements for {token}");
+        }
+
+        public bool hasRequiredModule()
+        {
+            return requiredModuleLvl != -1;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using SPTLauncher.Constructors;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using WinFormsApp1;
 
 namespace SPTLauncher
@@ -9,8 +10,15 @@ namespace SPTLauncher
     {
         private Dictionary<string, Recipe> _recipes = new Dictionary<string, Recipe>();
         public static RecipeBuilder rb;
+        private List<Module> acceptableModules = new List<Module>();
         public RecipeBuilder()
         {
+            acceptableModules.Add(Module.WORKBENCH);
+            acceptableModules.Add(Module.MEDICAL);
+            acceptableModules.Add(Module.NUTRITION);
+            acceptableModules.Add(Module.LAVORATORY);
+            acceptableModules.Add(Module.WATER);
+            acceptableModules.Add(Module.BOOZEGENERATOR);
             InitializeComponent();
             rb = this;
         }
@@ -27,9 +35,12 @@ namespace SPTLauncher
 
         public void LoadRecipes()
         {
+            //activeCheckBox = ItemCheckBox;
+            ItemCheckBox.Checked = true;
             Debug.Write("loading " + Form1.productionPath);
             Form1.form.log("loading " + Form1.productionPath);
             JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
+            foreach (Module module in acceptableModules) ModuleComboBox.Items.Add(Recipe.GetEnumDescription(module));
             foreach (JToken recipe in production)
             {
                 Form1.form.log("Checking ID " + recipe["_id"]);
@@ -80,6 +91,9 @@ namespace SPTLauncher
             }
             else
             {
+                requirementID.Text = "";
+                RequiredAmount.Minimum = 0;
+                RequiredAmount.Value = 0;
                 requiredModuleBox.Text = "";
                 requiredModuleLvl.Value = 1;
                 requiredModuleLvl.Minimum = 1;
@@ -123,7 +137,7 @@ namespace SPTLauncher
                 Recipe recipe = getSelectedRecipe();
                 requirementID.Text = requirement.getID();
                 RequiredAmount.Value = requirement.getCount();
-                craftReturnCheckBox.Checked = requirement.isReturnedOnCraft();
+                ToolCheckBox.Checked = requirement.isReturnedOnCraft();
             }
         }
 
@@ -154,5 +168,37 @@ namespace SPTLauncher
         {
             Process.Start("explorer", "https://db.sp-tarkov.com/search/");
         }
+
+        private void ItemCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            typeToggle(ItemCheckBox);
+        }
+
+        private void ResourceCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            typeToggle(ResourceCheckBox);
+        }
+
+        private void ToolCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            typeToggle(ToolCheckBox);
+        }
+
+        public CheckBox activeCheckBox;
+        public void typeToggle(CheckBox checkBox)
+        {
+            Debug.Write("\nToggle ran");
+            if (activeCheckBox == null || activeCheckBox == checkBox)
+            {
+                activeCheckBox = activeCheckBox == checkBox && !activeCheckBox.Checked ? null : checkBox;
+                if (activeCheckBox == null) ItemCheckBox.Checked = true;
+            }
+            else
+            {
+                activeCheckBox.Checked = false;
+                activeCheckBox = checkBox;
+            }
+        }
+
     }
 }

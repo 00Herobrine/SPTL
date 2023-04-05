@@ -42,6 +42,10 @@
             endProductBox = new TextBox();
             nameTextBox = new TextBox();
             groupBox2 = new GroupBox();
+            groupBox3 = new GroupBox();
+            ItemCheckBox = new CheckBox();
+            ResourceCheckBox = new CheckBox();
+            ToolCheckBox = new CheckBox();
             linkLabel1 = new LinkLabel();
             requiredModuleLvl = new NumericUpDown();
             label8 = new Label();
@@ -52,7 +56,6 @@
             button3 = new Button();
             label3 = new Label();
             requirementID = new ComboBox();
-            craftReturnCheckBox = new CheckBox();
             requirementList = new ListBox();
             button2 = new Button();
             ModuleComboBox = new ComboBox();
@@ -62,6 +65,7 @@
             ((System.ComponentModel.ISupportInitialize)productionTime).BeginInit();
             ((System.ComponentModel.ISupportInitialize)CraftAmount).BeginInit();
             groupBox2.SuspendLayout();
+            groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)requiredModuleLvl).BeginInit();
             ((System.ComponentModel.ISupportInitialize)RequiredAmount).BeginInit();
             SuspendLayout();
@@ -201,6 +205,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(groupBox3);
             groupBox2.Controls.Add(linkLabel1);
             groupBox2.Controls.Add(requiredModuleLvl);
             groupBox2.Controls.Add(label8);
@@ -211,7 +216,6 @@
             groupBox2.Controls.Add(button3);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(requirementID);
-            groupBox2.Controls.Add(craftReturnCheckBox);
             groupBox2.Controls.Add(requirementList);
             groupBox2.Controls.Add(button2);
             groupBox2.Location = new Point(6, 262);
@@ -220,6 +224,51 @@
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
             groupBox2.Text = "Requirements:";
+            // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(ItemCheckBox);
+            groupBox3.Controls.Add(ResourceCheckBox);
+            groupBox3.Controls.Add(ToolCheckBox);
+            groupBox3.Location = new Point(178, 131);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(222, 45);
+            groupBox3.TabIndex = 17;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Requirement Type";
+            // 
+            // ItemCheckBox
+            // 
+            ItemCheckBox.AutoSize = true;
+            ItemCheckBox.Location = new Point(20, 20);
+            ItemCheckBox.Name = "ItemCheckBox";
+            ItemCheckBox.Size = new Size(50, 19);
+            ItemCheckBox.TabIndex = 8;
+            ItemCheckBox.Text = "Item";
+            ItemCheckBox.UseVisualStyleBackColor = true;
+            ItemCheckBox.CheckedChanged += ItemCheckBox_CheckedChanged;
+            // 
+            // ResourceCheckBox
+            // 
+            ResourceCheckBox.AutoSize = true;
+            ResourceCheckBox.Location = new Point(76, 20);
+            ResourceCheckBox.Name = "ResourceCheckBox";
+            ResourceCheckBox.Size = new Size(74, 19);
+            ResourceCheckBox.TabIndex = 7;
+            ResourceCheckBox.Text = "Resource";
+            ResourceCheckBox.UseVisualStyleBackColor = true;
+            ResourceCheckBox.CheckedChanged += ResourceCheckBox_CheckedChanged;
+            // 
+            // ToolCheckBox
+            // 
+            ToolCheckBox.AutoSize = true;
+            ToolCheckBox.Location = new Point(156, 20);
+            ToolCheckBox.Name = "ToolCheckBox";
+            ToolCheckBox.Size = new Size(48, 19);
+            ToolCheckBox.TabIndex = 6;
+            ToolCheckBox.Text = "Tool";
+            ToolCheckBox.UseVisualStyleBackColor = true;
+            ToolCheckBox.CheckedChanged += ToolCheckBox_CheckedChanged;
             // 
             // linkLabel1
             // 
@@ -310,16 +359,6 @@
             requirementID.Size = new Size(178, 23);
             requirementID.TabIndex = 7;
             // 
-            // craftReturnCheckBox
-            // 
-            craftReturnCheckBox.AutoSize = true;
-            craftReturnCheckBox.Location = new Point(451, 155);
-            craftReturnCheckBox.Name = "craftReturnCheckBox";
-            craftReturnCheckBox.Size = new Size(120, 19);
-            craftReturnCheckBox.TabIndex = 6;
-            craftReturnCheckBox.Text = "Returned on Craft";
-            craftReturnCheckBox.UseVisualStyleBackColor = true;
-            // 
             // requirementList
             // 
             requirementList.FormattingEnabled = true;
@@ -381,6 +420,8 @@
             ((System.ComponentModel.ISupportInitialize)CraftAmount).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            groupBox3.ResumeLayout(false);
+            groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)requiredModuleLvl).EndInit();
             ((System.ComponentModel.ISupportInitialize)RequiredAmount).EndInit();
             ResumeLayout(false);
@@ -397,7 +438,7 @@
         private ComboBox ModuleComboBox;
         private GroupBox groupBox2;
         private Button button2;
-        private CheckBox craftReturnCheckBox;
+        private CheckBox ToolCheckBox;
         private Label label3;
         private ComboBox requirementID;
         private Button button3;
@@ -418,5 +459,8 @@
         private Button SaveRecipeButton;
         private CheckBox LockedBox;
         private LinkLabel linkLabel1;
+        private GroupBox groupBox3;
+        private CheckBox ItemCheckBox;
+        private CheckBox ResourceCheckBox;
     }
 }

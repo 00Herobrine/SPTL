@@ -41,10 +41,11 @@ namespace WinFormsApp1
         private Config config;
         private Character selectedCharacter;
         private TarkovCache cache;
-        private Encyclopedia encyclopedia;
+        //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
         private int creatingAccount;
+        private Dictionary<int, Profile> cachedProfiles = new Dictionary<int, Profile>();
         #endregion
 
         private delegate void TextCallBack(string text);
@@ -156,7 +157,7 @@ namespace WinFormsApp1
         {
             if (serverState == STATE.ONLINE || serverState == STATE.STARTING)
             {
-                if (MessageBox.Show("Are you sure you want to close?", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Are you sure you want to close?", "Kill Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     logging = false;
                     KillServers();
@@ -353,18 +354,18 @@ namespace WinFormsApp1
                 {
                     ServerProfileInfo profile = profiles[i];
                     //Debug.Write("logging " + profile.username + " [" + i + "]");
-                    if (checkBox1.Checked) cacheProfile(profile.username);
-                    profilesList.Items.Add(profile.username);
+                    int index = profilesList.Items.Add(profile.username);
+                    if (checkBox1.Checked) cacheProfile(profile.username, index);
                 }
             }
             profilesList.Items.Add("New Profile...");
             profilesList.SelectedIndex = 1;
         }
 
-        public void cacheProfile(string username)
+        public void cacheProfile(string username, int index)
         {
             AccountManager.Login(username, "");
-            new Profile(AccountManager.SelectedAccount.id, AccountManager.SelectedProfileInfo, AccountManager.SelectedAccount);
+            cachedProfiles.Add(index, new Profile(AccountManager.SelectedAccount.id, AccountManager.SelectedProfileInfo, AccountManager.SelectedAccount));
             AccountManager.Logout();
             log("Offline cached profile " + username);
         }
@@ -412,13 +413,18 @@ namespace WinFormsApp1
             LoadProfiles(true);
         }
 
+        public void NewAccount()
+        {
+            profilesList.SelectedIndex = profilesList.Items.Add("Temp Name");
+            creatingAccount = profilesList.SelectedIndex;
+            log("Creating new profile...");
+        }
+
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (profilesList.SelectedItem.Equals("New Profile..."))
+            if (profilesList.SelectedItem.Equals("New Profile...")) 
             {
-                profilesList.SelectedIndex = profilesList.Items.Add("Temp Name");
-                creatingAccount = profilesList.SelectedIndex;
-                log("Creating new profile...");
+                NewAccount();
                 return;
             }
             AccountStatus status = AccountManager.Login(profilesList.SelectedItem.ToString(), "");
@@ -559,8 +565,13 @@ namespace WinFormsApp1
 
         private void button13_Click(object sender, EventArgs e)
         {
-            if (encyclopedia == null) encyclopedia = new Encyclopedia();
-            encyclopedia.Show();
+            if (GetSelectedProfile().GetEncyclopedia() == null) GetSelectedProfile().generateEncyclopedia();
+            GetSelectedProfile().GetEncyclopedia().Show();
+        }
+
+        public Profile GetSelectedProfile()
+        {
+            return cachedProfiles[profilesList.SelectedIndex];
         }
 
         private void button14_Click(object sender, EventArgs e)

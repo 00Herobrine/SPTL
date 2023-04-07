@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -94,9 +95,10 @@ namespace SPTLauncher.Constructors {
             }
             else
             {
-                path = Form1.form.GetModsPath() + "/" + mod.GetName();
+                path = mod.GetOriginalPath();
                 ((JObject) jObject["DisabledMods"]).Remove(mod.GetName());
             }
+            Debug.Write($"path {path}");
             Directory.Move(mod.GetPath(), path);
             save();
         }

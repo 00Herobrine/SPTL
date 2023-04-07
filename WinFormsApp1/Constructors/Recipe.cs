@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
-using System.Windows.Forms.VisualStyles;
 using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
@@ -85,7 +84,7 @@ namespace SPTLauncher.Constructors
             this.module = module;
             string des = GetEnumDescription(module);
             JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
-            production.Add(toke);
+            //production.Add(toke);
             JToken token = production.Descendants().Where(x => x.Type == JTokenType.Property && ((JProperty)x).Value.ToString().Equals(_id)).FirstOrDefault();
             //jToken = production[""];
         }

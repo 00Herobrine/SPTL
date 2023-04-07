@@ -723,7 +723,7 @@ namespace WinFormsApp1
 
         private void button16_Click(object sender, EventArgs e)
         {
-            config.DisableMod(GetSelectedMod());
+            GetSelectedMod().Disable();
             LoadMods();
         }
 

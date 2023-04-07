@@ -68,10 +68,10 @@ namespace SPTLauncher.Constructors
         private RecipeRequirement requiredModule;
         private Dictionary<string, RecipeRequirement> requirements = new Dictionary<string, RecipeRequirement>();
         //private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
-        private int productionTime;
-        private bool powerNeeded;
+        private int productionTime = 0;
+        private bool powerNeeded = false;
         private string endProduct;
-        private int count;
+        private int count = 1;
         private int requiredModuleLevel;
         public JToken jToken; // the little section of the JSON it's in
 
@@ -79,10 +79,15 @@ namespace SPTLauncher.Constructors
         // Item is pretty basic
         // Tool is like a toolset that gets returned after the craft
         // Resource is a water filter that gets used over time.
-        public Recipe(Module module)
+        public Recipe(Module module = Module.WORKBENCH)
         {
+            _id = Guid.NewGuid().ToString();
             this.module = module;
             string des = GetEnumDescription(module);
+            JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
+            production.Add(toke);
+            JToken token = production.Descendants().Where(x => x.Type == JTokenType.Property && ((JProperty)x).Value.ToString().Equals(_id)).FirstOrDefault();
+            //jToken = production[""];
         }
 
         public Recipe(JToken token)
@@ -115,7 +120,7 @@ namespace SPTLauncher.Constructors
         }
         public string getName(bool format = false)
         {
-            if (name == "" && format) return _id;
+            if ((name == null || name == "") && format) return _id;
             return name;
         }
 

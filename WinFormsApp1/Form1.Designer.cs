@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
-            button14 = new Button();
             button13 = new Button();
             IDLabel = new Label();
             button12 = new Button();
@@ -50,10 +49,10 @@
             nameLabel = new Label();
             profilesList = new ComboBox();
             settingsGroup = new GroupBox();
-            checkBox2 = new CheckBox();
+            profileBackupCheckBox = new CheckBox();
             label7 = new Label();
             label4 = new Label();
-            numericUpDown1 = new NumericUpDown();
+            BackUpInterval = new NumericUpDown();
             checkBox1 = new CheckBox();
             button4 = new Button();
             linkLabel3 = new LinkLabel();
@@ -65,13 +64,15 @@
             saveSkillsButton = new Button();
             label2 = new Label();
             comboBox1 = new ComboBox();
-            ToolsButton = new Button();
+            button14 = new Button();
             settingsButton = new Button();
             label5 = new Label();
             startServerButton = new Button();
             label6 = new Label();
             stateLabel = new Label();
             groupBox2 = new GroupBox();
+            ModsButton = new Button();
+            button5 = new Button();
             dictionaryButton = new Button();
             bottomButton = new Button();
             button2 = new Button();
@@ -81,13 +82,18 @@
             killServerButton = new Button();
             autoKillCheckBox = new CheckBox();
             serverConsole = new RichTextBox();
+            groupBox4 = new GroupBox();
+            button16 = new Button();
+            ModManager = new Button();
+            modsListBox = new ListBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
             groupBox2.SuspendLayout();
+            groupBox4.SuspendLayout();
             SuspendLayout();
             // 
             // groupBox1
@@ -120,19 +126,9 @@
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             // 
-            // button14
-            // 
-            button14.Location = new Point(67, 178);
-            button14.Name = "button14";
-            button14.Size = new Size(60, 23);
-            button14.TabIndex = 28;
-            button14.Text = "Recipes";
-            button14.UseVisualStyleBackColor = true;
-            button14.Click += button14_Click;
-            // 
             // button13
             // 
-            button13.Location = new Point(488, 273);
+            button13.Location = new Point(488, 272);
             button13.Name = "button13";
             button13.Size = new Size(156, 23);
             button13.TabIndex = 27;
@@ -314,10 +310,10 @@
             // 
             // settingsGroup
             // 
-            settingsGroup.Controls.Add(checkBox2);
+            settingsGroup.Controls.Add(profileBackupCheckBox);
             settingsGroup.Controls.Add(label7);
             settingsGroup.Controls.Add(label4);
-            settingsGroup.Controls.Add(numericUpDown1);
+            settingsGroup.Controls.Add(BackUpInterval);
             settingsGroup.Controls.Add(checkBox1);
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
@@ -330,17 +326,17 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
-            // checkBox2
+            // profileBackupCheckBox
             // 
-            checkBox2.AutoSize = true;
-            checkBox2.Checked = true;
-            checkBox2.CheckState = CheckState.Checked;
-            checkBox2.Location = new Point(6, 241);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(107, 19);
-            checkBox2.TabIndex = 32;
-            checkBox2.Text = "Profile Backups";
-            checkBox2.UseVisualStyleBackColor = true;
+            profileBackupCheckBox.AutoSize = true;
+            profileBackupCheckBox.Checked = true;
+            profileBackupCheckBox.CheckState = CheckState.Checked;
+            profileBackupCheckBox.Location = new Point(6, 241);
+            profileBackupCheckBox.Name = "profileBackupCheckBox";
+            profileBackupCheckBox.Size = new Size(107, 19);
+            profileBackupCheckBox.TabIndex = 32;
+            profileBackupCheckBox.Text = "Profile Backups";
+            profileBackupCheckBox.UseVisualStyleBackColor = true;
             // 
             // label7
             // 
@@ -360,20 +356,22 @@
             label4.TabIndex = 30;
             label4.Text = "Backup Interval:";
             // 
-            // numericUpDown1
+            // BackUpInterval
             // 
-            numericUpDown1.Location = new Point(6, 211);
-            numericUpDown1.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
-            numericUpDown1.Name = "numericUpDown1";
-            numericUpDown1.Size = new Size(91, 23);
-            numericUpDown1.TabIndex = 29;
-            numericUpDown1.Value = new decimal(new int[] { 1440, 0, 0, 0 });
+            BackUpInterval.Location = new Point(6, 211);
+            BackUpInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
+            BackUpInterval.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            BackUpInterval.Name = "BackUpInterval";
+            BackUpInterval.Size = new Size(91, 23);
+            BackUpInterval.TabIndex = 29;
+            BackUpInterval.Value = new decimal(new int[] { 1440, 0, 0, 0 });
             // 
             // checkBox1
             // 
             checkBox1.AutoSize = true;
             checkBox1.Checked = true;
             checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Enabled = false;
             checkBox1.Location = new Point(6, 261);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(107, 19);
@@ -383,7 +381,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(189, 37);
+            button4.Location = new Point(189, 256);
             button4.Name = "button4";
             button4.Size = new Size(58, 23);
             button4.TabIndex = 3;
@@ -480,15 +478,15 @@
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
-            // ToolsButton
+            // button14
             // 
-            ToolsButton.Location = new Point(6, 178);
-            ToolsButton.Name = "ToolsButton";
-            ToolsButton.Size = new Size(59, 23);
-            ToolsButton.TabIndex = 17;
-            ToolsButton.Text = "Tools";
-            ToolsButton.UseVisualStyleBackColor = true;
-            ToolsButton.Click += ToolsButton_Click;
+            button14.Location = new Point(67, 177);
+            button14.Name = "button14";
+            button14.Size = new Size(60, 23);
+            button14.TabIndex = 28;
+            button14.Text = "Recipes";
+            button14.UseVisualStyleBackColor = true;
+            button14.Click += button14_Click;
             // 
             // settingsButton
             // 
@@ -540,6 +538,8 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(ModsButton);
+            groupBox2.Controls.Add(button5);
             groupBox2.Controls.Add(dictionaryButton);
             groupBox2.Controls.Add(bottomButton);
             groupBox2.Controls.Add(button2);
@@ -548,7 +548,6 @@
             groupBox2.Controls.Add(linkLabel1);
             groupBox2.Controls.Add(killServerButton);
             groupBox2.Controls.Add(label5);
-            groupBox2.Controls.Add(ToolsButton);
             groupBox2.Controls.Add(stateLabel);
             groupBox2.Controls.Add(startServerButton);
             groupBox2.Controls.Add(label6);
@@ -560,6 +559,25 @@
             groupBox2.Size = new Size(135, 302);
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
+            // 
+            // ModsButton
+            // 
+            ModsButton.Location = new Point(6, 204);
+            ModsButton.Name = "ModsButton";
+            ModsButton.Size = new Size(121, 23);
+            ModsButton.TabIndex = 30;
+            ModsButton.Text = "Mods";
+            ModsButton.UseVisualStyleBackColor = true;
+            ModsButton.Click += ModsButton_Click;
+            // 
+            // button5
+            // 
+            button5.Location = new Point(6, 177);
+            button5.Name = "button5";
+            button5.Size = new Size(59, 23);
+            button5.TabIndex = 29;
+            button5.Text = "Backups";
+            button5.UseVisualStyleBackColor = true;
             // 
             // dictionaryButton
             // 
@@ -655,11 +673,53 @@
             serverConsole.Text = "";
             serverConsole.KeyPress += serverConsole_KeyPress;
             // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(button16);
+            groupBox4.Controls.Add(ModManager);
+            groupBox4.Controls.Add(modsListBox);
+            groupBox4.Location = new Point(793, -6);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(228, 302);
+            groupBox4.TabIndex = 8;
+            groupBox4.TabStop = false;
+            // 
+            // button16
+            // 
+            button16.Location = new Point(116, 273);
+            button16.Name = "button16";
+            button16.Size = new Size(106, 23);
+            button16.TabIndex = 32;
+            button16.Text = "Disable";
+            button16.UseVisualStyleBackColor = true;
+            button16.Click += button16_Click;
+            // 
+            // ModManager
+            // 
+            ModManager.Enabled = false;
+            ModManager.Location = new Point(6, 273);
+            ModManager.Name = "ModManager";
+            ModManager.Size = new Size(106, 23);
+            ModManager.TabIndex = 31;
+            ModManager.Text = "Open Config";
+            ModManager.UseVisualStyleBackColor = true;
+            // 
+            // modsListBox
+            // 
+            modsListBox.FormattingEnabled = true;
+            modsListBox.ItemHeight = 15;
+            modsListBox.Location = new Point(0, 9);
+            modsListBox.Name = "modsListBox";
+            modsListBox.Size = new Size(228, 259);
+            modsListBox.TabIndex = 0;
+            modsListBox.SelectedIndexChanged += modsList_SelectedIndexChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(792, 649);
+            ClientSize = new Size(1023, 649);
+            Controls.Add(groupBox4);
             Controls.Add(serverConsole);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
@@ -674,12 +734,13 @@
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            groupBox4.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -710,7 +771,6 @@
         private Button settingsButton;
         private Button bottomButton;
         private Label label1;
-        private Button ToolsButton;
         private Button button6;
         private Button button7;
         private Button button8;
@@ -736,7 +796,13 @@
         private Button button14;
         private Label label7;
         private Label label4;
-        private NumericUpDown numericUpDown1;
-        private CheckBox checkBox2;
+        private NumericUpDown BackUpInterval;
+        private CheckBox profileBackupCheckBox;
+        private Button button5;
+        private GroupBox groupBox4;
+        private ListBox modsListBox;
+        private Button ModsButton;
+        private Button ModManager;
+        private Button button16;
     }
 }

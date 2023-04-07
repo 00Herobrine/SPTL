@@ -12,6 +12,7 @@ using SPTLauncher.Constructors;
 using SPTLauncher;
 using System.Net.NetworkInformation;
 using System.Windows.Forms.VisualStyles;
+using System.Text.RegularExpressions;
 
 namespace WinFormsApp1
 {
@@ -19,7 +20,7 @@ namespace WinFormsApp1
     {
         private bool autoLogin = false;
         private bool debug = true;
-        private bool console = true;
+        private bool console = true, modsTab = true; // scaling shit
         private bool logging = true;
         private bool enabled = false;
         private bool inUse = false;
@@ -27,7 +28,7 @@ namespace WinFormsApp1
         private int port = 6969;
         private int processID;
         #region paths
-        public static string serverFolder, gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath, gatoPath;
+        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath, gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath;
         #endregion
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
@@ -46,6 +47,7 @@ namespace WinFormsApp1
         private GroupBox activeGroupBox;
         private int creatingAccount;
         private Dictionary<int, Profile> cachedProfiles = new Dictionary<int, Profile>();
+        private Dictionary<int, Mod> modsIndex = new Dictionary<int, Mod>();
         #endregion
 
         private delegate void TextCallBack(string text);
@@ -61,27 +63,46 @@ namespace WinFormsApp1
         public Form1()
         {
             InitializeComponent();
-            serverFolder = debug ? "F:/TestPT" : Environment.CurrentDirectory;
-            profilesFolder = serverFolder + "/user/profiles";
-            gameFolder = serverFolder;
+            gameFolder = debug ? "F:/TestPT" : Environment.CurrentDirectory;
+            profilesFolder = gameFolder + "/user/profiles";
             serverURL = "127.0.0.1:" + port;
             cachePath = gameFolder + "/Launcher-Cache";
             configPath = cachePath + "/config.json";
             itemCache = cachePath + "/items";
             akiData = gameFolder + "/Aki_Data";
             gatoPath = cachePath + "/gato";
-            productionPath = akiData + "/Server/database/hideout/production.json";
-            /*            _timer.Interval = 10000;
-                        _timer.Tick += ServerAliveTick;
-                        _timer.Start();*/
+            backupsPath = cachePath + "/backups";
+            modsFolder = gameFolder + "/user/mods";
+            pluginsFolder = gameFolder + "/bepinex/plugins";
+            productionPath = akiData + "/Server/database/hideout/production.json"; // - aki json file, should exist already nor should I make it
+            disabledModsPath = cachePath + "/DisabledMods";
+            _timer.Interval = 60 * 1000;
+            _timer.Tick += TimerInterval;
+            _timer.Start();
             form = this;
+        }
+
+        public void PathCheck()
+        {
+            List<string> paths = new List<string>();
+            paths.Add(cachePath);
+            paths.Add(itemCache);
+            paths.Add(akiData);
+            paths.Add(gatoPath);
+            paths.Add(backupsPath);
+            paths.Add(modsFolder);
+            paths.Add(pluginsFolder);
+            foreach (string path in paths)
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
 
         public void StartUp()
         {
             bindToAkiAsync();
+            PathCheck();
             LoadConfig();
             LoadCache();
+            LoadMods();
             //ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
             /*if(aliveCheck()) bindToAki();
             else */
@@ -90,10 +111,44 @@ namespace WinFormsApp1
             // login check
         }
 
+        public void LoadMods()
+        {
+            List<string> files = new List<string>();
+            Dictionary<int, Mod> mods = new Dictionary<int, Mod>();
+            modsListBox.Items.Clear();
+            if (Directory.Exists(disabledModsPath))
+            {
+                files.AddRange(Directory.GetFiles(disabledModsPath));
+                files.AddRange(Directory.GetDirectories(disabledModsPath));
+            }
+            if (Directory.Exists(modsFolder))
+            {
+                files.AddRange(Directory.GetFiles(modsFolder));
+                files.AddRange(Directory.GetFiles(pluginsFolder));
+                if (Directory.Exists(pluginsFolder))
+                {
+                    files.AddRange(Directory.GetDirectories(modsFolder));
+                    files.AddRange(Directory.GetDirectories(pluginsFolder));
+                }
+                int amount = files.Count;
+                foreach (string file in files)
+                    if (file.Contains(pluginsFolder + "\\aki-") || file.Contains(modsFolder + "\\order.json")) amount--;
+                    else
+                    {
+                        Mod mod = new(file);
+                        int index = modsListBox.Items.Add(mod.GetName() + (mod.isPlugin() ? " [P]" : " [C]") + (!mod.isEnabled() ? " DISABLED" : ""));
+                        mods.Add(index, mod);
+                    }
+                modsIndex = mods;
+                ModsButton.Text = "Mods" + ((amount > 0) ? ": " + amount : "");
+            }
+        }
+
         public void LoadConfig()
         {
             config = new Config(configPath);
             textBox1.Text = config.getApiKey();
+            BackUpInterval.Value = config.GetBackupInterval();
         }
 
         public void LoadCache()
@@ -180,9 +235,9 @@ namespace WinFormsApp1
 
         public void createServer()
         {
-            string serverExe = Directory.GetFiles(serverFolder, "*Server.exe")[0];
+            string serverExe = Directory.GetFiles(gameFolder, "*Server.exe")[0];
             server = new Process();
-            server.StartInfo.WorkingDirectory = serverFolder;
+            server.StartInfo.WorkingDirectory = gameFolder;
             if (File.Exists(serverExe))
             {
                 server.StartInfo.FileName = serverExe;
@@ -230,7 +285,7 @@ namespace WinFormsApp1
         {
             string r = e.Data;
             if (r == null) return;
-            r = System.Text.RegularExpressions.Regex.Replace(r, @"\[[0-1];[0-9][a-z]|\[[0-9][0-9][a-z]|\[[0-9][a-z]|\[[0-9][A-Z]", String.Empty);
+            r = Regex.Replace(r, @"\[[0-1];[0-9][a-z]|\[[0-9][0-9][a-z]|\[[0-9][a-z]|\[[0-9][A-Z]", string.Empty);
             ConsoleOutput(r + "\n");
         }
 
@@ -286,27 +341,13 @@ namespace WinFormsApp1
             serverState = state;
         }
 
-        public void ServerAliveTick(object sender, EventArgs e)
+        public void TimerInterval(object sender, EventArgs e)
         {
-            string response = RequestHandler.SendPing();
-            log(response);
-            /*            if ()
-                        {
-                            if (serverState != STATE.ONLINE) SetState(STATE.ONLINE);
-                        }
-                        else
-                        {
-                            if (serverState != STATE.OFFLINE && serverState != STATE.STARTING) SetState(STATE.OFFLINE);
-                        }*/
+            BackupCheck();
         }
 
         public static bool Ping()
         {
-            /*            if(ServerManager.SelectedServer == null)
-                        {
-                            ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
-                        }*/
-            //RequestHandler.SendPing();
             return ServerManager.PingServer();
         }
 
@@ -317,8 +358,7 @@ namespace WinFormsApp1
 
         public void ToggleConsole()
         {
-            int size = !console ? 688 : 337;
-            //Debug.WriteLine("bool " + console + " new size " + size + " new bool " + !console);
+            int size = !console ? 688 : 340;
             console = !console;
             Size = new Size(Size.Width, size);
         }
@@ -373,7 +413,7 @@ namespace WinFormsApp1
         public void StartClient(string uid)
         {
             string dll = gameFolder + "/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll";
-            string bpf = serverFolder + "/Aki_Data/Launcher/Patches/aki-core/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll.bpf";
+            string bpf = gameFolder + "/Aki_Data/Launcher/Patches/aki-core/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll.bpf";
             Aki.Launcher.Helpers.FilePatcher.Patch(dll, bpf, false);
             ProcessStartInfo startGame = new ProcessStartInfo(Path.Combine(gameFolder, "EscapeFromTarkov.exe"))
             {
@@ -422,7 +462,7 @@ namespace WinFormsApp1
 
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (profilesList.SelectedItem.Equals("New Profile...")) 
+            if (profilesList.SelectedItem.Equals("New Profile..."))
             {
                 NewAccount();
                 return;
@@ -538,7 +578,7 @@ namespace WinFormsApp1
 
         private void ToolsButton_Click(object sender, EventArgs e)
         {
-
+            BackupCheck();
         }
 
 
@@ -550,6 +590,7 @@ namespace WinFormsApp1
         private void button4_Click(object sender, EventArgs e)
         {
             config.setApiKey(textBox1.Text);
+            config.SetBackupInterval((int)BackUpInterval.Value);
         }
 
         public Config GetConfig()
@@ -571,6 +612,8 @@ namespace WinFormsApp1
 
         public Profile GetSelectedProfile()
         {
+            int index = profilesList.SelectedIndex;
+            if (index == -1 || index > profilesList.Items.Count) return null;
             return cachedProfiles[profilesList.SelectedIndex];
         }
 
@@ -611,7 +654,6 @@ namespace WinFormsApp1
             gato = !gato;
             if (gato)
             {
-                //factionImage.Enabled = true;
                 factionImage.Image = Image.FromFile(chooseGato());
             }
             else factionImage.ImageLocation = "";
@@ -623,6 +665,76 @@ namespace WinFormsApp1
             int randomReturn = random.Next(gatos.Length);
             //log(randomReturn + " returned path " + gatos[randomReturn]);
             return gatos[randomReturn];
+        }
+        #endregion
+        public void BackupCheck()
+        {
+            Profile selectedProfile = GetSelectedProfile();
+            if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
+            DateTime startTime = config.GetLastBackupTime();
+            DateTime now = DateTime.Now;
+            TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
+            TimeSpan difference = now - startTime;
+            string path = profilesFolder + "/" + selectedProfile.getAccountInfo().id + ".json";
+            if (difference >= interval)
+            {
+                if (!Directory.Exists(backupsPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupsPath + "/" + now.ToLongDateString());
+                File.WriteAllText(backupsPath + "/" + now.ToLongDateString() + "/" + selectedProfile.getAccountInfo().id + "-" + now.ToLongTimeString().Replace(":", "-") + ".json", File.ReadAllText(path));
+            }
+        }
+
+        #region Mod Manager
+        private void ModsButton_Click(object sender, EventArgs e)
+        {
+            if (ToggleMods()) LoadMods();
+            /*listBox2.Items.Clear();
+            listBox2.Items.AddRange(mods.ToArray());*/
+        }
+
+        public bool ToggleMods()
+        {
+            modsTab = !modsTab;
+            if (modsTab) Size = new Size(1043, Size.Height);
+            else Size = new Size(812, Size.Height);
+            return modsTab;
+            //Debug.WriteLine("bool " + console + " new size " + size + " new bool " + !console);
+        }
+
+        public Mod GetSelectedMod()
+        {
+            int index = modsListBox.SelectedIndex;
+            if (index < 0) return null;
+            else return modsIndex[index];
+        }
+        private void modsList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Mod mod = GetSelectedMod();
+            if (mod == null) return;
+            if (mod.HasConfig()) ModManager.Enabled = true;
+            else ModManager.Enabled = false;
+            if (mod.isEnabled()) button16.Text = "Disable";
+            else button16.Text = "Enable";
+        }
+
+        public string GetCachePath()
+        {
+            return cachePath;
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            config.DisableMod(GetSelectedMod());
+            LoadMods();
+        }
+
+        public string GetDisabledModsPath()
+        {
+            return disabledModsPath;
+        }
+
+        public string GetModsPath()
+        {
+            return modsFolder;
         }
         #endregion
 

@@ -8,8 +8,8 @@ namespace SPTLauncher
 {
     public partial class RecipeBuilder : Form
     {
-        private Dictionary<string, Recipe> _recipes = new Dictionary<string, Recipe>();
         public static RecipeBuilder rb;
+        private Dictionary<string, Recipe> _recipes = new Dictionary<string, Recipe>();
         private List<Module> acceptableModules = new List<Module>();
         public RecipeBuilder()
         {
@@ -25,12 +25,15 @@ namespace SPTLauncher
 
         private void NewRecipeButton_Click(object sender, EventArgs e)
         {
-
+            NewRecipe();
         }
 
         public void NewRecipe()
         {
-
+            Recipe recipe = new Recipe();
+            int index = listBox1.Items.Add(recipe.getName(true));
+            _recipes[recipe.getID()] = recipe;
+            listBox1.SelectedIndex = index;
         }
 
         public void LoadRecipes()
@@ -144,17 +147,22 @@ namespace SPTLauncher
         private void SaveRecipeButton_Click(object sender, EventArgs e)
         {
             Recipe r = getSelectedRecipe();
-            r.setPowerNeeded(PowerRequirement.Checked);
-            r.setName(nameTextBox.Text);
-            r.setCount((int)CraftAmount.Value);
-            r.setEndProduct(endProductBox.Text);
-            r.setProductionTime((int)productionTime.Value);
-            r.getModuleRequirement().setRequiredModuleLvl((int)requiredModuleLvl.Value);
-            r.GetRecipeRequirement(requirementList.SelectedItem.ToString()).setCount((int)RequiredAmount.Value);
+            SaveRecipe(r);
+        }
+
+        public void SaveRecipe(Recipe recipe)
+        {
+            recipe.setPowerNeeded(PowerRequirement.Checked);
+            recipe.setName(nameTextBox.Text);
+            recipe.setCount((int)CraftAmount.Value);
+            recipe.setEndProduct(endProductBox.Text);
+            recipe.setProductionTime((int)productionTime.Value);
+            recipe.getModuleRequirement().setRequiredModuleLvl((int)requiredModuleLvl.Value);
+            recipe.GetRecipeRequirement(requirementList.SelectedItem.ToString()).setCount((int)RequiredAmount.Value);
             string id = listBox1.SelectedItem.ToString();
-            _recipes[id] = r;
-            r.updateSettings();
-            Form1.form.log("Updated recipe " + r.getName(true));
+            _recipes[id] = recipe;
+            recipe.updateSettings();
+            Form1.form.log("Updated recipe " + recipe.getName(true));
         }
 
         public static void UpdateRecipesFile(JToken token)

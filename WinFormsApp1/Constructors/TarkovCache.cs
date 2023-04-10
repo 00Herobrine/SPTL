@@ -7,11 +7,12 @@ namespace SPTLauncher.Constructors
 {
     public enum CacheType { ARMOR, BACKPACKS, CLOTHING, HEADPHONES, HELMETS, RIGS, FIREARMS, AMMO, MAGAZINES, GRENADES,
         FOOD, CONTAINERS, ITEMS, KNIVES, KEYS, MAPS, MEDICALS, MODS, MONEY}
-    public enum CacheTabs { CLOTHING, WEAPONS, KEYS, MISC }
+    public enum CacheTab { ARMOR, WEARABLES, WEAPONS, KEYS, CONSUMABLES, MISC }
 
     internal class TarkovCache
     {
-        Dictionary<CacheType, string> caches = new Dictionary<CacheType, string>();
+        public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>();
+        public static Dictionary<CacheType, string> caches = new Dictionary<CacheType, string>();
         private string mainPath;
         private string nameCachePath = Form1.itemCache + "/idnames.json";
         private JObject nameCache;
@@ -20,7 +21,31 @@ namespace SPTLauncher.Constructors
             this.mainPath = mainPath;
             if(!Directory.Exists(Form1.itemCache)) Directory.CreateDirectory(Form1.itemCache);
             if(!Directory.Exists(mainPath)) Directory.CreateDirectory(mainPath);
+            LoadTabs();
             GenerateCache();
+        }
+
+        public void LoadTabs()
+        {
+            tabs.Add(CacheType.ARMOR, CacheTab.ARMOR);
+            tabs.Add(CacheType.BACKPACKS, CacheTab.WEARABLES);
+            tabs.Add(CacheType.CLOTHING, CacheTab.WEARABLES);
+            tabs.Add(CacheType.HEADPHONES, CacheTab.WEARABLES);
+            tabs.Add(CacheType.HELMETS, CacheTab.WEARABLES);
+            tabs.Add(CacheType.RIGS, CacheTab.WEARABLES);
+            tabs.Add(CacheType.FIREARMS, CacheTab.WEAPONS);
+            tabs.Add(CacheType.AMMO, CacheTab.WEAPONS);
+            tabs.Add(CacheType.MAGAZINES, CacheTab.WEAPONS);
+            tabs.Add(CacheType.GRENADES, CacheTab.WEAPONS);
+            tabs.Add(CacheType.FOOD, CacheTab.CONSUMABLES);
+            tabs.Add(CacheType.CONTAINERS, CacheTab.MISC);
+            tabs.Add(CacheType.ITEMS, CacheTab.MISC);
+            tabs.Add(CacheType.KNIVES, CacheTab.WEAPONS);
+            tabs.Add(CacheType.KEYS, CacheTab.KEYS);
+            tabs.Add(CacheType.MAPS, CacheTab.MISC);
+            tabs.Add(CacheType.MEDICALS, CacheTab.CONSUMABLES);
+            tabs.Add(CacheType.MODS, CacheTab.MISC);
+            tabs.Add(CacheType.MONEY, CacheTab.MISC);
         }
 
         public void GenerateCache()

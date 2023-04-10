@@ -92,7 +92,7 @@ namespace SPTLauncher.Constructors
         public Recipe(JToken token)
         {
             jToken = token;
-            _id = jToken["_id"].ToString(); // recipe id, generate something
+            _id = jToken["_id"].ToString().Replace("-", ""); // recipe id, generate something
             //areaType = module;
             name = "";
             module = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
@@ -282,7 +282,6 @@ namespace SPTLauncher.Constructors
             else
             {
                 itemID = jToken["templateId"].ToString();
-                Debug.Write("\nCaching requirement " + itemID);
                 if (jToken["count"] == null) count = 1;
                 else count = (int)jToken["count"];
                 returnOnCraft = jToken["type"].ToString().Equals("Tool");

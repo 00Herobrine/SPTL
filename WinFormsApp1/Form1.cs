@@ -20,7 +20,7 @@ namespace WinFormsApp1
     {
         private bool autoLogin = false;
         private bool debug = true;
-        private bool console = true, modsTab = true; // scaling shit
+        private bool console = true, modsTab = true, backupsTab = true; // scaling shit
         private bool logging = true;
         private bool enabled = false;
         private bool inUse = false;
@@ -670,6 +670,7 @@ namespace WinFormsApp1
         public void BackupCheck()
         {
             Profile selectedProfile = GetSelectedProfile();
+            string id = selectedProfile.getAccountInfo().id;
             if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
             DateTime startTime = config.GetLastBackupTime();
             DateTime now = DateTime.Now;
@@ -678,8 +679,12 @@ namespace WinFormsApp1
             string path = profilesFolder + "/" + selectedProfile.getAccountInfo().id + ".json";
             if (difference >= interval)
             {
-                if (!Directory.Exists(backupsPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupsPath + "/" + now.ToLongDateString());
-                File.WriteAllText(backupsPath + "/" + now.ToLongDateString() + "/" + selectedProfile.getAccountInfo().id + "-" + now.ToLongTimeString().Replace(":", "-") + ".json", File.ReadAllText(path));
+                string backupPath = backupsPath + "/" + id;
+                if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
+                if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
+                File.WriteAllText(backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json", File.ReadAllText(path));
+                config.SetLastBackUpTime(now);
+                log("Auto-Backup Created");
             }
         }
 
@@ -738,5 +743,38 @@ namespace WinFormsApp1
         }
         #endregion
 
+        private void button5_Click(object sender, EventArgs e)
+        {
+            BackupGroup.Enabled = !BackupGroup.Enabled;
+            if (BackupGroup.Enabled)
+            {
+                LoadBackupsValues();
+            }
+        }
+
+        public void LoadBackupsValues()
+        {
+            BackupProfiles.Items.Clear();
+            foreach (string dir in Directory.GetDirectories(backupsPath))
+            {
+                BackupProfiles.Items.Add(Path.GetFileName(dir));
+                foreach (string dateDir in Directory.GetDirectories(dir))
+                {
+                    BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
+                    foreach (string timeFile in Directory.GetFiles(dateDir))
+                    {
+                        BackupsList.Items.Add(Path.GetFileName(timeFile));
+                    }
+                }
+            }
+        }
+
+        private void BackupsList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bool enabled = true;
+            if (BackupProfiles.SelectedIndex == -1 || BackupDatesBox.SelectedIndex == -1 || BackupsList.SelectedIndex == -1) enabled = false;
+            RestoreBackupButton.Enabled = enabled;
+            SaveRestoreButton.Enabled = enabled;
+        }
     }
 }

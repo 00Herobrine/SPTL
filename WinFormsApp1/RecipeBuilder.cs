@@ -40,19 +40,15 @@ namespace SPTLauncher
         {
             //activeCheckBox = ItemCheckBox;
             ItemCheckBox.Checked = true;
-            Debug.Write("loading " + Form1.productionPath);
-            Form1.form.log("loading " + Form1.productionPath);
             JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
             foreach (Module module in acceptableModules) ModuleComboBox.Items.Add(Recipe.GetEnumDescription(module));
             foreach (JToken recipe in production)
             {
-                Form1.form.log("Checking ID " + recipe["_id"]);
                 if (recipe["requirements"] != null)
                 {
                     Recipe recipe2 = new Recipe(recipe);
                     listBox1.Items.Add(recipe2.getName(true));
                     _recipes[recipe2.getID()] = recipe2;
-                    //Form1.form.log("Has Requirements");
                 }
             }
         }

@@ -86,6 +86,14 @@
             button16 = new Button();
             ModManager = new Button();
             modsListBox = new ListBox();
+            BackupGroup = new GroupBox();
+            label9 = new Label();
+            BackupDatesBox = new ComboBox();
+            BackupsList = new ListBox();
+            SaveRestoreButton = new Button();
+            RestoreBackupButton = new Button();
+            label8 = new Label();
+            BackupProfiles = new ComboBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
@@ -94,6 +102,7 @@
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
             groupBox2.SuspendLayout();
             groupBox4.SuspendLayout();
+            BackupGroup.SuspendLayout();
             SuspendLayout();
             // 
             // groupBox1
@@ -578,6 +587,7 @@
             button5.TabIndex = 29;
             button5.Text = "Backups";
             button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
             // 
             // dictionaryButton
             // 
@@ -714,11 +724,93 @@
             modsListBox.TabIndex = 0;
             modsListBox.SelectedIndexChanged += modsList_SelectedIndexChanged;
             // 
+            // BackupGroup
+            // 
+            BackupGroup.Controls.Add(label9);
+            BackupGroup.Controls.Add(BackupDatesBox);
+            BackupGroup.Controls.Add(BackupsList);
+            BackupGroup.Controls.Add(SaveRestoreButton);
+            BackupGroup.Controls.Add(RestoreBackupButton);
+            BackupGroup.Controls.Add(label8);
+            BackupGroup.Controls.Add(BackupProfiles);
+            BackupGroup.Location = new Point(793, 296);
+            BackupGroup.Name = "BackupGroup";
+            BackupGroup.Size = new Size(228, 350);
+            BackupGroup.TabIndex = 9;
+            BackupGroup.TabStop = false;
+            BackupGroup.Text = "Restore Backup";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(6, 54);
+            label9.Name = "label9";
+            label9.Size = new Size(34, 15);
+            label9.TabIndex = 11;
+            label9.Text = "Date:";
+            // 
+            // BackupDatesBox
+            // 
+            BackupDatesBox.FormattingEnabled = true;
+            BackupDatesBox.Location = new Point(56, 51);
+            BackupDatesBox.Name = "BackupDatesBox";
+            BackupDatesBox.Size = new Size(166, 23);
+            BackupDatesBox.TabIndex = 10;
+            // 
+            // BackupsList
+            // 
+            BackupsList.FormattingEnabled = true;
+            BackupsList.ItemHeight = 15;
+            BackupsList.Location = new Point(6, 80);
+            BackupsList.Name = "BackupsList";
+            BackupsList.Size = new Size(216, 229);
+            BackupsList.TabIndex = 9;
+            BackupsList.SelectedIndexChanged += BackupsList_SelectedIndexChanged;
+            // 
+            // SaveRestoreButton
+            // 
+            SaveRestoreButton.Enabled = false;
+            SaveRestoreButton.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            SaveRestoreButton.Location = new Point(106, 321);
+            SaveRestoreButton.Name = "SaveRestoreButton";
+            SaveRestoreButton.Size = new Size(116, 23);
+            SaveRestoreButton.TabIndex = 3;
+            SaveRestoreButton.Text = "Save and Restore";
+            SaveRestoreButton.UseVisualStyleBackColor = true;
+            // 
+            // RestoreBackupButton
+            // 
+            RestoreBackupButton.Enabled = false;
+            RestoreBackupButton.Location = new Point(6, 321);
+            RestoreBackupButton.Name = "RestoreBackupButton";
+            RestoreBackupButton.Size = new Size(100, 23);
+            RestoreBackupButton.TabIndex = 2;
+            RestoreBackupButton.Text = "Restore";
+            RestoreBackupButton.UseVisualStyleBackColor = true;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(6, 25);
+            label8.Name = "label8";
+            label8.Size = new Size(44, 15);
+            label8.TabIndex = 1;
+            label8.Text = "Profile:";
+            // 
+            // BackupProfiles
+            // 
+            BackupProfiles.FormattingEnabled = true;
+            BackupProfiles.Location = new Point(56, 22);
+            BackupProfiles.Name = "BackupProfiles";
+            BackupProfiles.Size = new Size(165, 23);
+            BackupProfiles.TabIndex = 0;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 649);
+            Controls.Add(BackupGroup);
             Controls.Add(groupBox4);
             Controls.Add(serverConsole);
             Controls.Add(groupBox2);
@@ -741,6 +833,8 @@
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             groupBox4.ResumeLayout(false);
+            BackupGroup.ResumeLayout(false);
+            BackupGroup.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -804,5 +898,13 @@
         private Button ModsButton;
         private Button ModManager;
         private Button button16;
+        private GroupBox BackupGroup;
+        private Label label8;
+        private ComboBox BackupProfiles;
+        private Button SaveRestoreButton;
+        private Button RestoreBackupButton;
+        private ListBox BackupsList;
+        private Label label9;
+        private ComboBox BackupDatesBox;
     }
 }

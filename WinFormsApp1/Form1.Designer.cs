@@ -733,6 +733,7 @@
             BackupGroup.Controls.Add(RestoreBackupButton);
             BackupGroup.Controls.Add(label8);
             BackupGroup.Controls.Add(BackupProfiles);
+            BackupGroup.Enabled = false;
             BackupGroup.Location = new Point(793, 296);
             BackupGroup.Name = "BackupGroup";
             BackupGroup.Size = new Size(228, 350);
@@ -751,14 +752,17 @@
             // 
             // BackupDatesBox
             // 
+            BackupDatesBox.Enabled = false;
             BackupDatesBox.FormattingEnabled = true;
             BackupDatesBox.Location = new Point(56, 51);
             BackupDatesBox.Name = "BackupDatesBox";
             BackupDatesBox.Size = new Size(166, 23);
             BackupDatesBox.TabIndex = 10;
+            BackupDatesBox.SelectedIndexChanged += BackupDatesBox_SelectedIndexChanged;
             // 
             // BackupsList
             // 
+            BackupsList.Enabled = false;
             BackupsList.FormattingEnabled = true;
             BackupsList.ItemHeight = 15;
             BackupsList.Location = new Point(6, 80);
@@ -804,6 +808,7 @@
             BackupProfiles.Name = "BackupProfiles";
             BackupProfiles.Size = new Size(165, 23);
             BackupProfiles.TabIndex = 0;
+            BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
             // Form1
             // 

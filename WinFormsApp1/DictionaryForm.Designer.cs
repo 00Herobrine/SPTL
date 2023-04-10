@@ -30,6 +30,16 @@
         {
             dictionaryTabs = new TabControl();
             ArmorTab = new TabPage();
+            Class = new Label();
+            ProtectionZones = new Label();
+            Penalties = new Label();
+            label7 = new Label();
+            RepairCost = new Label();
+            EffectiveDurability = new Label();
+            Durability = new Label();
+            BluntThroughput = new Label();
+            Materials = new Label();
+            label1 = new Label();
             DescriptionBox = new RichTextBox();
             DropLimit = new Label();
             Weight = new Label();
@@ -63,6 +73,16 @@
             // 
             // ArmorTab
             // 
+            ArmorTab.Controls.Add(Class);
+            ArmorTab.Controls.Add(ProtectionZones);
+            ArmorTab.Controls.Add(Penalties);
+            ArmorTab.Controls.Add(label7);
+            ArmorTab.Controls.Add(RepairCost);
+            ArmorTab.Controls.Add(EffectiveDurability);
+            ArmorTab.Controls.Add(Durability);
+            ArmorTab.Controls.Add(BluntThroughput);
+            ArmorTab.Controls.Add(Materials);
+            ArmorTab.Controls.Add(label1);
             ArmorTab.Controls.Add(DescriptionBox);
             ArmorTab.Controls.Add(DropLimit);
             ArmorTab.Controls.Add(Weight);
@@ -78,6 +98,101 @@
             ArmorTab.TabIndex = 0;
             ArmorTab.Text = "Armor";
             ArmorTab.UseVisualStyleBackColor = true;
+            // 
+            // Class
+            // 
+            Class.AutoSize = true;
+            Class.Location = new Point(241, 108);
+            Class.Name = "Class";
+            Class.Size = new Size(37, 15);
+            Class.TabIndex = 18;
+            Class.Text = "Class:";
+            // 
+            // ProtectionZones
+            // 
+            ProtectionZones.AutoSize = true;
+            ProtectionZones.Location = new Point(416, 78);
+            ProtectionZones.Name = "ProtectionZones";
+            ProtectionZones.Size = new Size(100, 15);
+            ProtectionZones.TabIndex = 17;
+            ProtectionZones.Text = "Protection Zones:";
+            ProtectionZones.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // Penalties
+            // 
+            Penalties.AutoSize = true;
+            Penalties.Location = new Point(241, 138);
+            Penalties.Name = "Penalties";
+            Penalties.Size = new Size(57, 60);
+            Penalties.TabIndex = 16;
+            Penalties.Text = "Penalties:\r\nTurn 0\r\nMove 0\r\nErgo 0";
+            Penalties.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point);
+            label7.ForeColor = Color.Red;
+            label7.Location = new Point(444, 18);
+            label7.Name = "label7";
+            label7.Size = new Size(81, 15);
+            label7.TabIndex = 15;
+            label7.Text = "BLACKLISTED";
+            label7.Visible = false;
+            // 
+            // RepairCost
+            // 
+            RepairCost.AutoSize = true;
+            RepairCost.Location = new Point(416, 63);
+            RepairCost.Name = "RepairCost";
+            RepairCost.Size = new Size(70, 15);
+            RepairCost.TabIndex = 14;
+            RepairCost.Text = "Repair Cost:";
+            // 
+            // EffectiveDurability
+            // 
+            EffectiveDurability.AutoSize = true;
+            EffectiveDurability.Location = new Point(416, 48);
+            EffectiveDurability.Name = "EffectiveDurability";
+            EffectiveDurability.Size = new Size(109, 15);
+            EffectiveDurability.TabIndex = 13;
+            EffectiveDurability.Text = "Effective Durability:";
+            // 
+            // Durability
+            // 
+            Durability.AutoSize = true;
+            Durability.Location = new Point(416, 33);
+            Durability.Name = "Durability";
+            Durability.Size = new Size(61, 15);
+            Durability.TabIndex = 12;
+            Durability.Text = "Durability:";
+            // 
+            // BluntThroughput
+            // 
+            BluntThroughput.AutoSize = true;
+            BluntThroughput.Location = new Point(241, 123);
+            BluntThroughput.Name = "BluntThroughput";
+            BluntThroughput.Size = new Size(104, 15);
+            BluntThroughput.TabIndex = 11;
+            BluntThroughput.Text = "Blunt Throughput:";
+            // 
+            // Materials
+            // 
+            Materials.AutoSize = true;
+            Materials.Location = new Point(241, 93);
+            Materials.Name = "Materials";
+            Materials.Size = new Size(58, 15);
+            Materials.TabIndex = 10;
+            Materials.Text = "Materials:";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(241, 223);
+            label1.Name = "label1";
+            label1.Size = new Size(70, 15);
+            label1.TabIndex = 9;
+            label1.Text = "Description:";
             // 
             // DescriptionBox
             // 
@@ -136,11 +251,11 @@
             ItemID.TabIndex = 2;
             ItemID.Text = "Item ID:";
             // 
-            // Name
+            // NameLabel
             // 
             NameLabel.AutoSize = true;
             NameLabel.Location = new Point(241, 3);
-            NameLabel.Name = "Name";
+            NameLabel.Name = "NameLabel";
             NameLabel.Size = new Size(42, 15);
             NameLabel.TabIndex = 1;
             NameLabel.Text = "Name:";
@@ -236,5 +351,15 @@
         private TabPage WearablesTab;
         private TabPage ConsumablesTab;
         private TabPage KeysTab;
+        private Label RepairCost;
+        private Label EffectiveDurability;
+        private Label Durability;
+        private Label BluntThroughput;
+        private Label Materials;
+        private Label label1;
+        private Label label7;
+        private Label Penalties;
+        private Label ProtectionZones;
+        private Label Class;
     }
 }

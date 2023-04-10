@@ -670,8 +670,8 @@ namespace WinFormsApp1
         public void BackupCheck()
         {
             Profile selectedProfile = GetSelectedProfile();
-            string id = selectedProfile.getAccountInfo().id;
             if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
+            string id = selectedProfile.getAccountInfo().id;
             DateTime startTime = config.GetLastBackupTime();
             DateTime now = DateTime.Now;
             TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
@@ -758,14 +758,6 @@ namespace WinFormsApp1
             foreach (string dir in Directory.GetDirectories(backupsPath))
             {
                 BackupProfiles.Items.Add(Path.GetFileName(dir));
-                foreach (string dateDir in Directory.GetDirectories(dir))
-                {
-                    BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
-                    foreach (string timeFile in Directory.GetFiles(dateDir))
-                    {
-                        BackupsList.Items.Add(Path.GetFileName(timeFile));
-                    }
-                }
             }
         }
 
@@ -775,6 +767,26 @@ namespace WinFormsApp1
             if (BackupProfiles.SelectedIndex == -1 || BackupDatesBox.SelectedIndex == -1 || BackupsList.SelectedIndex == -1) enabled = false;
             RestoreBackupButton.Enabled = enabled;
             SaveRestoreButton.Enabled = enabled;
+        }
+
+        private void BackupProfiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BackupDatesBox.Enabled = (BackupProfiles.SelectedIndex != -1 || BackupDatesBox.SelectedIndex != -1);
+            BackupsList.Enabled = BackupProfiles.SelectedIndex != -1;
+            string path = backupsPath + "/" + BackupProfiles.Text;
+            foreach (string dateDir in Directory.GetDirectories(path))
+            {
+                BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
+            }
+        }
+
+        private void BackupDatesBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BackupsList.Enabled = BackupDatesBox.SelectedIndex != -1;
+            foreach (string timeFile in Directory.GetFiles(backupsPath + "/" + BackupProfiles.Text + "/" + BackupDatesBox.Text))
+            {
+                BackupsList.Items.Add(Path.GetFileName(timeFile));
+            }
         }
     }
 }

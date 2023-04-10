@@ -1,17 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using SPTLauncher.Constructors;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Forms.Design;
+using SPTLauncher.Dictionary;
+using System.Runtime.InteropServices;
 using WinFormsApp1;
 
 namespace SPTLauncher
@@ -19,8 +9,8 @@ namespace SPTLauncher
 
     public partial class DictionaryForm : Form
     {
-        private Dictionary<CacheTab, List<DictionaryEntry>> entries = new Dictionary<CacheTab, List<DictionaryEntry>>();
-        private Dictionary<int, DictionaryEntry> entryIndex = new Dictionary<int, DictionaryEntry>();
+        private Dictionary<CacheTab, List<Entry>> entries = new Dictionary<CacheTab, List<Entry>>();
+        private Dictionary<int, Entry> entryIndex = new Dictionary<int, Entry>();
         public DictionaryForm()
         {
             InitializeComponent();
@@ -40,7 +30,16 @@ namespace SPTLauncher
                 foreach (JToken entry in cache)
                 {
                     CacheTab tab = GetCacheTab(type);
-                    DictionaryEntry dictionaryEntry = new DictionaryEntry(entry);
+                    Entry dictionaryEntry;
+                    switch (tab)
+                    {
+                        case CacheTab.ARMOR:
+                            dictionaryEntry = new ArmorEntry(entry);
+                            break;
+                        default:
+                            dictionaryEntry = new DictionaryEntry(entry);
+                            break;
+                    }
                     addEntry(tab, dictionaryEntry);
                     string str1 = dictionaryTabs.SelectedTab.Text.ToLower();
                     string str2 = tab.ToString().ToLower();
@@ -54,21 +53,21 @@ namespace SPTLauncher
             }
         }
 
-        public DictionaryEntry GetSelectedEntry()
+        public Entry GetSelectedEntry()
         {
             return GetSelectedEntry(listBox1.SelectedIndex);
         }
-        public DictionaryEntry GetSelectedEntry(int index)
+        public Entry GetSelectedEntry(int index)
         {
             if (index < 0) index = 0;
             return entryIndex[index];
         }
 
-        public void addEntry(CacheTab tab, DictionaryEntry entry)
+        public void addEntry(CacheTab tab, Entry entry)
         {
             if (!entries.ContainsKey(tab))
             {
-                List<DictionaryEntry> list = new List<DictionaryEntry>();
+                List<Entry> list = new List<Entry>();
                 //list.Add(entry);
                 entries.Add(tab, list);
                 //entries.Add(tab, list);
@@ -81,14 +80,31 @@ namespace SPTLauncher
             return TarkovCache.tabs[cacheType];
         }
 
-        public List<DictionaryEntry> GetEntries(CacheType type)
+        public List<Entry> GetEntries(CacheType type)
         {
             return entries[GetCacheTab(type)];
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DictionaryEntry entry = GetSelectedEntry();
+            Entry entry = GetSelectedEntry();
+            if (entry is ArmorEntry)
+            {
+                ArmorEntry aentry = (ArmorEntry)entry;
+                Materials.Text = "Materials: " + aentry.GetMaterials().First();
+                Class.Text = "Class: " + aentry.GetClass();
+                BluntThroughput.Text = "Blunt Throughput: " + aentry.GetBluntThroughput();
+                RepairCost.Text = "Repair Cost: " + aentry.GetRepairCost();
+                Durability.Text = "Durability: " + aentry.GetMaxDurability();
+                EffectiveDurability.Text = "Effective Durability: " + aentry.GetEffectiveDurability();
+                ProtectionZones.Text = "Protection Zones:";
+                foreach (string zone in aentry.GetProtectionZones()) ProtectionZones.Text += "\n" + zone;
+                int ergopen = aentry.GetErgoPenalty();
+                int movepen = aentry.GetMovementPenalty();
+                int turnpen = aentry.GetTurnSpeedPenalty();
+                Penalties.Text = $"Penalties: \nErgo {ergopen}\nMove {movepen}\nTurn {turnpen}";
+
+            }
             if (entry != null)
             {
                 NameLabel.Text = "Name: " + entry.GetName();
@@ -96,88 +112,10 @@ namespace SPTLauncher
                 CellHeight.Text = "Cell Height: " + entry.GetHeight();
                 CellWidth.Text = "Cell Width: " + entry.GetWidth();
                 Weight.Text = "Item Weight: " + entry.GetWeight();
-                DropLimit.Text = "Discard Limit: " + entry.GetDiscardLimit();
+                DropLimit.Text = "Discard Limit: " + ((entry.GetDiscardLimit() == -1) ? "ULIMITED" : entry.GetDiscardLimit());
+                DescriptionBox.Text = entry.GetDescription();
+                label7.Visible = entry.IsMarketable();
             }
         }
-    }
-
-    public class DictionaryEntry
-    {
-        private string name, id, description;
-        private int height, width, discardLimit, dropLimit;
-        private float weight;
-        private bool marketable;
-
-        public DictionaryEntry(JToken token)
-        {
-            name = token["Name"].ToString();
-            if (token["Item ID"] != null) id = token["Item ID"].ToString();
-            if (token["Description"] != null) description = token["Description"].ToString();
-            if (token["Cell Height"] != null) height = (int)token["Cell Height"];
-            if (token["Cell Width"] != null) width = (int)token["Cell Width"];
-            if (token["Discard Limit"] != null) dropLimit = (int)token["Discard Limit"];
-            if (token["Item Weight"] != null) weight = (float)token["Item Weight"];
-            if (token["Can be sold on flea market"] != null) marketable = (bool)token["Can be sold on flea market"];
-        }
-
-        public void SetName(string name)
-        {
-            this.name = name;
-        }
-        public string GetName()
-        {
-            return name;
-        }
-
-        public void SetID(string id)
-        {
-            this.id = id;
-        }
-        public string GetID()
-        {
-            return id;
-        }
-
-        public void SetHeight(int height)
-        {
-            this.height = height;
-        }
-        public int GetHeight()
-        {
-            return height;
-        }
-
-        public void SetWidth(int width)
-        {
-            this.width = width;
-        }
-        public int GetWidth()
-        {
-            return width;
-        }
-
-        public void SetDiscardLimt(int limit)
-        {
-            discardLimit = limit;
-        }
-        public int GetDiscardLimit()
-        {
-            return discardLimit;
-        }
-
-        public void SetDescription(string description)
-        {
-            this.description = description;
-        }
-        public string GetDescription()
-        {
-            return description;
-        }
-
-        public float GetWeight()
-        {
-            return weight;
-        }
-
     }
 }

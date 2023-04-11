@@ -781,6 +781,7 @@
             SaveRestoreButton.TabIndex = 3;
             SaveRestoreButton.Text = "Save and Restore";
             SaveRestoreButton.UseVisualStyleBackColor = true;
+            SaveRestoreButton.Click += SaveRestoreButton_Click;
             // 
             // RestoreBackupButton
             // 
@@ -791,6 +792,7 @@
             RestoreBackupButton.TabIndex = 2;
             RestoreBackupButton.Text = "Restore";
             RestoreBackupButton.UseVisualStyleBackColor = true;
+            RestoreBackupButton.Click += RestoreBackupButton_Click;
             // 
             // label8
             // 

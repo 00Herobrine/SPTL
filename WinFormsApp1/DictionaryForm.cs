@@ -46,7 +46,7 @@ namespace SPTLauncher
                     //Debug.Write($"Comparing {str1} to {str2}\n");
                     if (str1.Equals(str2))
                     {
-                        int index = listBox1.Items.Add(dictionaryEntry.GetName());
+                        int index = ArmorList.Items.Add(dictionaryEntry.GetName());
                         entryIndex.Add(index, dictionaryEntry);
                     }
                 }
@@ -55,7 +55,7 @@ namespace SPTLauncher
 
         public Entry GetSelectedEntry()
         {
-            return GetSelectedEntry(listBox1.SelectedIndex);
+            return GetSelectedEntry(ArmorList.SelectedIndex);
         }
         public Entry GetSelectedEntry(int index)
         {

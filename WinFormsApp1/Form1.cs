@@ -13,6 +13,7 @@ using SPTLauncher;
 using System.Net.NetworkInformation;
 using System.Windows.Forms.VisualStyles;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace WinFormsApp1
 {
@@ -53,6 +54,7 @@ namespace WinFormsApp1
         private delegate void TextCallBack(string text);
         private delegate void ProfileCallBack(bool refresh);
         private Process server;
+        private Process game;
         private STATE serverState = STATE.OFFLINE;
 
         public static string getProfilesFolder()
@@ -84,14 +86,16 @@ namespace WinFormsApp1
 
         public void PathCheck()
         {
-            List<string> paths = new List<string>();
-            paths.Add(cachePath);
-            paths.Add(itemCache);
-            paths.Add(akiData);
-            paths.Add(gatoPath);
-            paths.Add(backupsPath);
-            paths.Add(modsFolder);
-            paths.Add(pluginsFolder);
+            List<string> paths = new List<string>
+            {
+                cachePath,
+                itemCache,
+                akiData,
+                gatoPath,
+                backupsPath,
+                modsFolder,
+                pluginsFolder
+            };
             foreach (string path in paths)
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
@@ -423,14 +427,20 @@ namespace WinFormsApp1
                 WorkingDirectory = gameFolder
             };
 
+            if (game != null)
+            {
+                if (MessageBox.Show("Active game process detected, would you like to continue?", "Alert", MessageBoxButtons.YesNo) == DialogResult.No) return;
+            }
             Process p = new Process();
             p.Exited += GameQuit;
             Process.Start(startGame);
+            game = p;
             //PlayButton.Enabled = false;
         }
 
         public void GameQuit(object sender, EventArgs e)
         {
+            game = null;
             //PlayButton.Enabled = true;
         }
 
@@ -542,7 +552,7 @@ namespace WinFormsApp1
             toggleActiveTab(groupBox3);
         }
 
-        //region Tab Stuff
+        #region Tab Stuff
         public void toggleActiveTab(GroupBox groupBox)
         {
             activeGroupBox ??= groupBox;
@@ -574,7 +584,7 @@ namespace WinFormsApp1
             selectedSkill.setProgress(skillProgressTextBox.Text);
             selectedCharacter.update(selectedSkill);
         }
-        //endregion
+        #endregion
 
         private void ToolsButton_Click(object sender, EventArgs e)
         {
@@ -667,26 +677,6 @@ namespace WinFormsApp1
             return gatos[randomReturn];
         }
         #endregion
-        public void BackupCheck()
-        {
-            Profile selectedProfile = GetSelectedProfile();
-            if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
-            string id = selectedProfile.getAccountInfo().id;
-            DateTime startTime = config.GetLastBackupTime();
-            DateTime now = DateTime.Now;
-            TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
-            TimeSpan difference = now - startTime;
-            string path = profilesFolder + "/" + selectedProfile.getAccountInfo().id + ".json";
-            if (difference >= interval)
-            {
-                string backupPath = backupsPath + "/" + id;
-                if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
-                if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
-                File.WriteAllText(backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json", File.ReadAllText(path));
-                config.SetLastBackUpTime(now);
-                log("Auto-Backup Created");
-            }
-        }
 
         #region Mod Manager
         private void ModsButton_Click(object sender, EventArgs e)
@@ -743,6 +733,37 @@ namespace WinFormsApp1
         }
         #endregion
 
+        #region Backup Manager
+        public void BackupCheck()
+        {
+            Profile selectedProfile = GetSelectedProfile();
+            if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
+            string id = selectedProfile.getAccountInfo().id;
+            DateTime startTime = config.GetLastBackupTime();
+            DateTime now = DateTime.Now;
+            TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
+            TimeSpan difference = now - startTime;
+            if (difference >= interval) CreateProfileBackup(id, now, "Auto-Backup Created");
+        }
+
+        public void CreateProfileBackup(string id)
+        {
+            CreateProfileBackup(id, DateTime.Now);
+        }
+
+        public void CreateProfileBackup(string id, DateTime now, string logMessage = null)
+        {
+            string path = profilesFolder + "/" + id + ".json";
+            string backupPath = backupsPath + "/" + id;
+            if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
+            if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
+            string filePath = backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json";
+            File.WriteAllText(filePath, File.ReadAllText(path));
+            config.SetLastBackUpTime(now);
+            if (logMessage == null) logMessage = "Backup Created " + Path.GetFileName(filePath);
+            log(logMessage);
+        }
+
         private void button5_Click(object sender, EventArgs e)
         {
             BackupGroup.Enabled = !BackupGroup.Enabled;
@@ -759,6 +780,7 @@ namespace WinFormsApp1
             {
                 BackupProfiles.Items.Add(Path.GetFileName(dir));
             }
+            if (BackupProfiles.Items.Count > 0) BackupProfiles.SelectedIndex = 0;
         }
 
         private void BackupsList_SelectedIndexChanged(object sender, EventArgs e)
@@ -771,9 +793,10 @@ namespace WinFormsApp1
 
         private void BackupProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BackupDatesBox.Enabled = (BackupProfiles.SelectedIndex != -1 || BackupDatesBox.SelectedIndex != -1);
-            BackupsList.Enabled = BackupProfiles.SelectedIndex != -1;
+            BackupDatesBox.Enabled = BackupProfiles.SelectedIndex != -1;
+            BackupsList.Enabled = BackupProfiles.SelectedIndex != -1 || BackupDatesBox.SelectedIndex != -1;
             string path = backupsPath + "/" + BackupProfiles.Text;
+            BackupDatesBox.Items.Clear();
             foreach (string dateDir in Directory.GetDirectories(path))
             {
                 BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
@@ -783,10 +806,78 @@ namespace WinFormsApp1
         private void BackupDatesBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             BackupsList.Enabled = BackupDatesBox.SelectedIndex != -1;
+            BackupsList.Items.Clear();
             foreach (string timeFile in Directory.GetFiles(backupsPath + "/" + BackupProfiles.Text + "/" + BackupDatesBox.Text))
             {
                 BackupsList.Items.Add(Path.GetFileName(timeFile));
             }
         }
+
+        private void RestoreBackupButton_Click(object sender, EventArgs e)
+        {
+            string id = BackupProfiles.Text;
+            string date = BackupDatesBox.Text;
+            string backup = BackupsList.Text;
+            string backupPath = $"{backupsPath}/{id}/{date}/{backup}";
+            RestoreBackup(id, backupPath);
+        }
+
+        private void SaveRestoreButton_Click(object sender, EventArgs e)
+        {
+            string id = BackupProfiles.Text;
+            string date = BackupDatesBox.Text;
+            string backup = BackupsList.Text;
+            string backupPath = $"{backupsPath}/{id}/{date}/{backup}";
+            CreateProfileBackup(id);
+            RestoreBackup(id, backupPath);
+            ReloadBackupIndexes();
+        }
+
+        public void RestoreBackup(string id, string backupPath)
+        {
+            File.Copy($"{backupPath}", $"{profilesFolder}/{id}.json", true);
+            log("Restored Backup " + Path.GetFileName(backupPath));
+        }
+
+        public void ReloadBackupIndexes()
+        {
+            LoadBackupProfiles();
+            bool buttonState = true;
+            if (BackupProfiles.SelectedIndex != -1) LoadBackupDates();
+            else buttonState = false;
+            if (BackupDatesBox.SelectedIndex != -1) LoadBackupList();
+            else buttonState = false;
+            if (BackupsList.SelectedIndex == -1) buttonState = false;
+            SaveRestoreButton.Enabled = buttonState;
+            RestoreBackupButton.Enabled = buttonState;
+        }
+
+        public void LoadBackupProfiles()
+        {
+            int profileIndex = BackupProfiles.SelectedIndex;
+            BackupProfiles.Items.Clear();
+            foreach (string dir in Directory.GetDirectories(backupsPath)) BackupProfiles.Items.Add(Path.GetFileName(dir));
+            if (BackupProfiles.Items.Count == 1) BackupProfiles.SelectedIndex = 0;
+            else if (BackupProfiles.Items.Count > 0 && BackupProfiles.Items.Count >= profileIndex) BackupProfiles.SelectedIndex = profileIndex; 
+        }
+
+        public void LoadBackupDates()
+        {
+            int index = BackupDatesBox.SelectedIndex;
+            BackupDatesBox.Items.Clear();
+            foreach (string dateDir in Directory.GetDirectories($"{backupsPath}/{BackupProfiles.Text}")) BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
+            if (BackupDatesBox.Items.Count == 1) BackupDatesBox.SelectedIndex = 0;
+            else if(BackupDatesBox.Items.Count > 0 && BackupDatesBox.Items.Count >= index) BackupDatesBox.SelectedIndex = index;
+        }
+
+        public void LoadBackupList()
+        {
+            int index = BackupsList.SelectedIndex;
+            BackupsList.Items.Clear();
+            foreach (string timeFile in Directory.GetFiles($"{backupsPath}/{BackupProfiles.Text}/{BackupDatesBox.Text}")) BackupsList.Items.Add(Path.GetFileName(timeFile));
+            if (BackupsList.Items.Count == 1) BackupsList.SelectedIndex = 0;
+            else if(BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
+        }
+        #endregion
     }
 }

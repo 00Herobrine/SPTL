@@ -6,21 +6,25 @@ using WinFormsApp1;
 namespace SPTLauncher.Constructors
 {
     public enum CacheType { ARMOR, BACKPACKS, CLOTHING, HEADPHONES, HELMETS, RIGS, FIREARMS, AMMO, MAGAZINES, GRENADES,
-        FOOD, CONTAINERS, ITEMS, KNIVES, KEYS, MAPS, MEDICALS, MODS, MONEY}
+        FOOD, CONTAINERS, ITEMS, KNIVES, KEYS, MAPS, MEDICALS, MODS, MONEY }
     public enum CacheTab { ARMOR, WEARABLES, WEAPONS, KEYS, CONSUMABLES, MISC }
 
     internal class TarkovCache
     {
         public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>();
         public static Dictionary<CacheType, string> caches = new Dictionary<CacheType, string>();
+        public static Dictionary<string, CachedItem> itemCache = new Dictionary<string, CachedItem>(); // itemID, cached item
         private string mainPath;
         private string nameCachePath = Form1.itemCache + "/idnames.json";
-        private JObject nameCache;
+        private static JObject nameCache = new JObject();
+        private static JObject names = new JObject();
+        private static string[] blacklist = { "item", "weapon", "meds", "key", "equipment", "throwable weapon", "food and drink", "united security",
+            "bear", "usec", "ammo", "functional mod", "pistolet", "pockets", "default inventory", "inventory", "stash" };
 
         public TarkovCache(string mainPath) {
             this.mainPath = mainPath;
-            if(!Directory.Exists(Form1.itemCache)) Directory.CreateDirectory(Form1.itemCache);
-            if(!Directory.Exists(mainPath)) Directory.CreateDirectory(mainPath);
+            if (!Directory.Exists(Form1.itemCache)) Directory.CreateDirectory(Form1.itemCache);
+            if (!Directory.Exists(mainPath)) Directory.CreateDirectory(mainPath);
             LoadTabs();
             GenerateCache();
         }
@@ -54,7 +58,7 @@ namespace SPTLauncher.Constructors
             bool missing = false;
             foreach (CacheType cacheType in Enum.GetValues<CacheType>())
             {
-                Debug.Write("Iterating " + cacheType);
+                //Debug.Write("Iterating " + cacheType);
                 string cachePath = mainPath + "/" + cacheType.ToString().ToLower() + ".json";
                 if (!File.Exists(cachePath))
                 {
@@ -63,25 +67,62 @@ namespace SPTLauncher.Constructors
                 } else caches[cacheType] = cachePath;
             }
             if (!missing) Form1.form.log("All files cached.");
-            else
-            {
-                Form1.form.log("Caching missing files.");
-                if(nameCache != null) File.WriteAllText(nameCachePath, nameCache.ToString());
-            }
+            UpdateNameCache();
+            ItemCheck();
         }
 
- /*       public string getNameCache()
+        public void ItemCheck()
         {
-            nameCache ??= JObject.Parse(File.ReadAllText(nameCachePath));
-            
-        }*/
+            foreach (JToken obj in nameCache.Values())
+            {
+                var parentProperty = ((JProperty)obj.Parent);
+                string name = parentProperty.Name;
+                string id = name.Split(" ")[0];
+                string v = obj.ToString().ToLower();
+                if (blacklist.Contains(v.ToLowerInvariant())) continue;
+                if (name.Contains("ShortName")) {
+                    string d = nameCache[id + " Description"].ToString().ToLower().Split(" ")[0];
+                    string longName = nameCache[id + " Name"].ToString();
+                    string r = obj.ToString().ToLower();
+                    if (blacklist.Contains(d.ToLowerInvariant()) || blacklist.Contains(longName.Split(" ")[0].ToLowerInvariant()) || blacklist.Contains(r))
+                    {
+                        Debug.WriteLine($"Blacklisted {obj}({id})");
+                        continue;
+                    }
+                    SetName(id, obj.ToString(), true);
+                    SetName(id, longName);
+                } 
+            }
+            //foreach(JProperty prop in nameCache.Values()) if(prop.Name.Contains("ShortName")) Debug.WriteLine($"Valid item {prop.Name}");
+        }
+
+        public void SetName(string id, string name, bool Short = false)
+        {
+            if (!itemCache.ContainsKey(id)) itemCache.Add(id, new CachedItem(id));
+            CachedItem cacheItem = itemCache[id];
+            if(Short) cacheItem.ShortName = name;
+            else cacheItem.Name = name;
+        }
+
+        public void UpdateNameCache()
+        {
+            nameCache = JObject.Parse(File.ReadAllText(Form1.localesFile));
+        }
+
+        public static string GetReadableName(string id, bool Short = false)
+        {
+            string name = id;
+            string lookup = id + (Short ? " ShortName" : " Name");
+            if (nameCache[lookup] != null) name = nameCache[lookup].ToString();
+            return name;
+        }
 
         public void CacheNames(CacheType cacheType)
         {
             nameCache ??= JObject.Parse(File.ReadAllText(nameCachePath));
             string typePath = Form1.itemCache + "/" + cacheType.ToString().ToLower() + ".json";
             JObject cacheObject = JObject.Parse(File.ReadAllText(typePath));
-            foreach(JToken jToken in cacheObject[""])
+            foreach (JToken jToken in cacheObject[""])
             {
                 string id = jToken["Item ID"].ToString();
                 nameCache[id] = cacheType.ToString();
@@ -121,5 +162,18 @@ namespace SPTLauncher.Constructors
             return JObject.Parse(File.ReadAllText(cachePath));
         }
 
+    }
+
+    public class CachedItem {
+        public string Name, ShortName, ID;
+        public CachedItem(string id) {
+            ID = id;
+        }
+
+        override
+        public string ToString()
+        {
+            return Name;
+        }
     }
 }

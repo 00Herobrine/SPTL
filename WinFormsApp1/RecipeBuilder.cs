@@ -9,8 +9,8 @@ namespace SPTLauncher
     public partial class RecipeBuilder : Form
     {
         public static RecipeBuilder rb;
-        private Dictionary<string, Recipe> _recipes = new Dictionary<string, Recipe>();
         private List<Module> acceptableModules = new List<Module>();
+        JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
         public RecipeBuilder()
         {
             acceptableModules.Add(Module.WORKBENCH);
@@ -31,8 +31,7 @@ namespace SPTLauncher
         public void NewRecipe()
         {
             Recipe recipe = new Recipe();
-            int index = listBox1.Items.Add(recipe.getName(true));
-            _recipes[recipe.getID()] = recipe;
+            int index = listBox1.Items.Add(recipe);
             listBox1.SelectedIndex = index;
         }
 
@@ -40,28 +39,21 @@ namespace SPTLauncher
         {
             //activeCheckBox = ItemCheckBox;
             ItemCheckBox.Checked = true;
-            JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
             foreach (Module module in acceptableModules) ModuleComboBox.Items.Add(Recipe.GetEnumDescription(module));
-            foreach (JToken recipe in production)
-            {
-                if (recipe["requirements"] != null)
-                {
-                    Recipe recipe2 = new Recipe(recipe);
-                    listBox1.Items.Add(recipe2.getName(true));
-                    _recipes[recipe2.getID()] = recipe2;
-                }
-            }
+            foreach (JToken recipe in production) if (recipe["requirements"] != null) listBox1.Items.Add(new Recipe(recipe));
         }
 
         private void RecipeBuilder_Load(object sender, EventArgs e)
         {
             LoadRecipes();
+            foreach (CachedItem item in TarkovCache.itemCache.Values) requirementID.Items.Add(item);
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string id = getSelectedRecipe().getID();
-            Recipe recipe = _recipes[id];
+            Recipe recipe = getSelectedRecipe();
+            //Recipe recipe = _recipes[id];
             LoadShit(recipe);
             if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
         }
@@ -76,10 +68,8 @@ namespace SPTLauncher
             requirementList.Items.Clear();
             productionTime.Value = recipe.getProductionTime();
             foreach (RecipeRequirement requirement in recipe.GetRecipeRequirements().Values)
-            {
-                string id = requirement.getID();
-                if (id != null) requirementList.Items.Add(id);
-            }
+                requirementList.Items.Add(requirement);
+            if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
             if (recipe.hasRequiredModule())
             {
                 Module requiredModule = recipe.getRequiredModule();
@@ -119,25 +109,24 @@ namespace SPTLauncher
         public void setRequirement(int index = 0)
         {
             //requirementList.SelectedIndex = index;
-            RecipeRequirement requirement = getSelectedRecipe().GetRecipeRequirement(requirementList.SelectedItem.ToString());
+            RecipeRequirement requirement = getSelectedRecipe().GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID());
             LoadRequirement(requirement);
         }
 
         public Recipe getSelectedRecipe()
         {
-            List<Recipe> values = _recipes.Values.ToList();
-            return _recipes[values[listBox1.SelectedIndex].getID()];
+            return (Recipe)listBox1.SelectedItem;
         }
 
         public void LoadRequirement(RecipeRequirement requirement)
         {
             if (requirement != null)
             {
-                Recipe recipe = getSelectedRecipe();
-                requirementID.Text = requirement.getID();
+                requirementID.Text = TarkovCache.GetReadableName(requirement.getID());
                 RequiredAmount.Value = requirement.getCount();
                 ToolCheckBox.Checked = requirement.isReturnedOnCraft();
             }
+            else { Form1.form.log("Error loading requirement"); }
         }
 
         private void SaveRecipeButton_Click(object sender, EventArgs e)
@@ -154,9 +143,9 @@ namespace SPTLauncher
             recipe.setEndProduct(endProductBox.Text);
             recipe.setProductionTime((int)productionTime.Value);
             recipe.getModuleRequirement().setRequiredModuleLvl((int)requiredModuleLvl.Value);
-            recipe.GetRecipeRequirement(requirementList.SelectedItem.ToString()).setCount((int)RequiredAmount.Value);
+            recipe.GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID()).setCount((int)RequiredAmount.Value);
             string id = listBox1.SelectedItem.ToString();
-            _recipes[id] = recipe;
+            //_recipes[id] = recipe;
             recipe.updateSettings();
             Form1.form.log("Updated recipe " + recipe.getName(true));
         }
@@ -204,5 +193,52 @@ namespace SPTLauncher
             }
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            requirementList.Items.Add(getSelectedRecipe().AddRequirement());
+        }
+
+        public void NewRequirement()
+        {
+            NewRequirement(getSelectedRecipe());
+        }
+        public void NewRequirement(Recipe recipe)
+        {
+
+        }
+
+        private void DeleteRecipeButton_Click(object sender, EventArgs e)
+        {
+            Recipe recipe = getSelectedRecipe();
+            listBox1.Items.Remove(recipe);
+            production[recipe.GetJToken].Remove();
+            Save();
+        }
+
+        public void Save()
+        {
+            File.WriteAllText(Form1.productionPath, File.ReadAllText(production.ToString()));
+        }
+
+        private void requirementID_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == ((char)Keys.Enter))
+            {
+                GetSelectedRequirement().setID(requirementID.Text);
+                e.Handled = true;
+            }
+        }
+
+        private RecipeRequirement GetSelectedRequirement()
+        {
+            return (RecipeRequirement)requirementList.SelectedItem;
+        }
+
+        private void requirementID_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            CachedItem item = (CachedItem)requirementID.SelectedItem;
+            Debug.WriteLine("ID: " + item.ID);
+            requirementID.Text = item.ID;
+        }
     }
 }

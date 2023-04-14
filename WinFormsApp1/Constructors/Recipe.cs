@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Aki.Launcher.Attributes;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -65,14 +66,14 @@ namespace SPTLauncher.Constructors
         private string name;
         private Module module;
         private RecipeRequirement requiredModule;
-        private Dictionary<string, RecipeRequirement> requirements = new Dictionary<string, RecipeRequirement>();
-        //private List<RecipeRequirement> requirements = new List<RecipeRequirement>();
+        public Dictionary<string, RecipeRequirement> requirements = new Dictionary<string, RecipeRequirement>(); // itemId, requirement
         private int productionTime = 0;
         private bool powerNeeded = false;
         private string endProduct;
         private int count = 1;
         private int requiredModuleLevel;
         public JToken jToken; // the little section of the JSON it's in
+        //public JArray reqs; // requirements
 
         // types are Item, Tool and Resource
         // Item is pretty basic
@@ -80,25 +81,25 @@ namespace SPTLauncher.Constructors
         // Resource is a water filter that gets used over time.
         public Recipe(Module module = Module.WORKBENCH)
         {
-            _id = Guid.NewGuid().ToString();
+            _id = Guid.NewGuid().ToString().Replace("-", ""); // recipe id, generate something
             this.module = module;
             string des = GetEnumDescription(module);
             JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
             //production.Add(toke);
-            JToken token = production.Descendants().Where(x => x.Type == JTokenType.Property && ((JProperty)x).Value.ToString().Equals(_id)).FirstOrDefault();
+            jToken = production.Descendants().Where(x => x.Type == JTokenType.Property && ((JProperty)x).Value.ToString().Equals(_id)).FirstOrDefault();
             //jToken = production[""];
         }
 
         public Recipe(JToken token)
         {
             jToken = token;
-            _id = jToken["_id"].ToString().Replace("-", ""); // recipe id, generate something
+            _id = jToken["_id"].ToString();
             //areaType = module;
             name = "";
             module = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
             if (jToken["name"] != null) name = jToken["name"].ToString();
-            JArray reqs = JArray.Parse(jToken["requirements"].ToString());
-            foreach(JToken req in reqs)
+            //reqs = JArray.Parse(jToken["requirements"].ToString());
+            foreach(JToken req in GetRequirementsArray())
             {
                 if (req["areaType"] != null) requiredModule = new RecipeRequirement(req, this);
                 //Debug.Write("\nIterating " + req);
@@ -123,6 +124,10 @@ namespace SPTLauncher.Constructors
             return name;
         }
 
+        public JArray GetRequirementsArray()
+        {
+            return JArray.Parse(jToken["requirements"].ToString());
+        }
         public JToken GetJToken()
         {
             return jToken;
@@ -162,6 +167,21 @@ namespace SPTLauncher.Constructors
             jToken["count"] = count;
         }
 
+        public RecipeRequirement AddRequirement(string id = "Item ID HERE", int count = 1, bool isReturned = false)
+        {
+            JObject jobject = new JObject();
+            jobject["templateId"] = id;
+            jobject["count"] = count;
+            JArray updatedArray = JArray.Parse(jToken["requirements"].ToString());
+            updatedArray.Add(jobject);
+            jToken["requirements"] = updatedArray;
+            if (isReturned) jToken["type"] = "Tool";
+            else jToken["type"] = "Item";
+            updateSettings();
+            RecipeRequirement requirement = new(this, id, jobject, count, isReturned);
+            requirements.Add(id, requirement);
+            return requirement;
+        }
         public Dictionary<string, RecipeRequirement> GetRecipeRequirements()
         {
             return requirements;
@@ -170,10 +190,12 @@ namespace SPTLauncher.Constructors
         {
             return powerNeeded;
         }
-        public void setPowerNeeded(bool powerNeeded)
+        public void setPowerNeeded(bool powerNeeded = false)
         {
             this.powerNeeded = powerNeeded;
-            jToken["needFuelForAllProductionTime"] = powerNeeded;
+            JObject jobject = new JObject();
+            jobject["needFuelForAllProductionTime"] = powerNeeded;
+            //jToken["needFuelForAllProductionTime"] = powerNeeded;
         }
 
         public Module getModule()
@@ -208,6 +230,7 @@ namespace SPTLauncher.Constructors
             RecipeBuilder.UpdateRecipesFile(jToken);
         }
 
+        override
         public string ToString()
         {
             return getName(true);
@@ -261,10 +284,12 @@ namespace SPTLauncher.Constructors
         private Module requiredModule;
         private int requiredModuleLvl = -1;
         private Recipe parent;
-        private JToken jToken;
+        private JToken jToken; // little part of Json it's in
 
-        public RecipeRequirement(string itemID, int count = 1, bool returnOnCraft = false)
+        public RecipeRequirement(Recipe recipe, string itemID, JToken token, int count = 1, bool returnOnCraft = false)
         {
+            parent = recipe;
+            jToken = token;
             this.itemID = itemID;
             this.count = count;
             this.returnOnCraft = returnOnCraft;
@@ -284,13 +309,22 @@ namespace SPTLauncher.Constructors
                 itemID = jToken["templateId"].ToString();
                 if (jToken["count"] == null) count = 1;
                 else count = (int)jToken["count"];
-                returnOnCraft = jToken["type"].ToString().Equals("Tool");
+                bool temp = false;
+                if (jToken["type"] != null && jToken["type"].ToString().Equals("Tool")) temp = true;
+                returnOnCraft = temp;
             }
         }
 
         public string getID()
         {
             return itemID;
+        }
+        public void setID(string id)
+        {
+            parent.requirements.Remove(itemID);
+            itemID = id;
+            updateRequirements("templateId", id);
+            parent.requirements.Add(id, this);
         }
 
         public int getCount()
@@ -338,19 +372,30 @@ namespace SPTLauncher.Constructors
             jToken[name] = updated;
             JToken token = jToken.Parent;
             parent.jToken["requirements"] = jToken.Parent;
-            Form1.form.log($"Updated requirements for {token}");
+            //Form1.form.log($"Updated requirement {name} for {parent}");
         }
         public void updateRequirements(string name, string updated)
         {
             jToken[name] = updated;
             JToken token = jToken.Parent;
             parent.jToken["requirements"] = jToken.Parent;
-            Form1.form.log($"Updated requirements for {token}");
+            Form1.form.log($"Updated requirement for {parent}");
         }
 
         public bool hasRequiredModule()
         {
             return requiredModuleLvl != -1;
+        }
+
+        public JToken GetJToken()
+        {
+            return jToken;
+        }
+
+        override
+        public string ToString()
+        {
+            return TarkovCache.GetReadableName(itemID);
         }
     }
 }

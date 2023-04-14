@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Constructors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,12 @@ namespace SPTLauncher.Dictionary
             if (token["Discard Limit"] != null) discardLimit = (int)token["Discard Limit"];
             if (token["Item Weight"] != null) weight = (float)token["Item Weight"];
             if (token["Can be sold on flea market"] != null) marketable = (bool)token["Can be sold on flea market"];
+        }
+
+        override
+        public string ToString()
+        {
+            return TarkovCache.GetReadableName(id);
         }
 
         public string GetName()

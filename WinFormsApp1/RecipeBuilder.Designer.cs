@@ -31,6 +31,7 @@
             listBox1 = new ListBox();
             NewRecipeButton = new Button();
             groupBox1 = new GroupBox();
+            DeleteRecipeButton = new Button();
             LockedBox = new CheckBox();
             SaveRecipeButton = new Button();
             label9 = new Label();
@@ -92,6 +93,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(DeleteRecipeButton);
             groupBox1.Controls.Add(LockedBox);
             groupBox1.Controls.Add(SaveRecipeButton);
             groupBox1.Controls.Add(label9);
@@ -114,6 +116,16 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Selected Recipe";
             // 
+            // DeleteRecipeButton
+            // 
+            DeleteRecipeButton.Location = new Point(451, 0);
+            DeleteRecipeButton.Name = "DeleteRecipeButton";
+            DeleteRecipeButton.Size = new Size(54, 23);
+            DeleteRecipeButton.TabIndex = 17;
+            DeleteRecipeButton.Text = "Delete";
+            DeleteRecipeButton.UseVisualStyleBackColor = true;
+            DeleteRecipeButton.Click += DeleteRecipeButton_Click;
+            // 
             // LockedBox
             // 
             LockedBox.AutoSize = true;
@@ -126,7 +138,7 @@
             // 
             // SaveRecipeButton
             // 
-            SaveRecipeButton.Location = new Point(497, 0);
+            SaveRecipeButton.Location = new Point(504, 0);
             SaveRecipeButton.Name = "SaveRecipeButton";
             SaveRecipeButton.Size = new Size(43, 23);
             SaveRecipeButton.TabIndex = 15;
@@ -358,6 +370,8 @@
             requirementID.Name = "requirementID";
             requirementID.Size = new Size(178, 23);
             requirementID.TabIndex = 7;
+            requirementID.SelectedIndexChanged += requirementID_SelectedIndexChanged;
+            requirementID.KeyPress += requirementID_KeyPress;
             // 
             // requirementList
             // 
@@ -377,6 +391,7 @@
             button2.TabIndex = 5;
             button2.Text = "+";
             button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // ModuleComboBox
             // 
@@ -462,5 +477,6 @@
         private GroupBox groupBox3;
         private CheckBox ItemCheckBox;
         private CheckBox ResourceCheckBox;
+        private Button DeleteRecipeButton;
     }
 }

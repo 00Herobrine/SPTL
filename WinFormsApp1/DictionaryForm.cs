@@ -10,7 +10,6 @@ namespace SPTLauncher
     public partial class DictionaryForm : Form
     {
         private Dictionary<CacheTab, List<Entry>> entries = new Dictionary<CacheTab, List<Entry>>();
-        private Dictionary<int, Entry> entryIndex = new Dictionary<int, Entry>();
         public DictionaryForm()
         {
             InitializeComponent();
@@ -46,8 +45,7 @@ namespace SPTLauncher
                     //Debug.Write($"Comparing {str1} to {str2}\n");
                     if (str1.Equals(str2))
                     {
-                        int index = ArmorList.Items.Add(dictionaryEntry.GetName());
-                        entryIndex.Add(index, dictionaryEntry);
+                        int index = ArmorList.Items.Add(dictionaryEntry);
                     }
                 }
             }
@@ -55,12 +53,7 @@ namespace SPTLauncher
 
         public Entry GetSelectedEntry()
         {
-            return GetSelectedEntry(ArmorList.SelectedIndex);
-        }
-        public Entry GetSelectedEntry(int index)
-        {
-            if (index < 0) index = 0;
-            return entryIndex[index];
+            return (Entry)ArmorList.SelectedItem;
         }
 
         public void addEntry(CacheTab tab, Entry entry)

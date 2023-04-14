@@ -29,12 +29,15 @@ namespace WinFormsApp1
         private int port = 6969;
         private int processID;
         #region paths
-        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath, gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath;
+        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
+            gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath;
         #endregion
+        private LANG language = LANG.EN;
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
         // do automatic profile backups, let the user set how often they should occur.
 
+        public enum LANG { CH, CZ, EN, ES, ESMX, FR, GE, HU, IT, JP, KR, PL, PO, RU, SK, TU }
         public enum STATE { OFFLINE, STARTING, ONLINE }
 
         public delegate void PingServer(out bool returnValue);
@@ -76,12 +79,20 @@ namespace WinFormsApp1
             backupsPath = cachePath + "/backups";
             modsFolder = gameFolder + "/user/mods";
             pluginsFolder = gameFolder + "/bepinex/plugins";
+            databasePath = akiData + "/server/database";
             productionPath = akiData + "/Server/database/hideout/production.json"; // - aki json file, should exist already nor should I make it
             disabledModsPath = cachePath + "/DisabledMods";
+            localesFile = $"{databasePath}/locales/global/{language}.json";
             _timer.Interval = 60 * 1000;
             _timer.Tick += TimerInterval;
             _timer.Start();
             form = this;
+        }
+
+        public void UpdateLocale(LANG lang)
+        {
+            language = lang;
+            localesFile = $"{databasePath}/locales/global/{language}.json";
         }
 
         public void PathCheck()
@@ -793,24 +804,15 @@ namespace WinFormsApp1
 
         private void BackupProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (BackupProfiles.SelectedIndex != -1) LoadBackupDates();
             BackupDatesBox.Enabled = BackupProfiles.SelectedIndex != -1;
             BackupsList.Enabled = BackupProfiles.SelectedIndex != -1 || BackupDatesBox.SelectedIndex != -1;
-            string path = backupsPath + "/" + BackupProfiles.Text;
-            BackupDatesBox.Items.Clear();
-            foreach (string dateDir in Directory.GetDirectories(path))
-            {
-                BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
-            }
         }
 
         private void BackupDatesBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (BackupDatesBox.SelectedIndex != -1) LoadBackupList();
             BackupsList.Enabled = BackupDatesBox.SelectedIndex != -1;
-            BackupsList.Items.Clear();
-            foreach (string timeFile in Directory.GetFiles(backupsPath + "/" + BackupProfiles.Text + "/" + BackupDatesBox.Text))
-            {
-                BackupsList.Items.Add(Path.GetFileName(timeFile));
-            }
         }
 
         private void RestoreBackupButton_Click(object sender, EventArgs e)
@@ -858,7 +860,7 @@ namespace WinFormsApp1
             BackupProfiles.Items.Clear();
             foreach (string dir in Directory.GetDirectories(backupsPath)) BackupProfiles.Items.Add(Path.GetFileName(dir));
             if (BackupProfiles.Items.Count == 1) BackupProfiles.SelectedIndex = 0;
-            else if (BackupProfiles.Items.Count > 0 && BackupProfiles.Items.Count >= profileIndex) BackupProfiles.SelectedIndex = profileIndex; 
+            else if (BackupProfiles.Items.Count > 0 && BackupProfiles.Items.Count >= profileIndex) BackupProfiles.SelectedIndex = profileIndex;
         }
 
         public void LoadBackupDates()
@@ -867,7 +869,7 @@ namespace WinFormsApp1
             BackupDatesBox.Items.Clear();
             foreach (string dateDir in Directory.GetDirectories($"{backupsPath}/{BackupProfiles.Text}")) BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
             if (BackupDatesBox.Items.Count == 1) BackupDatesBox.SelectedIndex = 0;
-            else if(BackupDatesBox.Items.Count > 0 && BackupDatesBox.Items.Count >= index) BackupDatesBox.SelectedIndex = index;
+            else if (BackupDatesBox.Items.Count > 0 && BackupDatesBox.Items.Count >= index) BackupDatesBox.SelectedIndex = index;
         }
 
         public void LoadBackupList()
@@ -876,7 +878,7 @@ namespace WinFormsApp1
             BackupsList.Items.Clear();
             foreach (string timeFile in Directory.GetFiles($"{backupsPath}/{BackupProfiles.Text}/{BackupDatesBox.Text}")) BackupsList.Items.Add(Path.GetFileName(timeFile));
             if (BackupsList.Items.Count == 1) BackupsList.SelectedIndex = 0;
-            else if(BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
+            else if (BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
         }
         #endregion
     }

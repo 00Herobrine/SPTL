@@ -60,7 +60,9 @@ namespace SPTLauncher
 
         public void LoadShit(Recipe recipe)
         {
-            nameTextBox.Text = recipe.getName();
+            string name = recipe.getName();
+            if (name.Equals("")) name = TarkovCache.GetReadableName(recipe.getEndProduct());
+            nameTextBox.Text = name;
             ModuleComboBox.Text = Recipe.GetEnumDescription(recipe.getModule());
             endProductBox.Text = recipe.getEndProduct();
             CraftAmount.Value = recipe.getCount();
@@ -109,6 +111,8 @@ namespace SPTLauncher
         public void setRequirement(int index = 0)
         {
             //requirementList.SelectedIndex = index;
+            if (requirementList.SelectedIndex == -1) if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
+                else return; // no requirements left, should clear boxes
             RecipeRequirement requirement = getSelectedRecipe().GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID());
             LoadRequirement(requirement);
         }
@@ -180,7 +184,7 @@ namespace SPTLauncher
         public CheckBox activeCheckBox;
         public void typeToggle(CheckBox checkBox)
         {
-            Debug.Write("\nToggle ran");
+            //Debug.WriteLine("Toggle ran");
             if (activeCheckBox == null || activeCheckBox == checkBox)
             {
                 activeCheckBox = activeCheckBox == checkBox && !activeCheckBox.Checked ? null : checkBox;
@@ -236,9 +240,16 @@ namespace SPTLauncher
 
         private void requirementID_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (requirementID.SelectedIndex == -1) return;
             CachedItem item = (CachedItem)requirementID.SelectedItem;
-            Debug.WriteLine("ID: " + item.ID);
+            //Debug.WriteLine("ID: " + item.ID);
             requirementID.Text = item.ID;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            getSelectedRecipe().RemoveRequirement(GetSelectedRequirement());
+            requirementList.Items.Remove(requirementList.SelectedItem);
         }
     }
 }

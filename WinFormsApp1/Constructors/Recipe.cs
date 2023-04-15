@@ -182,6 +182,23 @@ namespace SPTLauncher.Constructors
             requirements.Add(id, requirement);
             return requirement;
         }
+
+        public void RemoveRequirement(RecipeRequirement requirement)
+        {
+            RemoveRequirement(requirement.getID());
+        }
+        public void RemoveRequirement(string id)
+        {
+            RecipeRequirement requirement = requirements[id];
+            requirements.Remove(id);
+            JArray array = JArray.Parse(jToken["requirements"].ToString());
+            array.SelectToken(requirement.GetJToken().Path).Remove();
+            Debug.WriteLine(requirement.GetJToken().ToString());
+            Debug.WriteLine(array);
+            jToken["requirements"] = array;
+            Form1.form.log($"Removed {requirement} requirement for {requirement.parent}");
+            updateSettings();
+        }
         public Dictionary<string, RecipeRequirement> GetRecipeRequirements()
         {
             return requirements;
@@ -233,7 +250,8 @@ namespace SPTLauncher.Constructors
         override
         public string ToString()
         {
-            return getName(true);
+            return name.Equals("") ? TarkovCache.GetReadableName(endProduct) : getName(true);
+            //return getName(true);
         }
 
         public static string GetEnumDescription(Enum value)
@@ -283,7 +301,7 @@ namespace SPTLauncher.Constructors
 
         private Module requiredModule;
         private int requiredModuleLvl = -1;
-        private Recipe parent;
+        public Recipe parent;
         private JToken jToken; // little part of Json it's in
 
         public RecipeRequirement(Recipe recipe, string itemID, JToken token, int count = 1, bool returnOnCraft = false)

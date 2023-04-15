@@ -664,7 +664,7 @@ namespace WinFormsApp1
             {
                 foreach (string s in last3.ToArray()) word += s;
                 if (word.ToLower().Contains("cat") || word.ToLower().Contains("gato")) catToggle();
-                else if (last3.Count >= 5) last3.Clear();
+                else if (last3.Count >= 4) last3.Clear();
                 //log("spelled " + word);
             }
         }

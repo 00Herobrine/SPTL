@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Windows.Forms.VisualStyles;
 using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
@@ -18,8 +19,23 @@ namespace SPTLauncher.Constructors
         private string nameCachePath = Form1.itemCache + "/idnames.json";
         private static JObject nameCache = new JObject();
         private static JObject names = new JObject();
-        private static string[] blacklist = { "item", "weapon", "meds", "key", "equipment", "throwable weapon", "food and drink", "united security",
-            "bear", "usec", "ammo", "functional mod", "pistolet", "pockets", "default inventory", "inventory", "stash" };
+        private static string[] blacklist = { "item", "weapon box", "stash", "equipment", "throwable weapon", "food and drink", "bear", "usec",
+            "ammo", "functional mod", "pistolet", "pockets", "default inventory", "inventory", "secure folder", "bsample" };
+        private static string[] whitelist =
+        {
+            "5e9db13186f7742f845ee9d3", // LBT-1961A Load Bearing Chest Rig
+            "628baf0b967de16aab5a4f36", // LCBR Goons Edition
+            "5ea03f7400685063ec28bfa8", // PPSh-41
+            "5c1a1e3f2e221602b66cc4c2", // Beard
+            "5bc9b9ecd4351e3bac122519", // Beard Oil
+            "5bffdc370db834001d23eca8", // Bayonet
+            "59fb042886f7746c5005a7b2", // Items Case
+            "62a08f4c4f842e1bd12d9d62", // BEAR Buddy
+            "5d08d21286f774736e7c94c3", // Shturman's Key
+            "61a64492ba05ef10d62adcc1", // Rogue USEC Stash Key
+            "5da743f586f7744014504f72", // USEC Stash Key
+            "5aafbde786f774389d0cbc0f", // Ammo Case
+        };
 
         public TarkovCache(string mainPath) {
             this.mainPath = mainPath;
@@ -78,19 +94,54 @@ namespace SPTLauncher.Constructors
                 var parentProperty = ((JProperty)obj.Parent);
                 string name = parentProperty.Name;
                 string id = name.Split(" ")[0];
-                string v = obj.ToString().ToLower();
-                if (blacklist.Contains(v.ToLowerInvariant())) continue;
-                if (name.Contains("ShortName")) {
-                    string d = nameCache[id + " Description"].ToString().ToLower().Split(" ")[0];
+                string shortName = obj.ToString();
+                //if (blacklist.Contains(shortName.ToLowerInvariant())) continue;
+                if (name.Contains("ShortName"))
+                {
+                    string description = nameCache[id + " Description"].ToString();
+                    string[] _d = description.Split();
+                    //string d = _d[0];
+                    string d2 = $"{_d[0]}{((_d.Length > 2) ? $" {_d[1]} {_d[2]}" : "")}";
                     string longName = nameCache[id + " Name"].ToString();
-                    string r = obj.ToString().ToLower();
-                    if (blacklist.Contains(d.ToLowerInvariant()) || blacklist.Contains(longName.Split(" ")[0].ToLowerInvariant()) || blacklist.Contains(r))
-                    {
-                        Debug.WriteLine($"Blacklisted {obj}({id})");
-                        continue;
+                    string[] _l = longName.Split(" ");
+                    string l2 = $"{_l[0]}{((_l.Length > 1) ? $" {_l[1]}" : "")}";
+                    
+                    //Debug.WriteLine($"Comparison name({longName}) short({shortName}) d({description})");
+                    bool blacklisted = false;
+                    //Debug.WriteLine($"l2({l2}) d2({d2}) id({id}) shortName({shortName})");
+                    if (!whitelist.Contains(id)) { 
+                        foreach (string word in blacklist)
+                        {
+                            if (l2.ToLower().Contains(word) || shortName.ToLower().Contains(word) || d2.ToLower().Contains(word))
+                            {
+                                Debug.WriteLine($"Blacklisted {obj}({id}) containing {word}");
+                                blacklisted = true;
+                                break;
+                            }
+                            else if (l2.Equals(d2) && l2.Equals(shortName))
+                            {
+                                blacklisted = true;
+                                Debug.WriteLine($"Blacklisted {obj}({id}) containing {(l2.Equals(d2) ? l2 : shortName)}");
+                                break;
+                            }
+                        }
+                    } else {
+                        Debug.WriteLine($"Whitelisted item {obj}({id})");
                     }
-                    SetName(id, obj.ToString(), true);
-                    SetName(id, longName);
+                    /*                    if (blacklist.Contains(d.ToLowerInvariant()) || blacklist.Contains(longName.ToLower()) || blacklist.Contains(r.ToLower()))
+                                        {
+                                            Debug.WriteLine($"Blacklisted {obj}({id})");
+                                            continue;
+                                        } else if(r.Equals(description) && r.Equals(longName))
+                                        {
+                                            Debug.WriteLine($"Blacklisted {obj}({id})");
+                                            continue;
+                                        }*/
+                    if (!blacklisted)
+                    {
+                        SetName(id, obj.ToString(), true);
+                        SetName(id, longName);
+                    }
                 } 
             }
             //foreach(JProperty prop in nameCache.Values()) if(prop.Name.Contains("ShortName")) Debug.WriteLine($"Valid item {prop.Name}");

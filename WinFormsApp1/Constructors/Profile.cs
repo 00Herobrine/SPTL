@@ -2,6 +2,7 @@
 using Aki.Launcher.Models.Launcher;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,14 @@ namespace SPTLauncher.Constructors
         private ProfileInfo profileInfo;
         private AccountInfo accountInfo;
         private Encyclopedia encyclopedia;
+        private bool backup;
         public Profile(string id, ProfileInfo profileInfo, AccountInfo accountInfo)
         {
             this.id = id;
             this.profileInfo = profileInfo;
             this.accountInfo = accountInfo;
+            backup = Form1.form.GetConfig().BackupState(id);
+            Debug.WriteLine($"profile {profileInfo.Username} backups-enabled {backup}");
         }
 
         public string getID()
@@ -46,6 +50,11 @@ namespace SPTLauncher.Constructors
         {
             Form1.form.log("Generated Encyclopedia for " + id);
             encyclopedia = new Encyclopedia(id);
+        }
+
+        public bool BackupsEnabled()
+        {
+            return backup;
         }
     }
 }

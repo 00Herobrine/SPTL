@@ -112,6 +112,19 @@ namespace SPTLauncher.Constructors {
             save();
         }
 
+        public bool ToggleBackups(string id)
+        {
+            bool backup = jArray.Contains(id)  && !(bool)jArray[id];
+            jArray[id] = backup;
+            save();
+            return backup;
+        }
+
+        public bool BackupState(string id)
+        {
+            return jArray != null && jArray[id] != null && !(bool)jArray[id];
+        }
+
         public string GetDisabledModPath(string name)
         {
             return jObject["DisabledMods"][name].ToString();

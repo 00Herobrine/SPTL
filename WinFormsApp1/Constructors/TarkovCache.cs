@@ -19,12 +19,13 @@ namespace SPTLauncher.Constructors
         private string nameCachePath = Form1.itemCache + "/idnames.json";
         private static JObject nameCache = new JObject();
         private static JObject names = new JObject();
+        #region Filtering
         private static string[] blacklist = { "item", "weapon box", "stash", "equipment", "throwable weapon", "food and drink", "bear", "usec",
             "ammo", "functional mod", "pistolet", "pockets", "default inventory", "inventory", "secure folder", "bsample" };
         private static string[] whitelist =
         {
             "5e9db13186f7742f845ee9d3", // LBT-1961A Load Bearing Chest Rig
-            "628baf0b967de16aab5a4f36", // LCBR Goons Edition
+            "628baf0b967de16aab5a4f36", // LBCR Goons Edition
             "5ea03f7400685063ec28bfa8", // PPSh-41
             "5c1a1e3f2e221602b66cc4c2", // Beard
             "5bc9b9ecd4351e3bac122519", // Beard Oil
@@ -36,7 +37,7 @@ namespace SPTLauncher.Constructors
             "5da743f586f7744014504f72", // USEC Stash Key
             "5aafbde786f774389d0cbc0f", // Ammo Case
         };
-
+        #endregion
         public TarkovCache(string mainPath) {
             this.mainPath = mainPath;
             if (!Directory.Exists(Form1.itemCache)) Directory.CreateDirectory(Form1.itemCache);
@@ -95,17 +96,14 @@ namespace SPTLauncher.Constructors
                 string name = parentProperty.Name;
                 string id = name.Split(" ")[0];
                 string shortName = obj.ToString();
-                //if (blacklist.Contains(shortName.ToLowerInvariant())) continue;
                 if (name.Contains("ShortName"))
                 {
                     string description = nameCache[id + " Description"].ToString();
                     string[] _d = description.Split();
-                    //string d = _d[0];
                     string d2 = $"{_d[0]}{((_d.Length > 2) ? $" {_d[1]} {_d[2]}" : "")}";
                     string longName = nameCache[id + " Name"].ToString();
                     string[] _l = longName.Split(" ");
                     string l2 = $"{_l[0]}{((_l.Length > 1) ? $" {_l[1]}" : "")}";
-                    
                     //Debug.WriteLine($"Comparison name({longName}) short({shortName}) d({description})");
                     bool blacklisted = false;
                     //Debug.WriteLine($"l2({l2}) d2({d2}) id({id}) shortName({shortName})");
@@ -114,29 +112,20 @@ namespace SPTLauncher.Constructors
                         {
                             if (l2.ToLower().Contains(word) || shortName.ToLower().Contains(word) || d2.ToLower().Contains(word))
                             {
-                                Debug.WriteLine($"Blacklisted {obj}({id}) containing {word}");
+                                //Debug.WriteLine($"Blacklisted {obj}({id}) containing {word}");
                                 blacklisted = true;
                                 break;
                             }
                             else if (l2.Equals(d2) && l2.Equals(shortName))
                             {
                                 blacklisted = true;
-                                Debug.WriteLine($"Blacklisted {obj}({id}) containing {(l2.Equals(d2) ? l2 : shortName)}");
+                                //Debug.WriteLine($"Blacklisted {obj}({id}) containing {(l2.Equals(d2) ? l2 : shortName)}");
                                 break;
                             }
                         }
                     } else {
-                        Debug.WriteLine($"Whitelisted item {obj}({id})");
+                        //Debug.WriteLine($"Whitelisted item {obj}({id})");
                     }
-                    /*                    if (blacklist.Contains(d.ToLowerInvariant()) || blacklist.Contains(longName.ToLower()) || blacklist.Contains(r.ToLower()))
-                                        {
-                                            Debug.WriteLine($"Blacklisted {obj}({id})");
-                                            continue;
-                                        } else if(r.Equals(description) && r.Equals(longName))
-                                        {
-                                            Debug.WriteLine($"Blacklisted {obj}({id})");
-                                            continue;
-                                        }*/
                     if (!blacklisted)
                     {
                         SetName(id, obj.ToString(), true);
@@ -144,7 +133,6 @@ namespace SPTLauncher.Constructors
                     }
                 } 
             }
-            //foreach(JProperty prop in nameCache.Values()) if(prop.Name.Contains("ShortName")) Debug.WriteLine($"Valid item {prop.Name}");
         }
 
         public void SetName(string id, string name, bool Short = false)

@@ -7,13 +7,9 @@ using Timer = System.Windows.Forms.Timer;
 using Aki.Launcher.Models.Aki;
 using WinFormsApp1.Constructors;
 using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
 using SPTLauncher.Constructors;
 using SPTLauncher;
-using System.Net.NetworkInformation;
-using System.Windows.Forms.VisualStyles;
 using System.Text.RegularExpressions;
-using System.IO;
 
 namespace WinFormsApp1
 {
@@ -46,6 +42,7 @@ namespace WinFormsApp1
         private Config config;
         private Character selectedCharacter;
         private TarkovCache cache;
+        private ModManager modManager;
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
@@ -118,6 +115,7 @@ namespace WinFormsApp1
             LoadConfig();
             LoadCache();
             LoadMods();
+            Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
             //ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
             /*if(aliveCheck()) bindToAki();
             else */
@@ -130,6 +128,7 @@ namespace WinFormsApp1
         {
             List<string> files = new List<string>();
             Dictionary<int, Mod> mods = new Dictionary<int, Mod>();
+            if (modManager == null) modManager = new ModManager();
             modsListBox.Items.Clear();
             if (Directory.Exists(disabledModsPath))
             {
@@ -151,7 +150,7 @@ namespace WinFormsApp1
                     else
                     {
                         Mod mod = new(file);
-                        int index = modsListBox.Items.Add(mod.GetName() + (mod.isPlugin() ? " [P]" : " [C]") + (!mod.isEnabled() ? " DISABLED" : ""));
+                        int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + (!mod.isEnabled() ? " DISABLED" : ""));
                         mods.Add(index, mod);
                     }
                 modsIndex = mods;
@@ -371,13 +370,6 @@ namespace WinFormsApp1
             serverConsole.Text += Prefix + text + "\n";
         }
 
-        public void ToggleConsole()
-        {
-            int size = !console ? 688 : 340;
-            console = !console;
-            Size = new Size(Size.Width, size);
-        }
-
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             ToggleConsole();
@@ -505,6 +497,7 @@ namespace WinFormsApp1
                 editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
                 expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
                 factionImage.ImageLocation = info.SideImage;
+                backupCheckBox.Checked = GetSelectedProfile().BackupsEnabled();
             }
             else
             {
@@ -689,6 +682,19 @@ namespace WinFormsApp1
         }
         #endregion
 
+        public bool ToggleConsole()
+        {
+            console = !console;
+            ScaleCheck();
+            return console;
+        }
+        public void ScaleCheck()
+        {
+            bool sidebar = (modsTab == false || backupsTab == false);
+            int width = !sidebar ? 1043 : 812;
+            int height = console ? 692 : 340;
+            Size = new Size(width, height);
+        }
         #region Mod Manager
         private void ModsButton_Click(object sender, EventArgs e)
         {
@@ -700,10 +706,8 @@ namespace WinFormsApp1
         public bool ToggleMods()
         {
             modsTab = !modsTab;
-            if (modsTab) Size = new Size(1043, Size.Height);
-            else Size = new Size(812, Size.Height);
+            ScaleCheck();
             return modsTab;
-            //Debug.WriteLine("bool " + console + " new size " + size + " new bool " + !console);
         }
 
         public Mod GetSelectedMod()
@@ -881,5 +885,12 @@ namespace WinFormsApp1
             else if (BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
         }
         #endregion
+
+        private void backupCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Profile profile = GetSelectedProfile();
+            if(profile == null) return;
+            backupCheckBox.Checked = GetConfig().ToggleBackups(profile.getID());
+        }
     }
 }

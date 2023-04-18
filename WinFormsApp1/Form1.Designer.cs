@@ -94,6 +94,7 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
+            backupCheckBox = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
@@ -107,6 +108,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
             groupBox1.Controls.Add(button12);
@@ -812,6 +814,17 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
+            // backupCheckBox
+            // 
+            backupCheckBox.AutoSize = true;
+            backupCheckBox.Location = new Point(57, 18);
+            backupCheckBox.Name = "backupCheckBox";
+            backupCheckBox.Size = new Size(81, 19);
+            backupCheckBox.TabIndex = 28;
+            backupCheckBox.Text = "Auto-Save";
+            backupCheckBox.UseVisualStyleBackColor = true;
+            backupCheckBox.CheckedChanged += backupCheckBox_CheckedChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -913,5 +926,6 @@
         private ListBox BackupsList;
         private Label label9;
         private ComboBox BackupDatesBox;
+        private CheckBox backupCheckBox;
     }
 }

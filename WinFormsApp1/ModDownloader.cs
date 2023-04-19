@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SPTLauncher.Constructors;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,14 +14,58 @@ namespace SPTLauncher
 {
     public partial class ModDownloader : Form
     {
+        private ModManager modManager;
+        public static ModDownloader form;
+        private int page = 1;
         public ModDownloader()
         {
             InitializeComponent();
+            modManager ??= new ModManager();
+            form = this;
         }
 
         private void ModDownloader_Load(object sender, EventArgs e)
         {
 
+        }
+
+        public void AddMod(ModDownload mod)
+        {
+            modList.Items.Add(mod);
+        }
+
+        private void modList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadMod(GetSelectedModDownload());
+        }
+
+        public ModDownload GetSelectedModDownload()
+        {
+            return (ModDownload)modList.SelectedItem;
+        }
+
+        public void LoadMod(ModDownload mod)
+        {
+            ModName.Text = mod.name;
+            Author.Text = $"Author: {mod.author}";
+            AkiVersion.Text = $"Version: {mod.AkiVersion}";
+            ModImage.ImageLocation = mod.imageURL;
+            Description.Text = mod.description;
+            lastUpdated.Text = $"Updated: {mod.lastUpdated}";
+            Downloads.Text = $"Downloads: {mod.downloads}";
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (GetSelectedModDownload() == null) return;
+            Process.Start("explorer", GetSelectedModDownload().URL);
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            page++;
+            await modManager.WebRequestMods(page);
+            //modManager.WebRequestMods(page++);
         }
     }
 }

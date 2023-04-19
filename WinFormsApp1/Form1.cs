@@ -42,7 +42,6 @@ namespace WinFormsApp1
         private Config config;
         private Character selectedCharacter;
         private TarkovCache cache;
-        private ModManager modManager;
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
@@ -128,7 +127,6 @@ namespace WinFormsApp1
         {
             List<string> files = new List<string>();
             Dictionary<int, Mod> mods = new Dictionary<int, Mod>();
-            if (modManager == null) modManager = new ModManager();
             modsListBox.Items.Clear();
             if (Directory.Exists(disabledModsPath))
             {
@@ -703,7 +701,9 @@ namespace WinFormsApp1
         #region Mod Manager
         private void ModsButton_Click(object sender, EventArgs e)
         {
-            if (ToggleMods()) LoadMods();
+            Form md = new ModDownloader();
+            md.Show();
+            //if (ToggleMods()) LoadMods();
             /*listBox2.Items.Clear();
             listBox2.Items.AddRange(mods.ToArray());*/
         }

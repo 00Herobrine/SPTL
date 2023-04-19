@@ -32,7 +32,7 @@ namespace SPTLauncher.Constructors
             WebRequestMods();
         }
 
-        public static async Task WebRequestMods(int page = 1)
+        public async Task WebRequestMods(int page = 1)
         {
             string url = $"https://hub.sp-tarkov.com/files/?pageNo={page}&sortField=time&sortOrder=DESC";
             string className = "box128";
@@ -43,17 +43,12 @@ namespace SPTLauncher.Constructors
             // Read the response content as a string
             string html = await response.Content.ReadAsStringAsync();
             //Debug.WriteLine($"Loading html\n{html}");
-            File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
-            // Find all "a" elements with the specified class and href attributes using Regex
-            //Regex regex = new Regex($"<a[^>]*href=\"([^\"]*)\"[^>]*class=\"{className}\"[^>]*>");
-            //MatchCollection matches = regex.Matches(html);
+            //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
             // Get all elements with class 'filebaseFileCard new'
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
-            HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[@class='filebaseFileCard new']");
-
+            HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[starts-with(@class, 'filebaseFileCard')]");
             // Loop through the elements and print their inner text
-            int line = 0;
             foreach (HtmlNode element in elements)
             {
                 mods.Add(new ModDownload(element));
@@ -102,9 +97,9 @@ namespace SPTLauncher.Constructors
                 r = v[1];
             }
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
-            Debug.WriteLine($"N:{name} A:{author} V:{AkiVersion} UP:{lastUpdated} S:{s} R:{r} IU:{imageURL} U:{URL} Description:\n{description}");
+            //Debug.WriteLine($"N:{name} A:{author} V:{AkiVersion} UP:{lastUpdated} S:{s} R:{r} IU:{imageURL} U:{URL} Description:\n{description}");
             Origin = GetOrigin(URL);
-            Form1.form.AddMod(this);
+            ModDownloader.form.AddMod(this);
         }
 
         override

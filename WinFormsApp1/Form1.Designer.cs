@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
+            backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
             button12 = new Button();
@@ -94,7 +95,6 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
-            backupCheckBox = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
@@ -136,6 +136,17 @@
             groupBox1.Size = new Size(653, 302);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
+            // 
+            // backupCheckBox
+            // 
+            backupCheckBox.AutoSize = true;
+            backupCheckBox.Location = new Point(57, 18);
+            backupCheckBox.Name = "backupCheckBox";
+            backupCheckBox.Size = new Size(81, 19);
+            backupCheckBox.TabIndex = 28;
+            backupCheckBox.Text = "Auto-Save";
+            backupCheckBox.UseVisualStyleBackColor = true;
+            backupCheckBox.CheckedChanged += backupCheckBox_CheckedChanged;
             // 
             // button13
             // 
@@ -814,17 +825,6 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
-            // backupCheckBox
-            // 
-            backupCheckBox.AutoSize = true;
-            backupCheckBox.Location = new Point(57, 18);
-            backupCheckBox.Name = "backupCheckBox";
-            backupCheckBox.Size = new Size(81, 19);
-            backupCheckBox.TabIndex = 28;
-            backupCheckBox.Text = "Auto-Save";
-            backupCheckBox.UseVisualStyleBackColor = true;
-            backupCheckBox.CheckedChanged += backupCheckBox_CheckedChanged;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -838,7 +838,7 @@
             FormBorderStyle = FormBorderStyle.Fixed3D;
             MaximizeBox = false;
             Name = "Form1";
-            Text = "Form1";
+            Text = "Hero's Only Launcher Experience";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             groupBox1.ResumeLayout(false);

@@ -211,6 +211,11 @@ namespace WinFormsApp1
             });
         }
 
+        public void AddMod(ModDownload mod)
+        {
+            modsListBox.Items.Add(mod);
+        }
+
         private void button1_Click_1(object sender, EventArgs e)
         {
             OpenGameFolderCommand();
@@ -889,7 +894,7 @@ namespace WinFormsApp1
         private void backupCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             Profile profile = GetSelectedProfile();
-            if(profile == null) return;
+            if (profile == null) return;
             backupCheckBox.Checked = GetConfig().ToggleBackups(profile.getID());
         }
     }

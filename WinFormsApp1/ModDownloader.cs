@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WinFormsApp1;
 
 namespace SPTLauncher
 {
@@ -52,7 +53,10 @@ namespace SPTLauncher
             ModImage.ImageLocation = mod.imageURL;
             Description.Text = mod.description;
             lastUpdated.Text = $"Updated: {mod.lastUpdated}";
-            Downloads.Text = $"Downloads: {mod.downloads}";
+            Downloads.Text = $"Downloads: {mod.downloads.Split(" ")[0]}";
+            Rating.Text = $"Rating: {mod.stars}/5";
+            Ratings.Text = $"Ratings: {mod.ratings}";
+            Reviews.Text = $"Reviews: {mod.reviews}";
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -66,6 +70,13 @@ namespace SPTLauncher
             page++;
             await modManager.WebRequestMods(page);
             //modManager.WebRequestMods(page++);
+        }
+
+        private void DownloadModButton_Click(object sender, EventArgs e)
+        {
+            ModDownload mod = GetSelectedModDownload();
+            if (mod == null) return;
+            Form1.form.log($"Downloading mod {mod.name}");
         }
     }
 }

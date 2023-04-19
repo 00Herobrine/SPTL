@@ -73,8 +73,8 @@ namespace SPTLauncher.Constructors
     public class ModDownload 
     {
         public ORIGIN Origin;
-        public string URL, name, author, description, imageURL, AkiVersion, lastUpdated;
-        public int downloads, comments, reviews, ratings;
+        public string URL, name, author, description, imageURL, AkiVersion, lastUpdated, downloads;
+        public int comments, reviews, ratings;
         public float stars;
         public ModDownload(HtmlNode element)
         {
@@ -88,13 +88,17 @@ namespace SPTLauncher.Constructors
             HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
             author = att.SelectSingleNode(".//li").InnerText;
             AkiVersion = element.SelectSingleNode(".//span [starts-with(@class, 'badge label')]").InnerText;
-            string s = "0";
-            string r = "0";
+            //Debug.WriteLine(element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText);
+            downloads = element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText.Trim();
+            ratings = 0;
+            HtmlNode ratingsNode = element.SelectSingleNode(".//span[@class='filebaseFileNumberOfRatings']");
+            if(ratingsNode != null) ratings = int.Parse(ratingsNode.InnerText.Trim().Replace("(", "").Replace(")", ""));
+            //downloads = int.Parse();
             if (ratingNode != null)
             {
                 string[] v = ratingNode.Attributes["title"].Value.Split("; ");
-                s = v[0];
-                r = v[1];
+                stars = float.Parse(v[0].Split(" ")[0]);
+                reviews = int.Parse(v[1].Split(" ")[0]);
             }
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
             //Debug.WriteLine($"N:{name} A:{author} V:{AkiVersion} UP:{lastUpdated} S:{s} R:{r} IU:{imageURL} U:{URL} Description:\n{description}");

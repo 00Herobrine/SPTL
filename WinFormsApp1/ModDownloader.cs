@@ -35,8 +35,13 @@ namespace SPTLauncher
             modList.Items.Add(mod);
         }
 
-        private void modList_SelectedIndexChanged(object sender, EventArgs e)
+        private async void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (modList.SelectedIndex == modList.Items.Count - 1)
+            {
+                page++;
+                await modManager.WebRequestMods(page);
+            }
             LoadMod(GetSelectedModDownload());
         }
 
@@ -77,6 +82,7 @@ namespace SPTLauncher
             ModDownload mod = GetSelectedModDownload();
             if (mod == null) return;
             Form1.form.log($"Downloading mod {mod.name}");
+            _ = mod.Download();
         }
     }
 }

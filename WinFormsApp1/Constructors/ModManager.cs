@@ -6,6 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.Intrinsics;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace SPTLauncher.Constructors
@@ -118,6 +119,36 @@ namespace SPTLauncher.Constructors
             foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
                 if (url.Contains(Recipe.GetEnumDescription(origins).ToLower())) origin = origins;
             return origin;
+        }
+
+        public async Task Download()
+        {
+            string className = "button buttonPrimary externalURL";
+            HttpClient client = new HttpClient();
+            // Send a GET request to the specified URL
+            HttpResponseMessage response = await client.GetAsync(URL);
+            Debug.WriteLine($"Querying for {className} on {URL}");
+            // Read the response content as a string
+            string html = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine($"Loading html\n{html}");
+            //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
+            // Get all elements with class 'filebaseFileCard new'
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            string downloadURL = "";
+            HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@itemprop='downloadUrl']");
+            if (nodes != null)
+            {
+                foreach (HtmlNode node in nodes)
+                {
+                    downloadURL = node.GetAttributeValue("href", "");
+                }
+            }
+        // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
+        //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
+        //string downloadURL = downloadNode.Attributes["href"].Value;
+        Debug.WriteLine($"Download URL: {downloadURL}");
+            //Form1.form.log(html);
         }
     }
 }

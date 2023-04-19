@@ -514,7 +514,7 @@
             // 
             settingsButton.Location = new Point(6, 231);
             settingsButton.Name = "settingsButton";
-            settingsButton.Size = new Size(123, 23);
+            settingsButton.Size = new Size(121, 23);
             settingsButton.TabIndex = 15;
             settingsButton.Text = "Settings";
             settingsButton.UseVisualStyleBackColor = true;

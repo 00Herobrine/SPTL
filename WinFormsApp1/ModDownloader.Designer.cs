@@ -47,12 +47,14 @@
             // 
             // modList
             // 
+            modList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             modList.FormattingEnabled = true;
             modList.ItemHeight = 15;
             modList.Location = new Point(0, 0);
             modList.Name = "modList";
             modList.Size = new Size(222, 454);
             modList.TabIndex = 0;
+            modList.DrawItem += modList_DrawItem;
             modList.SelectedIndexChanged += modList_SelectedIndexChanged;
             // 
             // Author

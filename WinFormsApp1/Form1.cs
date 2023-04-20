@@ -31,6 +31,7 @@ namespace WinFormsApp1
         private LANG language = LANG.EN;
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
+        public string[] editions;
         // do automatic profile backups, let the user set how often they should occur.
 
         public enum LANG { CH, CZ, EN, ES, ESMX, FR, GE, HU, IT, JP, KR, PL, PO, RU, SK, TU }
@@ -55,6 +56,7 @@ namespace WinFormsApp1
         private Process server;
         private Process game;
         private STATE serverState = STATE.OFFLINE;
+        private static ServerInfo si;
 
         public static string getProfilesFolder()
         {
@@ -64,7 +66,7 @@ namespace WinFormsApp1
         public Form1()
         {
             InitializeComponent();
-            gameFolder = debug ? "F:/TestPT" : Environment.CurrentDirectory;
+            gameFolder = debug ? "F:/SPT-UPDATED" : Environment.CurrentDirectory;
             profilesFolder = gameFolder + "/user/profiles";
             serverURL = "127.0.0.1:" + port;
             cachePath = gameFolder + "/Launcher-Cache";
@@ -143,16 +145,23 @@ namespace WinFormsApp1
                     files.AddRange(Directory.GetDirectories(pluginsFolder));
                 }
                 int amount = files.Count;
+                int disabledAmount = 0;
                 foreach (string file in files)
                     if (file.Contains(pluginsFolder + "\\aki-") || file.Contains(modsFolder + "\\order.json")) amount--;
                     else
                     {
                         Mod mod = new(file);
-                        int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + (!mod.isEnabled() ? " DISABLED" : ""));
+                        string d = "";
+                        if (!mod.isEnabled())
+                        {
+                            d = " DISABLED";
+                            disabledAmount++;
+                        }
+                        int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + d);
                         mods.Add(index, mod);
                     }
                 modsIndex = mods;
-                ModsButton.Text = "Mods" + ((amount > 0) ? ": " + amount : "");
+                ModsButton.Text = "Mods" + ((amount > 0) ? $": {amount - disabledAmount}/{amount}" : "");
             }
         }
 
@@ -170,13 +179,14 @@ namespace WinFormsApp1
 
         public async Task bindToAkiAsync()
         {
+            log("Attemping to bind to Aki.");
             await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
+            si = ServerManager.SelectedServer;
             //var delInstance = new PingServer(Ping);
             //var asyncResult = delInstance.BeginInvoke(out response, null, null);
             //delInstance.EndInvoke(out response, asyncResult);
             //var valueWhenDone = response;
             //bool online = ServerManager.PingServer();
-            log("Attemping to bind to Aki.");
             if (Process.GetProcessesByName("Aki.Server").Length > 0)
             {
                 SetState(STATE.ONLINE);
@@ -188,6 +198,7 @@ namespace WinFormsApp1
                 if (autoStartCheckBox.Checked) LaunchServer();
                 //server = new Process();
             }
+            if (ServerManager.SelectedServer != null) editions = ServerManager.SelectedServer.editions;
         }
 
         public bool aliveCheck()
@@ -298,21 +309,21 @@ namespace WinFormsApp1
             server = null;
         }
 
-        void ProcessData(object sender, DataReceivedEventArgs e)
+        async void ProcessData(object sender, DataReceivedEventArgs e)
         {
             string r = e.Data;
             if (r == null) return;
             r = Regex.Replace(r, @"\[[0-1];[0-9][a-z]|\[[0-9][0-9][a-z]|\[[0-9][a-z]|\[[0-9][A-Z]", string.Empty);
-            ConsoleOutput(r + "\n");
+            await ConsoleOutputAsync(r + "\n");
         }
 
-        private void ConsoleOutput(string text)
+        private async Task ConsoleOutputAsync(string text)
         {
             if (serverConsole.InvokeRequired)
             {
                 if (!logging) return;
-                TextCallBack d = new TextCallBack(ConsoleOutput);
-                Invoke(d, new object[] { text });
+                TextCallBack d = new TextCallBack(async text => await ConsoleOutputAsync(text));
+                await InvokeAsync(d, new object[] { text });
             }
             else
             {
@@ -329,9 +340,24 @@ namespace WinFormsApp1
                 else if (text.Contains(serverURL) && !inUse && serverState != STATE.ONLINE)
                 {
                     SetState(STATE.ONLINE);
-                    LoadProfiles();
+                    LoadProfiles(true);
                 }
             }
+        }
+
+        private Task InvokeAsync(Delegate method, params object[] args)
+        {
+            var taskCompletionSource = new TaskCompletionSource<object>();
+            try
+            {
+                this.Invoke(method, args);
+                taskCompletionSource.SetResult(null);
+            }
+            catch (Exception ex)
+            {
+                taskCompletionSource.SetException(ex);
+            }
+            return taskCompletionSource.Task;
         }
 
         public void SetState(STATE state)
@@ -347,6 +373,11 @@ namespace WinFormsApp1
                     startServerButton.Enabled = false;
                     killServerButton.Enabled = true;
                     groupBox1.Enabled = true;
+                    if (ServerManager.SelectedServer != null)
+                    {
+                        log("Storing editions");
+                        editions = ServerManager.SelectedServer.editions;
+                    }
                     break;
                 case STATE.STARTING:
                     startServerButton.Enabled = false;
@@ -383,7 +414,7 @@ namespace WinFormsApp1
         {
             KillServers();
         }
-
+        
         public static ServerProfileInfo[] GetServerProfileInfos()
         {
             return AccountManager.GetExistingProfiles();
@@ -408,13 +439,14 @@ namespace WinFormsApp1
                     if (checkBox1.Checked) cacheProfile(profile.username, index);
                 }
             }
+            if(profilesList.Items.Count >= 1) profilesList.SelectedIndex = 0;
             profilesList.Items.Add("New Profile...");
-            profilesList.SelectedIndex = 1;
         }
 
         public void cacheProfile(string username, int index)
         {
             AccountManager.Login(username, "");
+            if (cachedProfiles.ContainsKey(index)) cachedProfiles.Remove(index);
             cachedProfiles.Add(index, new Profile(AccountManager.SelectedAccount.id, AccountManager.SelectedProfileInfo, AccountManager.SelectedAccount));
             AccountManager.Logout();
             log("Offline cached profile " + username);
@@ -550,8 +582,18 @@ namespace WinFormsApp1
         {
             if (e.KeyCode == Keys.Enter)
             {
-                log("Created new Profile '" + profilesList.Text + "'");
+                CreateProfile(profilesList.Text);
+                LoadProfiles();
+                e.Handled = true;
             }
+        }
+
+        public void CreateProfile(string username, string password = "", string edition = "")
+        {
+            string[] editions = ServerManager.SelectedServer.editions;
+            edition = editions[0];
+            AccountManager.Register(username, password, edition);
+            log($"Created new Profile '{username}' with '{edition}' Edition");
         }
 
         private void button12_Click(object sender, EventArgs e)

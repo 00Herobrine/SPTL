@@ -1,9 +1,13 @@
 ﻿using HtmlAgilityPack;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.Intrinsics;
+using System.Text;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -130,25 +134,78 @@ namespace SPTLauncher.Constructors
             Debug.WriteLine($"Querying for {className} on {URL}");
             // Read the response content as a string
             string html = await response.Content.ReadAsStringAsync();
-            Debug.WriteLine($"Loading html\n{html}");
+            //Debug.WriteLine($"Loading html\n{html}");
             //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
             // Get all elements with class 'filebaseFileCard new'
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
             string downloadURL = "";
             HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@itemprop='downloadUrl']");
+            CookieContainer cookieContainer = new CookieContainer();
+            _ = new CookieCollection();
+            CookieCollection cookies = cookieContainer.GetCookies(response.RequestMessage.RequestUri);
+            Debug.WriteLine($"Cookies from {response} \n{cookies}");
+            string xsrfToken = "";
+            if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> cookieValues))
+            {
+                // Iterate through the cookie values and look for the XSRF-TOKEN cookie
+                foreach (string cookieValue in cookieValues)
+                {
+                    if (cookieValue.Contains("XSRF-TOKEN"))
+                    {
+                        // Extract the value of the XSRF-TOKEN cookie
+                        xsrfToken = cookieValue.Split(';').FirstOrDefault(c => c.Contains("XSRF-TOKEN")).Split('=')[1];
+                        Debug.WriteLine("XSRF-TOKEN: " + xsrfToken);
+                        break;
+                    }
+                }
+            }
             if (nodes != null)
             {
                 foreach (HtmlNode node in nodes)
                 {
                     downloadURL = node.GetAttributeValue("href", "");
                 }
+                string baseURL = "https://hub.sp-tarkov.com/files/";
+                string _URL = URL.Replace("https://hub.sp-tarkov.com/files/file/", "");
+                string modLink = $"{_URL}";
+                string newURL = $"{baseURL}license/{modLink}";
+                Debug.WriteLine($"Updated link {newURL} _U:{_URL} U: {URL}");
+                //response = await client.GetAsync(newURL);
+/*                string downloadHTML = await response.Content.ReadAsStringAsync();
+                doc.LoadHtml(downloadHTML);*/
+                string requestBody = $"confirm=1&purchase=0&t={xsrfToken}";
+                StringContent content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, newURL);
+                request.Headers.Add("confirm", "1");
+                request.Headers.Add("purchase", "0");
+                request.Headers.Add("XSRF-TOKEN", xsrfToken);
+                request.Content = content;
+                response = await client.SendAsync(request);
+                html = await response.Content.ReadAsStringAsync();
+                doc.LoadHtml(html);
+                Debug.WriteLine(response.Headers);
             }
-        // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
-        //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
-        //string downloadURL = downloadNode.Attributes["href"].Value;
-        Debug.WriteLine($"Download URL: {downloadURL}");
+            // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
+            //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
+            //string downloadURL = downloadNode.Attributes["href"].Value;
+            Debug.WriteLine($"Download URL: {downloadURL}");
             //Form1.form.log(html);
+        }
+
+        public async Task DownloadCall(string url)
+        {
+            HttpClient client = new HttpClient();
+            // Send a GET request to the specified URL
+            HttpResponseMessage response = await client.GetAsync(URL);
+            // Read the response content as a string
+            string html = await response.Content.ReadAsStringAsync();
+            //Debug.WriteLine($"Loading html\n{html}");
+            //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
+            // Get all elements with class 'filebaseFileCard new'
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            string downloadURL = "";
         }
     }
 }

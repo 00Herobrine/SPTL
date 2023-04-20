@@ -22,6 +22,8 @@ namespace SPTLauncher
         {
             InitializeComponent();
             modManager ??= new ModManager();
+            modManager.WebRequestMods(2);
+            page = 2;
             form = this;
         }
 
@@ -35,12 +37,15 @@ namespace SPTLauncher
             modList.Items.Add(mod);
         }
 
+        bool loadingMods = false;
         private async void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (modList.SelectedIndex == modList.Items.Count - 1)
+            if (!loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
                 page++;
+                loadingMods = true;
                 await modManager.WebRequestMods(page);
+                loadingMods = false;
             }
             LoadMod(GetSelectedModDownload());
         }
@@ -83,6 +88,11 @@ namespace SPTLauncher
             if (mod == null) return;
             Form1.form.log($"Downloading mod {mod.name}");
             _ = mod.Download();
+        }
+
+        private void modList_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Debug.WriteLine("drawing mod");
         }
     }
 }

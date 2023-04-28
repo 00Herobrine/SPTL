@@ -1,16 +1,8 @@
 ﻿using HtmlAgilityPack;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.Intrinsics;
 using System.Text;
-using System.Text.RegularExpressions;
-using WinFormsApp1;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace SPTLauncher.Constructors
@@ -30,7 +22,7 @@ namespace SPTLauncher.Constructors
     public class ModManager
     {
         public ModDownload curDownload;
-        public static List<ModDownload> mods = new List<ModDownload>();
+        private static List<ModDownload> mods = new();
 
         public ModManager()
         {
@@ -63,7 +55,7 @@ namespace SPTLauncher.Constructors
             }
         }
 
-        public List<ModDownload> GetModDownloads()
+        public static List<ModDownload> GetModDownloads()
         {
             return mods;
         }

@@ -46,7 +46,7 @@ namespace WinFormsApp1
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
-        private int creatingAccount;
+        private int creatingAccount = -1;
         private Dictionary<int, Profile> cachedProfiles = new Dictionary<int, Profile>();
         private Dictionary<int, Mod> modsIndex = new Dictionary<int, Mod>();
         #endregion
@@ -117,7 +117,6 @@ namespace WinFormsApp1
             LoadCache();
             LoadMods();
             Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
-            //ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
             /*if(aliveCheck()) bindToAki();
             else */
             // server check
@@ -373,11 +372,8 @@ namespace WinFormsApp1
                     startServerButton.Enabled = false;
                     killServerButton.Enabled = true;
                     groupBox1.Enabled = true;
-                    if (ServerManager.SelectedServer != null)
-                    {
-                        log("Storing editions");
-                        editions = ServerManager.SelectedServer.editions;
-                    }
+                    StoreEditions();
+                    bypass = false;
                     break;
                 case STATE.STARTING:
                     startServerButton.Enabled = false;
@@ -387,6 +383,19 @@ namespace WinFormsApp1
             }
             stateLabel.Text = "Status: " + state.ToString();
             serverState = state;
+        }
+
+        public void StoreEditions()
+        {
+            if (ServerManager.SelectedServer == null)
+                ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
+            if(!ServerManager.PingServer()) return;
+            editions = ServerManager.SelectedServer.editions;
+            editionsBox.Items.Clear();
+            editionsBox.Items.AddRange(editions);
+            if (editions.Length > 0)
+                if (GetSelectedProfile() != null) editionsBox.SelectedItem = GetSelectedProfile().getAccountInfo().edition;
+                else editionsBox.SelectedIndex = 0;
         }
 
         public void TimerInterval(object sender, EventArgs e)
@@ -414,13 +423,13 @@ namespace WinFormsApp1
         {
             KillServers();
         }
-        
+
         public static ServerProfileInfo[] GetServerProfileInfos()
         {
             return AccountManager.GetExistingProfiles();
         }
 
-        public void LoadProfiles(bool refresh = false)
+        public void LoadProfiles(bool refresh = true)
         {
             if (refresh) profilesList.Items.Clear();
             ServerProfileInfo[] profiles = GetServerProfileInfos();
@@ -434,13 +443,15 @@ namespace WinFormsApp1
                 for (int i = 0; i < profiles.Length; i++)
                 {
                     ServerProfileInfo profile = profiles[i];
-                    //Debug.Write("logging " + profile.username + " [" + i + "]");
                     int index = profilesList.Items.Add(profile.username);
                     if (checkBox1.Checked) cacheProfile(profile.username, index);
                 }
             }
-            if(profilesList.Items.Count >= 1) profilesList.SelectedIndex = 0;
+            if (profilesList.Items.Count >= 1) profilesList.SelectedIndex = 0;
             profilesList.Items.Add("New Profile...");
+            bypass = true;
+            StoreEditions();
+            bypass = false;
         }
 
         public void cacheProfile(string username, int index)
@@ -501,18 +512,44 @@ namespace WinFormsApp1
             LoadProfiles(true);
         }
 
-        public void NewAccount()
+        public void NewAccountCreation()
         {
             profilesList.SelectedIndex = profilesList.Items.Add("Temp Name");
             creatingAccount = profilesList.SelectedIndex;
             log("Creating new profile...");
         }
 
+        private void profilesList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                CreateProfile(profilesList.Text);
+                LoadProfiles();
+                e.Handled = true;
+            }
+        }
+
+        public void CreateProfile(string username, string password = "", string edition = "Standard")
+        {
+            string[] editions = ServerManager.SelectedServer.editions;
+            edition = editions[0];
+            AccountManager.Register(username, password, edition);
+            log($"Created new Profile '{username}' with '{edition}' Edition");
+        }
+
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (creatingAccount != -1)
+            {
+                // remove the account in creation from the profilesList
+                profilesList.Items.RemoveAt(creatingAccount);
+                log($"Account creation cancelled");
+                creatingAccount = -1;
+                return;
+            }
             if (profilesList.SelectedItem.Equals("New Profile..."))
             {
-                NewAccount();
+                NewAccountCreation();
                 return;
             }
             AccountStatus status = AccountManager.Login(profilesList.SelectedItem.ToString(), "");
@@ -576,24 +613,6 @@ namespace WinFormsApp1
         public JObject getParsedJson(string file)
         {
             return JObject.Parse(File.ReadAllText(file));
-        }
-
-        private void profilesList_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                CreateProfile(profilesList.Text);
-                LoadProfiles();
-                e.Handled = true;
-            }
-        }
-
-        public void CreateProfile(string username, string password = "", string edition = "")
-        {
-            string[] editions = ServerManager.SelectedServer.editions;
-            edition = editions[0];
-            AccountManager.Register(username, password, edition);
-            log($"Created new Profile '{username}' with '{edition}' Edition");
         }
 
         private void button12_Click(object sender, EventArgs e)
@@ -780,8 +799,15 @@ namespace WinFormsApp1
 
         private void button16_Click(object sender, EventArgs e)
         {
+            if (serverState == STATE.ONLINE || serverState == STATE.STARTING)
+            {
+                MessageBox.Show("Cannot disable mods while server is running.", "SERVER RUNNING", MessageBoxButtons.OK);
+                return;
+            }
+            int index = modsListBox.SelectedIndex;
             GetSelectedMod().Disable();
             LoadMods();
+            modsListBox.SelectedIndex = index;
         }
 
         public string GetDisabledModsPath()
@@ -938,6 +964,22 @@ namespace WinFormsApp1
             Profile profile = GetSelectedProfile();
             if (profile == null) return;
             backupCheckBox.Checked = GetConfig().ToggleBackups(profile.getID());
+        }
+
+        bool bypass = true;
+        private void editionsBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Profile profile = GetSelectedProfile();
+            if (bypass || profile == null || editionsBox.SelectedIndex == -1) return;
+            if(!profile.getAccountInfo().wipe) if(MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
+            string edition = editionsBox.SelectedText;
+            AccountManager.SelectedAccount.edition = edition;
+            AccountManager.WipeAsync(edition);
+            AccountManager.UpdateProfileInfo();
+            log($"Changed {profile.getAccountInfo().nickname} to {edition}");
+            LoadProfiles();
+            // do edition change stuff here
+
         }
     }
 }

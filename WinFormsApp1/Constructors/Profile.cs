@@ -10,7 +10,7 @@ using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
 {
-    public class Profile // probably better to call it an OfflineProfile mainly for offline usage
+    public class Profile
     {
         private string id;
         private ProfileInfo profileInfo;
@@ -23,7 +23,7 @@ namespace SPTLauncher.Constructors
             this.profileInfo = profileInfo;
             this.accountInfo = accountInfo;
             backup = Form1.form.GetConfig().BackupState(id);
-            Debug.WriteLine($"profile {profileInfo.Username} backups-enabled {backup}");
+           // Debug.WriteLine($"profile {profileInfo.Username} backups-enabled {backup}");
         }
 
         public string getID()

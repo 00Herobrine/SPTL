@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
+            editionsBox = new ComboBox();
             backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
@@ -108,6 +109,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(editionsBox);
             groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
@@ -137,6 +139,15 @@
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             // 
+            // editionsBox
+            // 
+            editionsBox.FormattingEnabled = true;
+            editionsBox.Location = new Point(59, 100);
+            editionsBox.Name = "editionsBox";
+            editionsBox.Size = new Size(160, 23);
+            editionsBox.TabIndex = 29;
+            editionsBox.SelectedIndexChanged += editionsBox_SelectedIndexChanged;
+            // 
             // backupCheckBox
             // 
             backupCheckBox.AutoSize = true;
@@ -161,9 +172,10 @@
             // IDLabel
             // 
             IDLabel.AutoSize = true;
+            IDLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
             IDLabel.Location = new Point(6, 82);
             IDLabel.Name = "IDLabel";
-            IDLabel.Size = new Size(21, 15);
+            IDLabel.Size = new Size(26, 19);
             IDLabel.TabIndex = 26;
             IDLabel.Text = "ID:";
             // 
@@ -253,7 +265,7 @@
             // 
             // factionImage
             // 
-            factionImage.Location = new Point(37, 154);
+            factionImage.Location = new Point(37, 158);
             factionImage.Name = "factionImage";
             factionImage.Size = new Size(135, 135);
             factionImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -294,27 +306,30 @@
             // expLabel
             // 
             expLabel.AutoSize = true;
-            expLabel.Location = new Point(6, 110);
+            expLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            expLabel.Location = new Point(6, 121);
             expLabel.Name = "expLabel";
-            expLabel.Size = new Size(37, 15);
+            expLabel.Size = new Size(43, 19);
             expLabel.TabIndex = 4;
             expLabel.Text = "Level:";
             // 
             // editionLabel
             // 
             editionLabel.AutoSize = true;
-            editionLabel.Location = new Point(6, 95);
+            editionLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            editionLabel.Location = new Point(6, 101);
             editionLabel.Name = "editionLabel";
-            editionLabel.Size = new Size(47, 15);
+            editionLabel.Size = new Size(54, 19);
             editionLabel.TabIndex = 3;
             editionLabel.Text = "Edition:";
             // 
             // nameLabel
             // 
             nameLabel.AutoSize = true;
-            nameLabel.Location = new Point(6, 67);
+            nameLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            nameLabel.Location = new Point(6, 63);
             nameLabel.Name = "nameLabel";
-            nameLabel.Size = new Size(42, 15);
+            nameLabel.Size = new Size(48, 19);
             nameLabel.TabIndex = 2;
             nameLabel.Text = "Name:";
             // 
@@ -927,5 +942,6 @@
         private Label label9;
         private ComboBox BackupDatesBox;
         private CheckBox backupCheckBox;
+        private ComboBox editionsBox;
     }
 }

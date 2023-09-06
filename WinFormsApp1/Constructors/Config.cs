@@ -1,22 +1,27 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.VisualBasic.Logging;
+using Newtonsoft.Json.Linq;
+using SPTLauncher.Components;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinFormsApp1;
 
-namespace SPTLauncher.Constructors {
+namespace SPTLauncher.Constructors
+{
     public class Config
 {
         private string path;
-        private string apiKey;
+        //private string gamePath;
+        private string apiKey = "";
         //private long lastBackupTime;
         private DateTime lastBackupTime;
         private int backupInterval;
-        private JObject jObject;
-        private JArray jArray;
+        private JObject? jObject;
+        private JArray? jArray;
+        //public AkiData akiData;
+        public Config()
+        {
+            this.path = Paths.configPath;
+            Load();
+        }
         public Config(string path) {
             this.path = path;
             Load();
@@ -34,6 +39,7 @@ namespace SPTLauncher.Constructors {
             {
                 jObject["DisabledMods"] = new JObject();
             }
+            //akiData = new AkiData(JObject.Parse(ReadCoreFile()));
             setApiKey(jObject["apiKey"].ToString());
             string time = jObject["LastBackup"].ToString();
             if (time == "" || time == null) SetLastBackUpTime(DateTime.Now);
@@ -41,6 +47,11 @@ namespace SPTLauncher.Constructors {
             var interval = jObject["BackupInterval"];
             if (interval == null) SetBackupInterval(1440);
             else SetBackupInterval((int)interval);
+        }
+
+
+        public static string ReadCoreFile() {
+            return File.ReadAllText($"{Paths.serverConfigsPath}/core.json");
         }
 
         public void setApiKey(string apiKey)
@@ -90,7 +101,7 @@ namespace SPTLauncher.Constructors {
             string path;
             if (mod.isEnabled())
             {
-                path = Form1.form.GetDisabledModsPath() + "/" + mod.GetName();
+                path = Paths.disabledModsPath + "/" + mod.GetName();
                 jObject["DisabledMods"][mod.GetName()] = mod.GetOriginalPath();
             }
             else

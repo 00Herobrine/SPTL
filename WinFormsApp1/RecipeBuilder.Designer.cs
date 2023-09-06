@@ -429,6 +429,7 @@
             Controls.Add(listBox1);
             Name = "RecipeBuilder";
             Text = "RecipeBuilder";
+            FormClosing += RecipeBuilder_FormClosing;
             Load += RecipeBuilder_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();

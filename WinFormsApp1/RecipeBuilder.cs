@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Components;
 using SPTLauncher.Constructors;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -10,7 +11,7 @@ namespace SPTLauncher
     {
         public static RecipeBuilder rb;
         private List<Module> acceptableModules = new List<Module>();
-        JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
+        JArray production = JArray.Parse(File.ReadAllText(Paths.productionPath));
         public RecipeBuilder()
         {
             acceptableModules.Add(Module.WORKBENCH);
@@ -156,9 +157,9 @@ namespace SPTLauncher
 
         public static void UpdateRecipesFile(JToken token)
         {
-            JArray jArray = JArray.Parse(File.ReadAllText(Form1.productionPath));
+            JArray jArray = JArray.Parse(File.ReadAllText(Paths.productionPath));
             jArray[rb.listBox1.SelectedIndex] = token;
-            File.WriteAllText(Form1.productionPath, jArray.ToString());
+            File.WriteAllText(Paths.productionPath, jArray.ToString());
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -221,7 +222,7 @@ namespace SPTLauncher
 
         public void Save()
         {
-            File.WriteAllText(Form1.productionPath, File.ReadAllText(production.ToString()));
+            File.WriteAllText(Paths.productionPath, File.ReadAllText(production.ToString()));
         }
 
         private void requirementID_KeyPress(object sender, KeyPressEventArgs e)
@@ -250,6 +251,12 @@ namespace SPTLauncher
         {
             getSelectedRecipe().RemoveRequirement(GetSelectedRequirement());
             requirementList.Items.Remove(requirementList.SelectedItem);
+        }
+
+        private void RecipeBuilder_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
         }
     }
 }

@@ -96,6 +96,7 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
+            minimizeCheck = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
@@ -347,6 +348,7 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(minimizeCheck);
             settingsGroup.Controls.Add(profileBackupCheckBox);
             settingsGroup.Controls.Add(label7);
             settingsGroup.Controls.Add(label4);
@@ -418,7 +420,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(189, 256);
+            button4.Location = new Point(189, 259);
             button4.Name = "button4";
             button4.Size = new Size(58, 23);
             button4.TabIndex = 3;
@@ -840,6 +842,16 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
+            // minimizeCheck
+            // 
+            minimizeCheck.AutoSize = true;
+            minimizeCheck.Location = new Point(113, 241);
+            minimizeCheck.Name = "minimizeCheck";
+            minimizeCheck.Size = new Size(134, 19);
+            minimizeCheck.TabIndex = 33;
+            minimizeCheck.Text = "Minimize on Launch";
+            minimizeCheck.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -943,5 +955,6 @@
         private ComboBox BackupDatesBox;
         private CheckBox backupCheckBox;
         private ComboBox editionsBox;
+        private CheckBox minimizeCheck;
     }
 }

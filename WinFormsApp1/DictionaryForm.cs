@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using SPTLauncher.Constructors;
+using SPTLauncher.Components;
 using SPTLauncher.Dictionary;
 using System.Runtime.InteropServices;
 using WinFormsApp1;
@@ -24,7 +24,7 @@ namespace SPTLauncher
         {
             foreach (CacheType type in TarkovCache.tabs.Keys)
             {
-                string cachePath = Form1.form.GetCachePath() + "/" + type.ToString().ToLower() + ".json";
+                string cachePath = Paths.cachePath + "/" + type.ToString().ToLower() + ".json";
                 JArray cache = JArray.Parse(File.ReadAllText(cachePath));
                 foreach (JToken entry in cache)
                 {

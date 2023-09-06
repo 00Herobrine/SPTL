@@ -1,8 +1,11 @@
 ﻿using HtmlAgilityPack;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Policy;
 using System.Text;
+using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace SPTLauncher.Constructors
@@ -21,15 +24,74 @@ namespace SPTLauncher.Constructors
     }
     public class ModManager
     {
-        public ModDownload curDownload;
+        public ModDownload curDownload = null;
         private static List<ModDownload> mods = new();
+        const string baseURL = "https://hub.sp-tarkov.com/files/";
+        private static string xsrfToken = "";
 
         public ModManager()
         {
             WebRequestMods();
         }
 
-        public async Task WebRequestMods(int page = 1)
+        public static async Task Download(ModDownload mod)
+        {
+
+            string className = "button buttonPrimary externalURL";
+            HttpClient client = new HttpClient();
+            // Send a GET request to the specified URL
+            string versionID = "6668";
+            client.DefaultRequestHeaders.Add("confirm", "1");
+            client.DefaultRequestHeaders.Add("purchase", "0");
+            client.DefaultRequestHeaders.Add("versionID", versionID);
+            client.DefaultRequestHeaders.Add("Cookie", $"welovesenko_user_session={xsrfToken}");
+            string[] split = mod.URL.Split("/");
+            string downloadURL = $"{baseURL}license/{split[^2]}";
+            HttpResponseMessage response = await client.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead);
+            HtmlDocument doc = new();
+            string html = await response.Content.ReadAsStringAsync();
+            doc.LoadHtml(html);
+            Debug.WriteLine($"DL: {downloadURL} ML: {mod.URL} TKN: {xsrfToken}");
+            Debug.WriteLine(html);
+            //HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@itemprop='downloadUrl']");
+            /*if (nodes != null)
+            {
+                foreach (HtmlNode node in nodes)
+                {
+                    downloadURL = node.GetAttributeValue("href", "");
+                }
+                string _URL = URL.Replace("https://hub.sp-tarkov.com/files/file/", "");
+                string modLink = $"{_URL}";
+                string newURL = $"{baseURL}license/{modLink}";
+                string versionID = downloadURL.Split("/").Last();
+                var client2 = new HttpClient();
+                client2.DefaultRequestHeaders.Add("confirm", "1");
+                client2.DefaultRequestHeaders.Add("purchase", "0");
+                client2.DefaultRequestHeaders.Add("versionID", versionID);
+                client2.DefaultRequestHeaders.Add("welovesenko_user_session", xsrfToken);
+                string basedURL = newURL + $"?confirm=1&purchase=0&versionID={versionID}&t={xsrfToken}";
+                response = await client2.GetAsync(newURL, HttpCompletionOption.ResponseContentRead);
+                Debug.WriteLine($"UL: {newURL} BL: {basedURL} _U:{_URL} U: {URL} D: {downloadURL}");
+                if (response.StatusCode == HttpStatusCode.Redirect)
+                {
+                    var redirectUrl = response.Headers.Location.AbsoluteUri;
+                    Console.WriteLine($"Redirect URL: {redirectUrl}");
+                }
+                else
+                {
+                    Console.WriteLine("Request was not redirected");
+                }
+            }
+            string r = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine($"Response:\n{r}");
+            // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
+            //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
+            //string downloadURL = downloadNode.Attributes["href"].Value;
+            //Debug.WriteLine($"Download URL: {downloadURL}");
+            //Form1.form.log(html);*/
+        }
+
+        public async void WebRequestMods(int page = 1)
         {
             string url = $"https://hub.sp-tarkov.com/files/?pageNo={page}&sortField=time&sortOrder=DESC";
             string className = "box128";
@@ -39,6 +101,20 @@ namespace SPTLauncher.Constructors
             Debug.WriteLine($"Querying for {className} on {url}");
             // Read the response content as a string
             string html = await response.Content.ReadAsStringAsync();
+            if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> cookieValues))
+            {
+                // Iterate through the cookie values and look for the XSRF-TOKEN cookie
+                foreach (string cookieValue in cookieValues)
+                {
+                    if (cookieValue.Contains("XSRF-TOKEN"))
+                    {
+                        // Extract the value of the XSRF-TOKEN cookie
+                        xsrfToken = cookieValue.Split(';').FirstOrDefault(c => c.Contains("XSRF-TOKEN")).Split('=')[1];
+                        Debug.WriteLine("XSRF-TOKEN: " + xsrfToken);
+                        break;
+                    }
+                }
+            }
             //Debug.WriteLine($"Loading html\n{html}");
             //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
             // Get all elements with class 'filebaseFileCard new'
@@ -73,6 +149,7 @@ namespace SPTLauncher.Constructors
         public string URL, name, author, description, imageURL, AkiVersion, lastUpdated, downloads;
         public int comments, reviews, ratings;
         public float stars;
+
         public ModDownload(HtmlNode element)
         {
             name = element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim();
@@ -119,70 +196,7 @@ namespace SPTLauncher.Constructors
 
         public async Task Download()
         {
-            string className = "button buttonPrimary externalURL";
-            HttpClient client = new HttpClient();
-            // Send a GET request to the specified URL
-            HttpResponseMessage response = await client.GetAsync(URL);
-            Debug.WriteLine($"Querying for {className} on {URL}");
-            // Read the response content as a string
-            string html = await response.Content.ReadAsStringAsync();
-            //Debug.WriteLine($"Loading html\n{html}");
-            //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
-            // Get all elements with class 'filebaseFileCard new'
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            string downloadURL = "";
-            HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@itemprop='downloadUrl']");
-            CookieContainer cookieContainer = new CookieContainer();
-            _ = new CookieCollection();
-            CookieCollection cookies = cookieContainer.GetCookies(response.RequestMessage.RequestUri);
-            Debug.WriteLine($"Cookies from {response} \n{cookies}");
-            string xsrfToken = "";
-            if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> cookieValues))
-            {
-                // Iterate through the cookie values and look for the XSRF-TOKEN cookie
-                foreach (string cookieValue in cookieValues)
-                {
-                    if (cookieValue.Contains("XSRF-TOKEN"))
-                    {
-                        // Extract the value of the XSRF-TOKEN cookie
-                        xsrfToken = cookieValue.Split(';').FirstOrDefault(c => c.Contains("XSRF-TOKEN")).Split('=')[1];
-                        Debug.WriteLine("XSRF-TOKEN: " + xsrfToken);
-                        break;
-                    }
-                }
-            }
-            if (nodes != null)
-            {
-                foreach (HtmlNode node in nodes)
-                {
-                    downloadURL = node.GetAttributeValue("href", "");
-                }
-                string baseURL = "https://hub.sp-tarkov.com/files/";
-                string _URL = URL.Replace("https://hub.sp-tarkov.com/files/file/", "");
-                string modLink = $"{_URL}";
-                string newURL = $"{baseURL}license/{modLink}";
-                Debug.WriteLine($"Updated link {newURL} _U:{_URL} U: {URL}");
-                //response = await client.GetAsync(newURL);
-/*                string downloadHTML = await response.Content.ReadAsStringAsync();
-                doc.LoadHtml(downloadHTML);*/
-                string requestBody = $"confirm=1&purchase=0&t={xsrfToken}";
-                StringContent content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, newURL);
-                request.Headers.Add("confirm", "1");
-                request.Headers.Add("purchase", "0");
-                request.Headers.Add("XSRF-TOKEN", xsrfToken);
-                request.Content = content;
-                response = await client.SendAsync(request);
-                html = await response.Content.ReadAsStringAsync();
-                doc.LoadHtml(html);
-                Debug.WriteLine(response.Headers);
-            }
-            // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
-            //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
-            //string downloadURL = downloadNode.Attributes["href"].Value;
-            Debug.WriteLine($"Download URL: {downloadURL}");
-            //Form1.form.log(html);
+            ModManager.Download(this);
         }
 
         public async Task DownloadCall(string url)

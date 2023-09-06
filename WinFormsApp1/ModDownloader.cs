@@ -35,7 +35,7 @@ namespace SPTLauncher
             {
                 page++;
                 loadingMods = true;
-                await modManager.WebRequestMods(page);
+                modManager.WebRequestMods(page);
                 loadingMods = false;
             }
             LoadMod(GetSelectedModDownload());
@@ -69,7 +69,7 @@ namespace SPTLauncher
         private async void button1_Click(object sender, EventArgs e)
         {
             page++;
-            await modManager.WebRequestMods(page);
+            modManager.WebRequestMods(page);
             //modManager.WebRequestMods(page++);
         }
 

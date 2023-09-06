@@ -10,6 +10,9 @@ using Newtonsoft.Json.Linq;
 using SPTLauncher.Constructors;
 using SPTLauncher;
 using System.Text.RegularExpressions;
+using System.Dynamic;
+using System.Windows.Forms;
+using SPTLauncher.Components;
 
 namespace WinFormsApp1
 {
@@ -25,16 +28,16 @@ namespace WinFormsApp1
         private int port = 6969;
         private int processID;
         #region paths
-        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath;
+        public static string serverURL;
+/*        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
+            gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;*/
         #endregion
-        private LANG language = LANG.EN;
+        public static LANG language = LANG.EN;
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
         public string[] editions;
         // do automatic profile backups, let the user set how often they should occur.
 
-        public enum LANG { CH, CZ, EN, ES, ESMX, FR, GE, HU, IT, JP, KR, PL, PO, RU, SK, TU }
         public enum STATE { OFFLINE, STARTING, ONLINE }
 
         public delegate void PingServer(out bool returnValue);
@@ -53,34 +56,31 @@ namespace WinFormsApp1
 
         private delegate void TextCallBack(string text);
         private delegate void ProfileCallBack(bool refresh);
-        private Process server;
+        private Process? server;
         private Process game;
         private STATE serverState = STATE.OFFLINE;
         private static ServerInfo si;
 
-        public static string getProfilesFolder()
-        {
-            return profilesFolder;
-        }
-
         public Form1()
         {
             InitializeComponent();
-            gameFolder = debug ? "F:/SPT-UPDATED" : Environment.CurrentDirectory;
-            profilesFolder = gameFolder + "/user/profiles";
             serverURL = "127.0.0.1:" + port;
-            cachePath = gameFolder + "/Launcher-Cache";
-            configPath = cachePath + "/config.json";
-            itemCache = cachePath + "/items";
-            akiData = gameFolder + "/Aki_Data";
-            gatoPath = cachePath + "/gato";
-            backupsPath = cachePath + "/backups";
-            modsFolder = gameFolder + "/user/mods";
-            pluginsFolder = gameFolder + "/bepinex/plugins";
-            databasePath = akiData + "/server/database";
-            productionPath = akiData + "/Server/database/hideout/production.json"; // - aki json file, should exist already nor should I make it
-            disabledModsPath = cachePath + "/DisabledMods";
-            localesFile = $"{databasePath}/locales/global/{language}.json";
+/*            gameFolder = debug ? "F:/SPT-3.6.1-2" : Environment.CurrentDirectory;
+            profilesFolder = $"{gameFolder}/user/profiles";
+            cachePath = $"{gameFolder}/Launcher-Cache";
+            modsFolder = $"{gameFolder}/user/mods";
+            pluginsFolder = $"{gameFolder}/bepinex/plugins";
+            akiData = $"{gameFolder}/Aki_Data";
+            serverPath = $"{akiData}/server";
+            configPath = $"{cachePath}/config.json";
+            itemCache = $"{cachePath}/items";
+            gatoPath = $"{cachePath}/gato";
+            backupsPath = $"{cachePath}/backups";
+            disabledModsPath = $"{cachePath}/DisabledMods";
+            databasePath = $"{serverPath}/database";
+            serverConfigsPath = $"{serverPath}/configs";
+            productionPath = $"{databasePath}/hideout/production.json"; // - aki json file, should exist already nor should I make it
+            localesFile = $"{databasePath}/locales/global/{language}.json";*/
             _timer.Interval = 60 * 1000;
             _timer.Tick += TimerInterval;
             _timer.Start();
@@ -90,31 +90,36 @@ namespace WinFormsApp1
         public void UpdateLocale(LANG lang)
         {
             language = lang;
-            localesFile = $"{databasePath}/locales/global/{language}.json";
+            Paths.localesFile = $"{Paths.databasePath}/locales/global/{language}.json";
         }
 
         public void PathCheck()
         {
             List<string> paths = new List<string>
             {
-                cachePath,
-                itemCache,
-                akiData,
-                gatoPath,
-                backupsPath,
-                modsFolder,
-                pluginsFolder
+                Paths.cachePath,
+                Paths.itemCache,
+                Paths.akiData,
+                Paths.gatoPath,
+                Paths.backupsPath,
+                Paths.modsFolder,
+                Paths.pluginsFolder
             };
-            foreach (string path in paths)
+            foreach (var path in paths) {
+                if (path == null) continue;
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            }
         }
 
-        public void StartUp()
+        public async void StartUp()
         {
-            bindToAkiAsync();
+            BindToAkiAsync();
             PathCheck();
-            LoadConfig();
-            LoadCache();
+            //LoadConfig();
+            Paths.Initialize(debug);
+            LauncherSettings.Load();
+            Traders.Initialize();
+            TarkovCache.Initialize();
             LoadMods();
             Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
             /*if(aliveCheck()) bindToAki();
@@ -129,24 +134,27 @@ namespace WinFormsApp1
             List<string> files = new List<string>();
             Dictionary<int, Mod> mods = new Dictionary<int, Mod>();
             modsListBox.Items.Clear();
-            if (Directory.Exists(disabledModsPath))
+            if (Directory.Exists(Paths.disabledModsPath))
             {
-                files.AddRange(Directory.GetFiles(disabledModsPath));
-                files.AddRange(Directory.GetDirectories(disabledModsPath));
+                files.AddRange(Directory.GetFiles(Paths.disabledModsPath));
+                files.AddRange(Directory.GetDirectories(Paths.disabledModsPath));
             }
-            if (Directory.Exists(modsFolder))
+            if (Directory.Exists(Paths.modsFolder))
             {
-                files.AddRange(Directory.GetFiles(modsFolder));
-                files.AddRange(Directory.GetFiles(pluginsFolder));
-                if (Directory.Exists(pluginsFolder))
+                files.AddRange(Directory.GetFiles(Paths.modsFolder));
+                files.AddRange(Directory.GetFiles(Paths.pluginsFolder));
+                if (Directory.Exists(Paths.pluginsFolder))
                 {
-                    files.AddRange(Directory.GetDirectories(modsFolder));
-                    files.AddRange(Directory.GetDirectories(pluginsFolder));
+                    files.AddRange(Directory.GetDirectories(Paths.modsFolder));
+                    files.AddRange(Directory.GetDirectories(Paths.pluginsFolder));
                 }
                 int amount = files.Count;
                 int disabledAmount = 0;
                 foreach (string file in files)
-                    if (file.Contains(pluginsFolder + "\\aki-") || file.Contains(modsFolder + "\\order.json")) amount--;
+                {
+                    string fileName = file.Split('\\')[1];
+                    //log(fileName);
+                    if (file.Contains(Paths.pluginsFolder + "\\aki-") || fileName.Equals("order.json") || fileName.Equals("spt")) amount--;
                     else
                     {
                         Mod mod = new(file);
@@ -159,24 +167,20 @@ namespace WinFormsApp1
                         int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + d);
                         mods.Add(index, mod);
                     }
-                modsIndex = mods;
-                ModsButton.Text = "Mods" + ((amount > 0) ? $": {amount - disabledAmount}/{amount}" : "");
+                    modsIndex = mods;
+                    ModsButton.Text = "Mods" + ((amount > 0) ? $": {amount - disabledAmount}/{amount}" : "");
+                }
             }
         }
 
         public void LoadConfig()
         {
-            config = new Config(configPath);
+            config = new Config(Paths.configPath);
             textBox1.Text = config.getApiKey();
             BackUpInterval.Value = config.GetBackupInterval();
         }
 
-        public void LoadCache()
-        {
-            cache = new TarkovCache(cachePath);
-        }
-
-        public async Task bindToAkiAsync()
+        public async Task BindToAkiAsync()
         {
             log("Attemping to bind to Aki.");
             await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
@@ -186,7 +190,8 @@ namespace WinFormsApp1
             //delInstance.EndInvoke(out response, asyncResult);
             //var valueWhenDone = response;
             //bool online = ServerManager.PingServer();
-            if (Process.GetProcessesByName("Aki.Server").Length > 0)
+            Process[] processes = GetServerProcesses();
+            if (processes.Length > 0)
             {
                 SetState(STATE.ONLINE);
                 log("Detected active Aki.");
@@ -198,6 +203,11 @@ namespace WinFormsApp1
                 //server = new Process();
             }
             if (ServerManager.SelectedServer != null) editions = ServerManager.SelectedServer.editions;
+        }
+
+        public static Process[] GetServerProcesses()
+        {
+            return Process.GetProcessesByName("Aki.Server");
         }
 
         public bool aliveCheck()
@@ -213,7 +223,7 @@ namespace WinFormsApp1
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = gameFolder,
+                FileName = Paths.gameFolder,
                 UseShellExecute = true,
                 Verb = "open"
             });
@@ -233,6 +243,7 @@ namespace WinFormsApp1
         {
             StartUp();
             activeGroupBox = groupBox3;
+            Text += $" - {LauncherSettings.akiData.akiVersion}";
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -256,15 +267,14 @@ namespace WinFormsApp1
         public void LaunchServer()
         {
             inUse = false;
-            log("Starting Aki...");
-            createServer();
+            CreateServer();
         }
 
-        public void createServer()
+        public void CreateServer()
         {
-            string serverExe = Directory.GetFiles(gameFolder, "*Server.exe")[0];
+            string serverExe = Directory.GetFiles(Paths.gameFolder, "*Server.exe")[0];
             server = new Process();
-            server.StartInfo.WorkingDirectory = gameFolder;
+            server.StartInfo.WorkingDirectory = Paths.gameFolder;
             if (File.Exists(serverExe))
             {
                 server.StartInfo.FileName = serverExe;
@@ -277,6 +287,7 @@ namespace WinFormsApp1
                 server.EnableRaisingEvents = true;
                 server.Exited += Terminated;
                 server.Start();
+                log("Starting Aki...");
                 SetState(STATE.STARTING);
                 startServerButton.Enabled = false;
                 killServerButton.Enabled = true;
@@ -287,19 +298,10 @@ namespace WinFormsApp1
 
         private void KillServers()
         {
-            if (server != null)
-            {
-                server.Kill(true);
-            }
-            else
-            {
-                Process.GetProcesses().FirstOrDefault(x => x.ProcessName == "Aki.Server")?.Kill();
-                Process.GetProcesses().Where(x => x.ProcessName == "conhost").ToList().ForEach(x => x.Kill());
-            }
+            foreach(Process process in GetServerProcesses()) { process.Kill(); log($"Killed {process.ProcessName}."); }
             startServerButton.Enabled = true;
             killServerButton.Enabled = false;
             SetState(STATE.OFFLINE);
-            log("Killed Aki.Server.exe");
             Debug.Write("Killing Servers");
         }
 
@@ -389,7 +391,7 @@ namespace WinFormsApp1
         {
             if (ServerManager.SelectedServer == null)
                 ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
-            if(!ServerManager.PingServer()) return;
+            if (!ServerManager.PingServer()) return;
             editions = ServerManager.SelectedServer.editions;
             editionsBox.Items.Clear();
             editionsBox.Items.AddRange(editions);
@@ -408,9 +410,16 @@ namespace WinFormsApp1
             return ServerManager.PingServer();
         }
 
-        public void log(string text)
+        public async void log(string text)
         {
-            serverConsole.Text += Prefix + text + "\n";
+            await Task.Run(() =>
+            {
+                this.Invoke(new Action(() =>
+                {
+                    serverConsole.Text += Prefix + text + "\n";
+                    if (checkBox1.Checked) scrollToBottom();
+                }));
+            });
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -465,15 +474,15 @@ namespace WinFormsApp1
 
         public void StartClient(string uid)
         {
-            string dll = gameFolder + "/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll";
-            string bpf = gameFolder + "/Aki_Data/Launcher/Patches/aki-core/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll.bpf";
+            string dll = Paths.gameFolder + "/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll";
+            string bpf = Paths.gameFolder + "/Aki_Data/Launcher/Patches/aki-core/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll.bpf";
             Aki.Launcher.Helpers.FilePatcher.Patch(dll, bpf, false);
-            ProcessStartInfo startGame = new ProcessStartInfo(Path.Combine(gameFolder, "EscapeFromTarkov.exe"))
+            ProcessStartInfo startGame = new ProcessStartInfo(Path.Combine(Paths.gameFolder, "EscapeFromTarkov.exe"))
             {
                 //$"-force-gfx-jobs native -token={account.id} -config={Json.Serialize(new ClientConfig(server.backendUrl))}";
                 Arguments = "-token=" + uid + " -config={'BackendUrl':'" + serverURL + "','Version':'live'}",
                 UseShellExecute = false,
-                WorkingDirectory = gameFolder
+                WorkingDirectory = Paths.gameFolder
             };
 
             if (game != null)
@@ -499,6 +508,7 @@ namespace WinFormsApp1
             {
                 if (MessageBox.Show("Launching will wipe your account. Continue?", "WIPE ACCOUNT", MessageBoxButtons.YesNo) == DialogResult.No) return;
             }
+            if(minimizeCheck.Checked) { WindowState = FormWindowState.Minimized; }
             StartClient(AccountManager.SelectedAccount.id);
         }
 
@@ -519,6 +529,14 @@ namespace WinFormsApp1
             log("Creating new profile...");
         }
 
+        public void CreateProfile(string username, string password = "", string edition = "Standard")
+        {
+            string[] editions = ServerManager.SelectedServer.editions;
+            edition = editions[0];
+            AccountManager.Register(username, password, edition);
+            log($"Created new Profile '{username}' with '{edition}' Edition");
+        }
+
         private void profilesList_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -527,14 +545,6 @@ namespace WinFormsApp1
                 LoadProfiles();
                 e.Handled = true;
             }
-        }
-
-        public void CreateProfile(string username, string password = "", string edition = "Standard")
-        {
-            string[] editions = ServerManager.SelectedServer.editions;
-            edition = editions[0];
-            AccountManager.Register(username, password, edition);
-            log($"Created new Profile '{username}' with '{edition}' Edition");
         }
 
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -597,7 +607,7 @@ namespace WinFormsApp1
 
         public void ToggleWipe(string id)
         {
-            string infoPath = profilesFolder + "/" + id + ".json";
+            string infoPath = Paths.profilesFolder + "/" + id + ".json";
             JObject newStats = getParsedJson(infoPath);
             JToken info = newStats["info"]["wipe"];
             bool wipe = bool.Parse(info.ToString());
@@ -608,7 +618,7 @@ namespace WinFormsApp1
 
         public JToken getInfo(string id)
         {
-            return getParsedJson(profilesFolder + "/" + id + ".json")["info"];
+            return getParsedJson(Paths.profilesFolder + "/" + id + ".json")["info"];
         }
         public JObject getParsedJson(string file)
         {
@@ -673,6 +683,7 @@ namespace WinFormsApp1
 
         public Config GetConfig()
         {
+            config ??= new();
             return config;
         }
 
@@ -707,28 +718,23 @@ namespace WinFormsApp1
             cat(e.KeyChar);
             e.Handled = true; // Shut annoying ass windows up
         }
-        public List<string> last3 = new List<string>();
+        private string input = "";
         public void cat(char keyChar)
         {
-            last3.Add(keyChar.ToString());
-            string word = "";
-            if (!last3[0].ToLower().Equals("c") && !last3[0].ToLower().Equals("g"))
+            input += keyChar;
+            if (input.Length < 3) return;
+            if (input.Length > 50) input = "";
+            string last3 = input.ToLower().Substring(input.Length - 3);
+            string last4 = (input.Length >= 4) ? input.ToLower().Substring(input.Length - 4) : "";
+            if (last3.Contains("cat") || last4.Contains("gato"))
             {
-                //log("clearing " + last3[0]);
-                last3.Clear();
-            }
-            if (last3.Count >= 3)
-            {
-                foreach (string s in last3.ToArray()) word += s;
-                if (word.ToLower().Contains("cat") || word.ToLower().Contains("gato")) catToggle();
-                else if (last3.Count >= 4) last3.Clear();
-                //log("spelled " + word);
+                catToggle();
             }
         }
         private bool gato = false;
         public void catToggle()
         {
-            last3.Clear();
+            input = "";
             gato = !gato;
             if (gato)
             {
@@ -738,8 +744,8 @@ namespace WinFormsApp1
         }
         private string chooseGato()
         {
-            string[] gatos = Directory.GetFiles(gatoPath);
-            Random random = new Random();
+            string[] gatos = Directory.GetFiles(Paths.gatoPath);
+            Random random = new();
             int randomReturn = random.Next(gatos.Length);
             //log(randomReturn + " returned path " + gatos[randomReturn]);
             return gatos[randomReturn];
@@ -792,11 +798,6 @@ namespace WinFormsApp1
             else button16.Text = "Enable";
         }
 
-        public string GetCachePath()
-        {
-            return cachePath;
-        }
-
         private void button16_Click(object sender, EventArgs e)
         {
             if (serverState == STATE.ONLINE || serverState == STATE.STARTING)
@@ -807,18 +808,15 @@ namespace WinFormsApp1
             int index = modsListBox.SelectedIndex;
             GetSelectedMod().Disable();
             LoadMods();
+            /*List<Mod> items = modsListBox.Items.Cast<Mod>().ToList();
+            List<Mod> sortedItems = items.OrderBy(item => item.GetName())
+                                       .ThenByDescending(item => item.IsPlugin())
+                                       .ToList();
+            modsListBox.Items.Clear();
+            foreach (Mod mod in sortedItems) modsListBox.Items.Add(mod);*/
             modsListBox.SelectedIndex = index;
         }
 
-        public string GetDisabledModsPath()
-        {
-            return disabledModsPath;
-        }
-
-        public string GetModsPath()
-        {
-            return modsFolder;
-        }
         #endregion
 
         #region Backup Manager
@@ -841,8 +839,8 @@ namespace WinFormsApp1
 
         public void CreateProfileBackup(string id, DateTime now, string logMessage = null)
         {
-            string path = profilesFolder + "/" + id + ".json";
-            string backupPath = backupsPath + "/" + id;
+            string path = Paths.profilesFolder + "/" + id + ".json";
+            string backupPath = Paths.backupsPath + "/" + id;
             if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
             if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
             string filePath = backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json";
@@ -864,7 +862,7 @@ namespace WinFormsApp1
         public void LoadBackupsValues()
         {
             BackupProfiles.Items.Clear();
-            foreach (string dir in Directory.GetDirectories(backupsPath))
+            foreach (string dir in Directory.GetDirectories(Paths.backupsPath))
             {
                 BackupProfiles.Items.Add(Path.GetFileName(dir));
             }
@@ -897,7 +895,7 @@ namespace WinFormsApp1
             string id = BackupProfiles.Text;
             string date = BackupDatesBox.Text;
             string backup = BackupsList.Text;
-            string backupPath = $"{backupsPath}/{id}/{date}/{backup}";
+            string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
             RestoreBackup(id, backupPath);
         }
 
@@ -906,7 +904,7 @@ namespace WinFormsApp1
             string id = BackupProfiles.Text;
             string date = BackupDatesBox.Text;
             string backup = BackupsList.Text;
-            string backupPath = $"{backupsPath}/{id}/{date}/{backup}";
+            string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
             CreateProfileBackup(id);
             RestoreBackup(id, backupPath);
             ReloadBackupIndexes();
@@ -914,7 +912,7 @@ namespace WinFormsApp1
 
         public void RestoreBackup(string id, string backupPath)
         {
-            File.Copy($"{backupPath}", $"{profilesFolder}/{id}.json", true);
+            File.Copy($"{backupPath}", $"{Paths.profilesFolder}/{id}.json", true);
             log("Restored Backup " + Path.GetFileName(backupPath));
         }
 
@@ -935,7 +933,7 @@ namespace WinFormsApp1
         {
             int profileIndex = BackupProfiles.SelectedIndex;
             BackupProfiles.Items.Clear();
-            foreach (string dir in Directory.GetDirectories(backupsPath)) BackupProfiles.Items.Add(Path.GetFileName(dir));
+            foreach (string dir in Directory.GetDirectories(Paths.backupsPath)) BackupProfiles.Items.Add(Path.GetFileName(dir));
             if (BackupProfiles.Items.Count == 1) BackupProfiles.SelectedIndex = 0;
             else if (BackupProfiles.Items.Count > 0 && BackupProfiles.Items.Count >= profileIndex) BackupProfiles.SelectedIndex = profileIndex;
         }
@@ -944,7 +942,7 @@ namespace WinFormsApp1
         {
             int index = BackupDatesBox.SelectedIndex;
             BackupDatesBox.Items.Clear();
-            foreach (string dateDir in Directory.GetDirectories($"{backupsPath}/{BackupProfiles.Text}")) BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
+            foreach (string dateDir in Directory.GetDirectories($"{Paths.backupsPath}/{BackupProfiles.Text}")) BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
             if (BackupDatesBox.Items.Count == 1) BackupDatesBox.SelectedIndex = 0;
             else if (BackupDatesBox.Items.Count > 0 && BackupDatesBox.Items.Count >= index) BackupDatesBox.SelectedIndex = index;
         }
@@ -953,7 +951,7 @@ namespace WinFormsApp1
         {
             int index = BackupsList.SelectedIndex;
             BackupsList.Items.Clear();
-            foreach (string timeFile in Directory.GetFiles($"{backupsPath}/{BackupProfiles.Text}/{BackupDatesBox.Text}")) BackupsList.Items.Add(Path.GetFileName(timeFile));
+            foreach (string timeFile in Directory.GetFiles($"{Paths.backupsPath}/{BackupProfiles.Text}/{BackupDatesBox.Text}")) BackupsList.Items.Add(Path.GetFileName(timeFile));
             if (BackupsList.Items.Count == 1) BackupsList.SelectedIndex = 0;
             else if (BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
         }
@@ -971,10 +969,10 @@ namespace WinFormsApp1
         {
             Profile profile = GetSelectedProfile();
             if (bypass || profile == null || editionsBox.SelectedIndex == -1) return;
-            if(!profile.getAccountInfo().wipe) if(MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
+            if (!profile.getAccountInfo().wipe) if (MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
             string edition = editionsBox.SelectedText;
             AccountManager.SelectedAccount.edition = edition;
-            AccountManager.WipeAsync(edition);
+            //AccountManager.WipeAsync(edition);
             AccountManager.UpdateProfileInfo();
             log($"Changed {profile.getAccountInfo().nickname} to {edition}");
             LoadProfiles();

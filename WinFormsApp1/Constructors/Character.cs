@@ -1,17 +1,18 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Components;
 using System.Diagnostics;
 
 namespace WinFormsApp1.Constructors
 {
     public class Character
     {
-        public Dictionary<string, Skill> skills = new Dictionary<string, Skill>();
+        public Dictionary<string, Skill> skills = new();
         public string infoPath;
         public string characterFile;
 
         public Character(string ID)
         {
-            infoPath = Form1.getProfilesFolder() + "/" + ID + ".json";
+            infoPath = Paths.profilesFolder + "/" + ID + ".json";
             characterFile = File.ReadAllText(infoPath);
             Debug.WriteLine("Creating chracters thing");
             if (File.Exists(infoPath))
@@ -34,8 +35,9 @@ namespace WinFormsApp1.Constructors
                     //for(int i = 0; i < skills.)
                 }
             }
-            else Debug.WriteLine("path '" + infoPath + "' doesn't exist");
+            else Form1.form.log("path '" + infoPath + "' doesn't exist");
             //skills[Skills(ID)];
+
         }
 
         public Dictionary<string, Skill> getSkills()

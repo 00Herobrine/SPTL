@@ -1,5 +1,6 @@
 ﻿using Aki.Launcher;
 using Newtonsoft.Json.Linq;
+using SPTLauncher.Components;
 
 namespace WinFormsApp1
 {
@@ -19,7 +20,7 @@ namespace WinFormsApp1
 
         public void StartUp(string accountID)
         {
-            string path = Form1.profilesFolder + "/" + accountID + ".json";
+            string path = Paths.profilesFolder + "/" + accountID + ".json";
             JObject jObject = JObject.Parse(File.ReadAllText(path));
             foreach (JProperty jToken in jObject["characters"]["pmc"]["Encyclopedia"])
             {

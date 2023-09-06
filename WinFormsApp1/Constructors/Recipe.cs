@@ -1,5 +1,6 @@
 ﻿using Aki.Launcher.Attributes;
 using Newtonsoft.Json.Linq;
+using SPTLauncher.Components;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -84,7 +85,7 @@ namespace SPTLauncher.Constructors
             _id = Guid.NewGuid().ToString().Replace("-", ""); // recipe id, generate something
             this.module = module;
             string des = GetEnumDescription(module);
-            JArray production = JArray.Parse(File.ReadAllText(Form1.productionPath));
+            JArray production = JArray.Parse(File.ReadAllText(Paths.productionPath));
             //production.Add(toke);
             jToken = production.Descendants().Where(x => x.Type == JTokenType.Property && ((JProperty)x).Value.ToString().Equals(_id)).FirstOrDefault();
             //jToken = production[""];

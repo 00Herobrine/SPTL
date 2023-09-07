@@ -10,9 +10,8 @@ using Newtonsoft.Json.Linq;
 using SPTLauncher.Constructors;
 using SPTLauncher;
 using System.Text.RegularExpressions;
-using System.Dynamic;
-using System.Windows.Forms;
 using SPTLauncher.Components;
+using SPTLauncher.Constructors.Enums;
 
 namespace WinFormsApp1
 {
@@ -29,8 +28,8 @@ namespace WinFormsApp1
         private int processID;
         #region paths
         public static string serverURL;
-/*        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;*/
+        /*        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
+                    gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;*/
         #endregion
         public static LANG language = LANG.EN;
         private string Prefix = "[Hero's Launcher] ";
@@ -51,7 +50,6 @@ namespace WinFormsApp1
         private GroupBox activeGroupBox;
         private int creatingAccount = -1;
         private Dictionary<int, Profile> cachedProfiles = new Dictionary<int, Profile>();
-        private Dictionary<int, Mod> modsIndex = new Dictionary<int, Mod>();
         #endregion
 
         private delegate void TextCallBack(string text);
@@ -65,22 +63,6 @@ namespace WinFormsApp1
         {
             InitializeComponent();
             serverURL = "127.0.0.1:" + port;
-/*            gameFolder = debug ? "F:/SPT-3.6.1-2" : Environment.CurrentDirectory;
-            profilesFolder = $"{gameFolder}/user/profiles";
-            cachePath = $"{gameFolder}/Launcher-Cache";
-            modsFolder = $"{gameFolder}/user/mods";
-            pluginsFolder = $"{gameFolder}/bepinex/plugins";
-            akiData = $"{gameFolder}/Aki_Data";
-            serverPath = $"{akiData}/server";
-            configPath = $"{cachePath}/config.json";
-            itemCache = $"{cachePath}/items";
-            gatoPath = $"{cachePath}/gato";
-            backupsPath = $"{cachePath}/backups";
-            disabledModsPath = $"{cachePath}/DisabledMods";
-            databasePath = $"{serverPath}/database";
-            serverConfigsPath = $"{serverPath}/configs";
-            productionPath = $"{databasePath}/hideout/production.json"; // - aki json file, should exist already nor should I make it
-            localesFile = $"{databasePath}/locales/global/{language}.json";*/
             _timer.Interval = 60 * 1000;
             _timer.Tick += TimerInterval;
             _timer.Start();
@@ -105,7 +87,8 @@ namespace WinFormsApp1
                 Paths.modsFolder,
                 Paths.pluginsFolder
             };
-            foreach (var path in paths) {
+            foreach (var path in paths)
+            {
                 if (path == null) continue;
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             }
@@ -120,7 +103,8 @@ namespace WinFormsApp1
             LauncherSettings.Load();
             Traders.Initialize();
             TarkovCache.Initialize();
-            LoadMods();
+            ModManager.LoadMods();
+            foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
             Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
             /*if(aliveCheck()) bindToAki();
             else */
@@ -129,49 +113,7 @@ namespace WinFormsApp1
             // login check
         }
 
-        public void LoadMods()
-        {
-            List<string> files = new List<string>();
-            Dictionary<int, Mod> mods = new Dictionary<int, Mod>();
-            modsListBox.Items.Clear();
-            if (Directory.Exists(Paths.disabledModsPath))
-            {
-                files.AddRange(Directory.GetFiles(Paths.disabledModsPath));
-                files.AddRange(Directory.GetDirectories(Paths.disabledModsPath));
-            }
-            if (Directory.Exists(Paths.modsFolder))
-            {
-                files.AddRange(Directory.GetFiles(Paths.modsFolder));
-                files.AddRange(Directory.GetFiles(Paths.pluginsFolder));
-                if (Directory.Exists(Paths.pluginsFolder))
-                {
-                    files.AddRange(Directory.GetDirectories(Paths.modsFolder));
-                    files.AddRange(Directory.GetDirectories(Paths.pluginsFolder));
-                }
-                int amount = files.Count;
-                int disabledAmount = 0;
-                foreach (string file in files)
-                {
-                    string fileName = file.Split('\\')[1];
-                    //log(fileName);
-                    if (file.Contains(Paths.pluginsFolder + "\\aki-") || fileName.Equals("order.json") || fileName.Equals("spt")) amount--;
-                    else
-                    {
-                        Mod mod = new(file);
-                        string d = "";
-                        if (!mod.isEnabled())
-                        {
-                            d = " DISABLED";
-                            disabledAmount++;
-                        }
-                        int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + d);
-                        mods.Add(index, mod);
-                    }
-                    modsIndex = mods;
-                    ModsButton.Text = "Mods" + ((amount > 0) ? $": {amount - disabledAmount}/{amount}" : "");
-                }
-            }
-        }
+
 
         public void LoadConfig()
         {
@@ -298,7 +240,7 @@ namespace WinFormsApp1
 
         private void KillServers()
         {
-            foreach(Process process in GetServerProcesses()) { process.Kill(); log($"Killed {process.ProcessName}."); }
+            foreach (Process process in GetServerProcesses()) { process.Kill(); log($"Killed {process.ProcessName}."); }
             startServerButton.Enabled = true;
             killServerButton.Enabled = false;
             SetState(STATE.OFFLINE);
@@ -508,7 +450,7 @@ namespace WinFormsApp1
             {
                 if (MessageBox.Show("Launching will wipe your account. Continue?", "WIPE ACCOUNT", MessageBoxButtons.YesNo) == DialogResult.No) return;
             }
-            if(minimizeCheck.Checked) { WindowState = FormWindowState.Minimized; }
+            if (minimizeCheck.Checked) { WindowState = FormWindowState.Minimized; }
             StartClient(AccountManager.SelectedAccount.id);
         }
 
@@ -526,7 +468,7 @@ namespace WinFormsApp1
         {
             profilesList.SelectedIndex = profilesList.Items.Add("Temp Name");
             creatingAccount = profilesList.SelectedIndex;
-            log("Creating new profile...");
+            log("Creating new profile @ " + creatingAccount);
         }
 
         public void CreateProfile(string username, string password = "", string edition = "Standard")
@@ -539,7 +481,7 @@ namespace WinFormsApp1
 
         private void profilesList_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter && creatingAccount != -1)
             {
                 CreateProfile(profilesList.Text);
                 LoadProfiles();
@@ -695,6 +637,7 @@ namespace WinFormsApp1
 
         private void button13_Click(object sender, EventArgs e)
         {
+            if (GetSelectedProfile() == null) return;
             if (GetSelectedProfile().GetEncyclopedia() == null) GetSelectedProfile().generateEncyclopedia();
             GetSelectedProfile().GetEncyclopedia().Show();
         }
@@ -740,7 +683,7 @@ namespace WinFormsApp1
             {
                 factionImage.Image = Image.FromFile(chooseGato());
             }
-            else factionImage.ImageLocation = "";
+            else factionImage.Image = null;
         }
         private string chooseGato()
         {
@@ -784,16 +727,14 @@ namespace WinFormsApp1
 
         public Mod GetSelectedMod()
         {
-            int index = modsListBox.SelectedIndex;
-            if (index < 0) return null;
-            else return modsIndex[index];
+            return (Mod)modsListBox.SelectedItem;
         }
         private void modsList_SelectedIndexChanged(object sender, EventArgs e)
         {
             Mod mod = GetSelectedMod();
             if (mod == null) return;
-            if (mod.HasConfig()) ModManager.Enabled = true;
-            else ModManager.Enabled = false;
+            if (mod.HasConfig()) ModConfig.Enabled = true;
+            else ModConfig.Enabled = false;
             if (mod.isEnabled()) button16.Text = "Disable";
             else button16.Text = "Enable";
         }
@@ -807,7 +748,7 @@ namespace WinFormsApp1
             }
             int index = modsListBox.SelectedIndex;
             GetSelectedMod().Disable();
-            LoadMods();
+            //ModManager.LoadMods();
             /*List<Mod> items = modsListBox.Items.Cast<Mod>().ToList();
             List<Mod> sortedItems = items.OrderBy(item => item.GetName())
                                        .ThenByDescending(item => item.IsPlugin())
@@ -978,6 +919,27 @@ namespace WinFormsApp1
             LoadProfiles();
             // do edition change stuff here
 
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            Form traders = new TradersEditor();
+            traders.Show();
+        }
+
+        private void ModConfig_Click(object sender, EventArgs e)
+        {
+            Mod mod = GetSelectedMod();
+            string? path = mod.GetConfigPath();
+            if (mod == null || path == null) return;
+            Process.Start("explorer.exe", path.Replace("/", "\\"));
+        }
+
+        private void DeleteProfileButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Delete Selected Profile", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
+            AccountManager.Remove();
+            LoadProfiles();
         }
     }
 }

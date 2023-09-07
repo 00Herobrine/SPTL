@@ -1,4 +1,4 @@
-﻿using SPTLauncher.Constructors;
+﻿using SPTLauncher.Components;
 using System.Diagnostics;
 using WinFormsApp1;
 
@@ -6,14 +6,12 @@ namespace SPTLauncher
 {
     public partial class ModDownloader : Form
     {
-        private ModManager modManager;
-        public static ModDownloader form;
+        public static ModDownloader? form;
         private int page = 1;
         public ModDownloader()
         {
             InitializeComponent();
-            modManager ??= new ModManager();
-            modManager.WebRequestMods(2);
+            ModManager.WebRequestMods(2);
             page = 2;
             form = this;
         }
@@ -35,7 +33,7 @@ namespace SPTLauncher
             {
                 page++;
                 loadingMods = true;
-                modManager.WebRequestMods(page);
+                ModManager.WebRequestMods(page);
                 loadingMods = false;
             }
             LoadMod(GetSelectedModDownload());
@@ -69,7 +67,7 @@ namespace SPTLauncher
         private async void button1_Click(object sender, EventArgs e)
         {
             page++;
-            modManager.WebRequestMods(page);
+            ModManager.WebRequestMods(page);
             //modManager.WebRequestMods(page++);
         }
 
@@ -77,7 +75,7 @@ namespace SPTLauncher
         {
             ModDownload mod = GetSelectedModDownload();
             if (mod == null) return;
-            Form1.form.log($"Downloading mod {mod.name}");
+            Form1.form.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
         }
 

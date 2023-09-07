@@ -40,21 +40,6 @@ namespace SPTLauncher.Components
             "5aafbde786f774389d0cbc0f", // Ammo Case
         };
         #endregion
-        /*        public TarkovCache()
-                {
-                    this.mainPath = Paths.cachePath;
-                    if (!Directory.Exists(Paths.itemCache)) Directory.CreateDirectory(Paths.itemCache);
-                    if (!Directory.Exists(mainPath)) Directory.CreateDirectory(mainPath);
-                    LoadTabs();
-                    GenerateCache();
-                }
-                public TarkovCache(string mainPath) {
-                    this.mainPath = mainPath;
-                    if (!Directory.Exists(Paths.itemCache)) Directory.CreateDirectory(Paths.itemCache);
-                    if (!Directory.Exists(mainPath)) Directory.CreateDirectory(mainPath);
-                    LoadTabs();
-                    GenerateCache();
-                }*/
 
         public static void Initialize()
         {

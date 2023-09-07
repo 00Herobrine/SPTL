@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 
 namespace SPTLauncher.Constructors
 {
-    public struct LoyaltyLevel
+    public class LoyaltyLevel
     {
-        private int buyPriceCoef { get; set; }
-        private int exchangePriceCoef { get; set; }
+        public int buyPriceCoef { get; set; }
+        public int exchangePriceCoef { get; set; }
         public int healPriceCoef { get; set; }
         public int insurancePriceCoef { get; set; }
+        public int repairPriceCoef { get; set; }
         public int minLevel { get; set; }
         public int minSalesSum { get; set; }
         public float minStanding { get; set; }
-        public int repairPriceCoef { get; set; }
-
-        public LoyaltyLevel(JObject jobject)
+        public int level;
+        
+        public LoyaltyLevel(int level, JObject jobject)
         {
+            this.level = level;
             buyPriceCoef = jobject["buy_price_coef"]?.Value<int>() ?? 0;
             exchangePriceCoef = jobject["exchange_price_coef"]?.Value<int>() ?? 0;
             healPriceCoef = jobject["heal_price_coef"]?.Value<int>() ?? 0;
@@ -28,6 +30,15 @@ namespace SPTLauncher.Constructors
             minSalesSum = jobject["minSalesSum"]?.Value<int>() ?? 0;
             minStanding = jobject["minStanding"]?.Value<float>() ?? 0.0f;
             repairPriceCoef = jobject["repair_price_coef"]?.Value<int>() ?? 0;
+        }
+        public LoyaltyLevel(int level)
+        {
+            this.level = level;
+        }
+
+        public override string ToString()
+        {
+            return level.ToString();
         }
     }
 }

@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 namespace SPTLauncher.Dictionary
 {
 
-    public class DictionaryEntry : Entry {
-        public DictionaryEntry(JToken token) : base(token) { 
+    public class DictionaryEntry : Entry
+    {
+        public DictionaryEntry(JToken token) : base(token)
+        {
 
         }
     }

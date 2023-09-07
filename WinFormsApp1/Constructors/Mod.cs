@@ -1,4 +1,5 @@
-﻿using WinFormsApp1;
+﻿using SPTLauncher.Components;
+using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
 {
@@ -6,7 +7,7 @@ namespace SPTLauncher.Constructors
     {
         private string path;
         private string name;
-        private string configPath;
+        private string? configPath;
         private string originalPath;
         private bool enabled;
         private ModType modType = ModType.CLIENT;
@@ -21,6 +22,13 @@ namespace SPTLauncher.Constructors
             if (!enabled) originalPath = Form1.form.GetConfig().GetDisabledModPath(name);
             else originalPath = path;
             if (originalPath.Contains("bepinex/plugins")) modType = ModType.SERVER;
+        }
+
+        public override string ToString()
+        {
+            string type = IsPlugin() ? "[P]" : "[C]";
+            string enabled = isEnabled() ? "" : " [DISABLED]";
+            return $"{name} {type}{enabled}";
         }
 
         public string GetPath()
@@ -70,5 +78,9 @@ namespace SPTLauncher.Constructors
             enabled = false;
         }
 
+        public string? GetConfigPath()
+        {
+            return configPath;
+        }
     }
 }

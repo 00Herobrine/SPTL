@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
+            DeleteProfileButton = new Button();
             editionsBox = new ComboBox();
             backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
             button12 = new Button();
-            button11 = new Button();
             button10 = new Button();
             button9 = new Button();
             button8 = new Button();
@@ -50,7 +50,15 @@
             editionLabel = new Label();
             nameLabel = new Label();
             profilesList = new ComboBox();
+            groupBox3 = new GroupBox();
+            skillProgressTextBox = new NumericUpDown();
+            skillDescriptionLabel = new Label();
+            label3 = new Label();
+            saveSkillsButton = new Button();
+            label2 = new Label();
+            comboBox1 = new ComboBox();
             settingsGroup = new GroupBox();
+            minimizeCheck = new CheckBox();
             profileBackupCheckBox = new CheckBox();
             label7 = new Label();
             label4 = new Label();
@@ -59,13 +67,7 @@
             button4 = new Button();
             linkLabel3 = new LinkLabel();
             textBox1 = new TextBox();
-            groupBox3 = new GroupBox();
-            skillProgressTextBox = new NumericUpDown();
-            skillDescriptionLabel = new Label();
-            label3 = new Label();
-            saveSkillsButton = new Button();
-            label2 = new Label();
-            comboBox1 = new ComboBox();
+            button11 = new Button();
             button14 = new Button();
             settingsButton = new Button();
             label5 = new Label();
@@ -86,7 +88,7 @@
             serverConsole = new RichTextBox();
             groupBox4 = new GroupBox();
             button16 = new Button();
-            ModManager = new Button();
+            ModConfig = new Button();
             modsListBox = new ListBox();
             BackupGroup = new GroupBox();
             label9 = new Label();
@@ -96,13 +98,12 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
-            minimizeCheck = new CheckBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
-            settingsGroup.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
+            settingsGroup.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             groupBox2.SuspendLayout();
             groupBox4.SuspendLayout();
             BackupGroup.SuspendLayout();
@@ -110,12 +111,12 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(DeleteProfileButton);
             groupBox1.Controls.Add(editionsBox);
             groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
             groupBox1.Controls.Add(button12);
-            groupBox1.Controls.Add(button11);
             groupBox1.Controls.Add(button10);
             groupBox1.Controls.Add(button9);
             groupBox1.Controls.Add(button8);
@@ -123,7 +124,6 @@
             groupBox1.Controls.Add(button6);
             groupBox1.Controls.Add(button3);
             groupBox1.Controls.Add(label1);
-            groupBox1.Controls.Add(factionImage);
             groupBox1.Controls.Add(linkLabel2);
             groupBox1.Controls.Add(PlayButton);
             groupBox1.Controls.Add(button1);
@@ -131,14 +131,23 @@
             groupBox1.Controls.Add(editionLabel);
             groupBox1.Controls.Add(nameLabel);
             groupBox1.Controls.Add(profilesList);
-            groupBox1.Controls.Add(settingsGroup);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Enabled = false;
             groupBox1.Location = new Point(2, -6);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(653, 302);
+            groupBox1.Size = new Size(648, 302);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
+            // 
+            // DeleteProfileButton
+            // 
+            DeleteProfileButton.Location = new Point(569, 243);
+            DeleteProfileButton.Name = "DeleteProfileButton";
+            DeleteProfileButton.Size = new Size(75, 23);
+            DeleteProfileButton.TabIndex = 30;
+            DeleteProfileButton.Text = "Delete";
+            DeleteProfileButton.UseVisualStyleBackColor = true;
+            DeleteProfileButton.Click += DeleteProfileButton_Click;
             // 
             // editionsBox
             // 
@@ -189,15 +198,6 @@
             button12.Text = "Skills";
             button12.UseVisualStyleBackColor = true;
             button12.Click += button12_Click;
-            // 
-            // button11
-            // 
-            button11.Location = new Point(488, 117);
-            button11.Name = "button11";
-            button11.Size = new Size(75, 23);
-            button11.TabIndex = 23;
-            button11.Text = "Traders";
-            button11.UseVisualStyleBackColor = true;
             // 
             // button10
             // 
@@ -346,6 +346,75 @@
             profilesList.SelectedIndexChanged += profilesList_SelectedIndexChanged;
             profilesList.KeyDown += profilesList_KeyDown;
             // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(skillProgressTextBox);
+            groupBox3.Controls.Add(skillDescriptionLabel);
+            groupBox3.Controls.Add(label3);
+            groupBox3.Controls.Add(saveSkillsButton);
+            groupBox3.Controls.Add(label2);
+            groupBox3.Controls.Add(comboBox1);
+            groupBox3.Location = new Point(225, 11);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(253, 285);
+            groupBox3.TabIndex = 25;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Skills Functions";
+            groupBox3.Visible = false;
+            // 
+            // skillProgressTextBox
+            // 
+            skillProgressTextBox.Location = new Point(12, 99);
+            skillProgressTextBox.Name = "skillProgressTextBox";
+            skillProgressTextBox.Size = new Size(76, 23);
+            skillProgressTextBox.TabIndex = 6;
+            // 
+            // skillDescriptionLabel
+            // 
+            skillDescriptionLabel.AutoSize = true;
+            skillDescriptionLabel.Location = new Point(6, 178);
+            skillDescriptionLabel.Name = "skillDescriptionLabel";
+            skillDescriptionLabel.Size = new Size(70, 15);
+            skillDescriptionLabel.TabIndex = 5;
+            skillDescriptionLabel.Text = "Description:";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(12, 81);
+            label3.Name = "label3";
+            label3.Size = new Size(55, 15);
+            label3.TabIndex = 4;
+            label3.Text = "Progress:";
+            // 
+            // saveSkillsButton
+            // 
+            saveSkillsButton.Location = new Point(186, 48);
+            saveSkillsButton.Name = "saveSkillsButton";
+            saveSkillsButton.Size = new Size(61, 23);
+            saveSkillsButton.TabIndex = 2;
+            saveSkillsButton.Text = "Save";
+            saveSkillsButton.UseVisualStyleBackColor = true;
+            saveSkillsButton.Click += saveSkillsButton_Click;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(12, 30);
+            label2.Name = "label2";
+            label2.Size = new Size(31, 15);
+            label2.TabIndex = 1;
+            label2.Text = "Skill:";
+            // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new Point(12, 48);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(168, 23);
+            comboBox1.TabIndex = 0;
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            // 
             // settingsGroup
             // 
             settingsGroup.Controls.Add(minimizeCheck);
@@ -357,13 +426,23 @@
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
             settingsGroup.Controls.Add(textBox1);
-            settingsGroup.Location = new Point(225, 11);
+            settingsGroup.Location = new Point(227, 4);
             settingsGroup.Name = "settingsGroup";
             settingsGroup.Size = new Size(253, 285);
             settingsGroup.TabIndex = 6;
             settingsGroup.TabStop = false;
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
+            // 
+            // minimizeCheck
+            // 
+            minimizeCheck.AutoSize = true;
+            minimizeCheck.Location = new Point(113, 241);
+            minimizeCheck.Name = "minimizeCheck";
+            minimizeCheck.Size = new Size(134, 19);
+            minimizeCheck.TabIndex = 33;
+            minimizeCheck.Text = "Minimize on Launch";
+            minimizeCheck.UseVisualStyleBackColor = true;
             // 
             // profileBackupCheckBox
             // 
@@ -448,74 +527,15 @@
             textBox1.TabIndex = 0;
             textBox1.UseSystemPasswordChar = true;
             // 
-            // groupBox3
+            // button11
             // 
-            groupBox3.Controls.Add(skillProgressTextBox);
-            groupBox3.Controls.Add(skillDescriptionLabel);
-            groupBox3.Controls.Add(label3);
-            groupBox3.Controls.Add(saveSkillsButton);
-            groupBox3.Controls.Add(label2);
-            groupBox3.Controls.Add(comboBox1);
-            groupBox3.Location = new Point(225, 11);
-            groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(253, 285);
-            groupBox3.TabIndex = 25;
-            groupBox3.TabStop = false;
-            groupBox3.Text = "Skills Functions";
-            groupBox3.Visible = false;
-            // 
-            // skillProgressTextBox
-            // 
-            skillProgressTextBox.Location = new Point(12, 99);
-            skillProgressTextBox.Name = "skillProgressTextBox";
-            skillProgressTextBox.Size = new Size(76, 23);
-            skillProgressTextBox.TabIndex = 6;
-            // 
-            // skillDescriptionLabel
-            // 
-            skillDescriptionLabel.AutoSize = true;
-            skillDescriptionLabel.Location = new Point(6, 178);
-            skillDescriptionLabel.Name = "skillDescriptionLabel";
-            skillDescriptionLabel.Size = new Size(70, 15);
-            skillDescriptionLabel.TabIndex = 5;
-            skillDescriptionLabel.Text = "Description:";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(12, 81);
-            label3.Name = "label3";
-            label3.Size = new Size(55, 15);
-            label3.TabIndex = 4;
-            label3.Text = "Progress:";
-            // 
-            // saveSkillsButton
-            // 
-            saveSkillsButton.Location = new Point(186, 48);
-            saveSkillsButton.Name = "saveSkillsButton";
-            saveSkillsButton.Size = new Size(61, 23);
-            saveSkillsButton.TabIndex = 2;
-            saveSkillsButton.Text = "Save";
-            saveSkillsButton.UseVisualStyleBackColor = true;
-            saveSkillsButton.Click += saveSkillsButton_Click;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(12, 30);
-            label2.Name = "label2";
-            label2.Size = new Size(31, 15);
-            label2.TabIndex = 1;
-            label2.Text = "Skill:";
-            // 
-            // comboBox1
-            // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(12, 48);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(168, 23);
-            comboBox1.TabIndex = 0;
-            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            button11.Location = new Point(67, 278);
+            button11.Name = "button11";
+            button11.Size = new Size(75, 23);
+            button11.TabIndex = 23;
+            button11.Text = "Traders";
+            button11.UseVisualStyleBackColor = true;
+            button11.Click += button11_Click;
             // 
             // button14
             // 
@@ -582,6 +602,7 @@
             groupBox2.Controls.Add(dictionaryButton);
             groupBox2.Controls.Add(bottomButton);
             groupBox2.Controls.Add(button2);
+            groupBox2.Controls.Add(button11);
             groupBox2.Controls.Add(autoStartCheckBox);
             groupBox2.Controls.Add(autoScrollBox);
             groupBox2.Controls.Add(linkLabel1);
@@ -716,7 +737,7 @@
             // groupBox4
             // 
             groupBox4.Controls.Add(button16);
-            groupBox4.Controls.Add(ModManager);
+            groupBox4.Controls.Add(ModConfig);
             groupBox4.Controls.Add(modsListBox);
             groupBox4.Location = new Point(793, -6);
             groupBox4.Name = "groupBox4";
@@ -734,15 +755,16 @@
             button16.UseVisualStyleBackColor = true;
             button16.Click += button16_Click;
             // 
-            // ModManager
+            // ModConfig
             // 
-            ModManager.Enabled = false;
-            ModManager.Location = new Point(6, 273);
-            ModManager.Name = "ModManager";
-            ModManager.Size = new Size(106, 23);
-            ModManager.TabIndex = 31;
-            ModManager.Text = "Open Config";
-            ModManager.UseVisualStyleBackColor = true;
+            ModConfig.Enabled = false;
+            ModConfig.Location = new Point(6, 273);
+            ModConfig.Name = "ModConfig";
+            ModConfig.Size = new Size(106, 23);
+            ModConfig.TabIndex = 31;
+            ModConfig.Text = "Open Config";
+            ModConfig.UseVisualStyleBackColor = true;
+            ModConfig.Click += ModConfig_Click;
             // 
             // modsListBox
             // 
@@ -842,21 +864,13 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
-            // minimizeCheck
-            // 
-            minimizeCheck.AutoSize = true;
-            minimizeCheck.Location = new Point(113, 241);
-            minimizeCheck.Name = "minimizeCheck";
-            minimizeCheck.Size = new Size(134, 19);
-            minimizeCheck.TabIndex = 33;
-            minimizeCheck.Text = "Minimize on Launch";
-            minimizeCheck.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 649);
+            Controls.Add(factionImage);
+            Controls.Add(settingsGroup);
             Controls.Add(BackupGroup);
             Controls.Add(groupBox4);
             Controls.Add(serverConsole);
@@ -871,12 +885,12 @@
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
-            settingsGroup.ResumeLayout(false);
-            settingsGroup.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).EndInit();
+            settingsGroup.ResumeLayout(false);
+            settingsGroup.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             groupBox4.ResumeLayout(false);
@@ -943,7 +957,7 @@
         private GroupBox groupBox4;
         private ListBox modsListBox;
         private Button ModsButton;
-        private Button ModManager;
+        private Button ModConfig;
         private Button button16;
         private GroupBox BackupGroup;
         private Label label8;
@@ -956,5 +970,6 @@
         private CheckBox backupCheckBox;
         private ComboBox editionsBox;
         private CheckBox minimizeCheck;
+        private Button DeleteProfileButton;
     }
 }

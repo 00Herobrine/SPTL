@@ -13,7 +13,7 @@ namespace SPTLauncher.Dictionary
     {
         private readonly string Type;
         private readonly float MaxDurability, EffectiveDurability, BluntThroughput;
-        private readonly int MovementPenalty, TurnSpeedPenalty, ErgoPenalty, RepairCost, Class; 
+        private readonly int MovementPenalty, TurnSpeedPenalty, ErgoPenalty, RepairCost, Class;
         private readonly List<string> materials = new List<string>(), ProtectionZones = new List<string>();
         public ArmorEntry(JToken token) : base(token)
         {
@@ -65,8 +65,8 @@ namespace SPTLauncher.Dictionary
             return ErgoPenalty;
         }
 
-        public int GetRepairCost() 
-        { 
+        public int GetRepairCost()
+        {
             return RepairCost;
         }
 

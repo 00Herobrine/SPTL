@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SPTLauncher.Constructors;
+using SPTLauncher.Constructors.Enums;
 
 namespace SPTLauncher.Components
 {

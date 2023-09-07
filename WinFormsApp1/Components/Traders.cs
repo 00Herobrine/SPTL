@@ -24,14 +24,22 @@ namespace SPTLauncher.Components
             }
         }
 
-        public static Dictionary<string, Trader> GetTraders()
+        public static List<Trader> GetTraders()
+        {
+            return traders.Values.ToList();
+        }
+/*        public static Dictionary<string, Trader> GetTraders()
         {
             return traders;
-        }
+        }*/
 
         public static Trader GetTrader(string id)
         {
             return traders[id];
+        }
+        public static string GetTraderName(string id)
+        {
+            return traders[id].nickname;
         }
 
         public static string ReadTradersFile()

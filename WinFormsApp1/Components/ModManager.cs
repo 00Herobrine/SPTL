@@ -1,15 +1,15 @@
 ﻿using HtmlAgilityPack;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium;
 using SPTLauncher.Constructors;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
+using System.Web;
 
 namespace SPTLauncher.Components
 {
@@ -24,6 +24,7 @@ namespace SPTLauncher.Components
         DROPBOX,
         [Description("sp-tarkov.com")]
         SPT,
+        DIRECT,
         INVALID
     }
     public class ModManager
@@ -87,6 +88,140 @@ namespace SPTLauncher.Components
             }
         }
 
+        static string[] allowedFileTypes =
+        {
+            "rar",
+            "7z",
+            "zip",
+            "dll"
+        };
+        public static async Task Download(bool thing, ModDownload mod)
+        {
+            //Get DownloadURL through selenium (need to change it's shit)
+            var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArguments("--headless");
+            chromeOptions.AddArguments("no-sandbox");
+            chromeOptions.AddArguments("--ignore-certificate-errors");
+            chromeOptions.AddArguments("--allow-running-insecure-content");
+
+            var driver = new ChromeDriver(chromeOptions);
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+
+            driver.Navigate().GoToUrl(mod.URL);
+
+            string originalWindow = driver.CurrentWindowHandle;
+
+            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/header/nav/ul/li/a")).Click();
+
+            wait.Until(wd => wd.WindowHandles.Count == 2);
+
+            foreach (string window in driver.WindowHandles)
+            {
+                if (originalWindow != window)
+                {
+                    driver.SwitchTo().Window(window);
+                    break;
+                }
+            }
+
+            wait.Until(wd => wd.Title.Contains("License"));
+
+            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/form/section/dl[2]/dd/label/input")).Click();
+            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/form/div/input[1]")).Click();
+            string downloadURL = driver.FindElement(By.XPath("/html/body/div/div/p[2]/a")).GetAttribute("href");
+            Form1.form.log($"Download: {downloadURL} ORIGIN:{GetOrigin(downloadURL)}");
+
+            driver.Quit();
+
+            //HTTPRequest to download the file
+            string savePath = Paths.downloadingPath;
+            HttpClient httpClient = new();
+            try
+            {
+                // some mfers don't like you without a user-agent, fake asf fr
+                string useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
+                string formattedURL = FormatURL(downloadURL);
+                HttpResponseMessage response = await httpClient.GetAsync(formattedURL);
+                Form1.form.log("Formatted: " + formattedURL);
+                if (response.IsSuccessStatusCode)
+                {
+                    string filename = (GetFilenameFromResponse(response) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
+                    string extension = filename.Replace("\"", "").Split(".")[^1];
+                    Form1.form.log($"FN:{filename} Ex: {extension}");
+                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found"); return; }
+                    byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+                    Form1.form.log("Downloading file");
+                    string fullSavePath = Path.Combine(savePath, filename);
+                    File.WriteAllBytes(fullSavePath, fileBytes);
+                    Form1.form.log("File downloaded successfully!");
+                }
+                else
+                {
+                    Form1.form.log($"HTTP request failed with status code: {response.StatusCode}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Form1.form.log($"HTTP request error: {e.Message}");
+            }
+        }
+
+        public static bool IsValidFileType(string input)
+        {
+            //foreach (string fileType in allowedFileTypes) Form1.form.log($"[type:{fileType} compared:{input}]");
+            return allowedFileTypes.Contains(input);
+        }
+
+        private static string? GetFilenameFromResponse(HttpResponseMessage response)
+        {
+            if (response.Content.Headers.ContentDisposition != null)
+            {
+                return response.Content.Headers.ContentDisposition.FileName;
+            }
+            return null;
+        }
+
+        private static string GetFilenameFromUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            return Path.GetFileName(uri.LocalPath);
+        }
+
+        private readonly static string baseGoogleLink = "https://drive.google.com/uc?export=download&id=";
+        public static string FormatURL(string url)
+        {
+            ORIGIN origin = GetOrigin(url);
+            string updated = url;
+            switch(origin)
+            {
+                case ORIGIN.DROPBOX:
+                    updated = updated.ToLower().Replace("dl=0", "dl=1");
+                    break;
+                case ORIGIN.GOOGLE:
+                    string googleID = url.Split("d/")[1].Split("/")[0];
+                    updated = baseGoogleLink + googleID;
+                    break;
+            }
+            return updated;
+        }
+
+        public static ORIGIN GetOrigin(string url)
+        {
+            ORIGIN origin = ORIGIN.INVALID;
+            foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
+                if (url.Contains(Recipe.GetEnumDescription(origins).ToLower())) origin = origins;
+            return origin;
+        }
+
+        static bool IsRedirect(System.Net.HttpStatusCode statusCode)
+        {
+            return statusCode == System.Net.HttpStatusCode.Moved ||
+                   statusCode == System.Net.HttpStatusCode.Redirect ||
+                   statusCode == System.Net.HttpStatusCode.RedirectMethod;
+        }
+
         public static async Task Download(ModDownload mod, bool thing)
         {
             HttpClient client = new HttpClient();
@@ -127,13 +262,6 @@ namespace SPTLauncher.Components
             doc.LoadHtml(html);
             Debug.WriteLine($"versionID:{versionID} t:{t} Redirect:{IsRedirect(response.StatusCode)} B:{requestBody}");
             Debug.WriteLine(html);
-        }
-
-        static bool IsRedirect(System.Net.HttpStatusCode statusCode)
-        {
-            return statusCode == System.Net.HttpStatusCode.Moved ||
-                   statusCode == System.Net.HttpStatusCode.Redirect ||
-                   statusCode == System.Net.HttpStatusCode.RedirectMethod;
         }
 
         public static async Task Download(ModDownload mod)
@@ -205,20 +333,6 @@ namespace SPTLauncher.Components
             Debug.WriteLine($"Querying for {className} on {url}");
             // Read the response content as a string
             string html = await response.Content.ReadAsStringAsync();
-            if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> cookieValues))
-            {
-                // Iterate through the cookie values and look for the XSRF-TOKEN cookie
-                foreach (string cookieValue in cookieValues)
-                {
-                    if (cookieValue.Contains("XSRF-TOKEN"))
-                    {
-                        // Extract the value of the XSRF-TOKEN cookie
-                        xsrfToken = cookieValue.Split(';').FirstOrDefault(c => c.Contains("XSRF-TOKEN")).Split('=')[1];
-                        Debug.WriteLine("XSRF-TOKEN: " + xsrfToken);
-                        break;
-                    }
-                }
-            }
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
             HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[starts-with(@class, 'filebaseFileCard')]");
@@ -250,8 +364,8 @@ namespace SPTLauncher.Components
 
         public ModDownload(HtmlNode element)
         {
-            name = element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim();
-            description = element.SelectSingleNode(".//div[@class='containerContent filebaseFileTeaser']").InnerText.Trim();
+            name = DecodeString(element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim());
+            description = DecodeString(element.SelectSingleNode(".//div[@class='containerContent filebaseFileTeaser']").InnerText.Trim());
             URL = element.SelectSingleNode(".//a[@class='box128']").Attributes["href"].Value;
             HtmlNode spanNode = element.SelectSingleNode(".//span[@class='filebaseFileIcon']");
             HtmlNode imageNode = element.SelectSingleNode(".//img");
@@ -278,6 +392,11 @@ namespace SPTLauncher.Components
             ModDownloader.form.AddMod(this);
         }
 
+        public static string DecodeString(string input)
+        {
+            return HttpUtility.HtmlDecode(input);
+        } 
+
         override
         public string ToString()
         {
@@ -294,7 +413,10 @@ namespace SPTLauncher.Components
 
         public async Task Download()
         {
-            ModManager.Download(this, true);
+            await Task.Run(async () =>
+            {
+                ModManager.Download(true, this);
+            });
         }
 
         public async Task DownloadCall(string url)

@@ -1,11 +1,12 @@
-﻿using WinFormsApp1;
+﻿using System.Runtime.CompilerServices;
+using WinFormsApp1;
 
 namespace SPTLauncher.Components
 {
     internal class Paths
     {
         public static string gameFolder, profilesFolder, configPath, cachePath, itemCache, akiData, productionPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;
+            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;
 
         public static void Initialize(bool debug = false)
         {
@@ -20,6 +21,7 @@ namespace SPTLauncher.Components
             itemCache = $"{cachePath}/items";
             gatoPath = $"{cachePath}/gato";
             backupsPath = $"{cachePath}/backups";
+            downloadingPath = $"{cachePath}/downloading";
             disabledModsPath = $"{cachePath}/DisabledMods";
             databasePath = $"{serverPath}/database";
             serverConfigsPath = $"{serverPath}/configs";

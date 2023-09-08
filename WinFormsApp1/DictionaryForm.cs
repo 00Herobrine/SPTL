@@ -24,7 +24,7 @@ namespace SPTLauncher
         {
             foreach (CacheType type in TarkovCache.tabs.Keys)
             {
-                string cachePath = Paths.cachePath + "/" + type.ToString().ToLower() + ".json";
+                string cachePath = Paths.itemCache + "/" + type.ToString().ToLower() + ".json";
                 JArray cache = JArray.Parse(File.ReadAllText(cachePath));
                 foreach (JToken entry in cache)
                 {

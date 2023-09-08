@@ -34,15 +34,14 @@
             backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
-            button12 = new Button();
-            button10 = new Button();
+            SkillsButton = new Button();
+            HealthButton = new Button();
             button9 = new Button();
-            button8 = new Button();
+            InspectsButton = new Button();
             button7 = new Button();
             button6 = new Button();
-            button3 = new Button();
+            WipeButton = new Button();
             label1 = new Label();
-            factionImage = new PictureBox();
             linkLabel2 = new LinkLabel();
             PlayButton = new Button();
             button1 = new Button();
@@ -57,6 +56,7 @@
             saveSkillsButton = new Button();
             label2 = new Label();
             comboBox1 = new ComboBox();
+            factionImage = new PictureBox();
             settingsGroup = new GroupBox();
             minimizeCheck = new CheckBox();
             profileBackupCheckBox = new CheckBox();
@@ -98,10 +98,13 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
+            SavePresetButton = new Button();
+            LoadPresetButton = new Button();
+            label10 = new Label();
             groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             groupBox2.SuspendLayout();
@@ -116,13 +119,13 @@
             groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
-            groupBox1.Controls.Add(button12);
-            groupBox1.Controls.Add(button10);
+            groupBox1.Controls.Add(SkillsButton);
+            groupBox1.Controls.Add(HealthButton);
             groupBox1.Controls.Add(button9);
-            groupBox1.Controls.Add(button8);
+            groupBox1.Controls.Add(InspectsButton);
             groupBox1.Controls.Add(button7);
             groupBox1.Controls.Add(button6);
-            groupBox1.Controls.Add(button3);
+            groupBox1.Controls.Add(WipeButton);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(linkLabel2);
             groupBox1.Controls.Add(PlayButton);
@@ -189,24 +192,24 @@
             IDLabel.TabIndex = 26;
             IDLabel.Text = "ID:";
             // 
-            // button12
+            // SkillsButton
             // 
-            button12.Location = new Point(569, 117);
-            button12.Name = "button12";
-            button12.Size = new Size(75, 23);
-            button12.TabIndex = 24;
-            button12.Text = "Skills";
-            button12.UseVisualStyleBackColor = true;
-            button12.Click += button12_Click;
+            SkillsButton.Location = new Point(569, 117);
+            SkillsButton.Name = "SkillsButton";
+            SkillsButton.Size = new Size(75, 23);
+            SkillsButton.TabIndex = 24;
+            SkillsButton.Text = "Skills";
+            SkillsButton.UseVisualStyleBackColor = true;
+            SkillsButton.Click += button12_Click;
             // 
-            // button10
+            // HealthButton
             // 
-            button10.Location = new Point(488, 88);
-            button10.Name = "button10";
-            button10.Size = new Size(75, 23);
-            button10.TabIndex = 22;
-            button10.Text = "Health";
-            button10.UseVisualStyleBackColor = true;
+            HealthButton.Location = new Point(488, 88);
+            HealthButton.Name = "HealthButton";
+            HealthButton.Size = new Size(75, 23);
+            HealthButton.TabIndex = 22;
+            HealthButton.Text = "Health";
+            HealthButton.UseVisualStyleBackColor = true;
             // 
             // button9
             // 
@@ -217,14 +220,14 @@
             button9.Text = "Vanity";
             button9.UseVisualStyleBackColor = true;
             // 
-            // button8
+            // InspectsButton
             // 
-            button8.Location = new Point(569, 59);
-            button8.Name = "button8";
-            button8.Size = new Size(75, 23);
-            button8.TabIndex = 20;
-            button8.Text = "Inspects";
-            button8.UseVisualStyleBackColor = true;
+            InspectsButton.Location = new Point(569, 59);
+            InspectsButton.Name = "InspectsButton";
+            InspectsButton.Size = new Size(75, 23);
+            InspectsButton.TabIndex = 20;
+            InspectsButton.Text = "Inspects";
+            InspectsButton.UseVisualStyleBackColor = true;
             // 
             // button7
             // 
@@ -244,15 +247,15 @@
             button6.Text = "Name";
             button6.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // WipeButton
             // 
-            button3.Location = new Point(569, 30);
-            button3.Name = "button3";
-            button3.Size = new Size(75, 23);
-            button3.TabIndex = 14;
-            button3.Text = "Wipe";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
+            WipeButton.Location = new Point(569, 30);
+            WipeButton.Name = "WipeButton";
+            WipeButton.Size = new Size(75, 23);
+            WipeButton.TabIndex = 14;
+            WipeButton.Text = "Wipe";
+            WipeButton.UseVisualStyleBackColor = true;
+            WipeButton.Click += button3_Click;
             // 
             // label1
             // 
@@ -263,15 +266,6 @@
             label1.Size = new Size(140, 21);
             label1.TabIndex = 16;
             label1.Text = "Account Functions:";
-            // 
-            // factionImage
-            // 
-            factionImage.Location = new Point(37, 158);
-            factionImage.Name = "factionImage";
-            factionImage.Size = new Size(135, 135);
-            factionImage.SizeMode = PictureBoxSizeMode.Zoom;
-            factionImage.TabIndex = 13;
-            factionImage.TabStop = false;
             // 
             // linkLabel2
             // 
@@ -415,8 +409,20 @@
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
+            // factionImage
+            // 
+            factionImage.Location = new Point(37, 158);
+            factionImage.Name = "factionImage";
+            factionImage.Size = new Size(135, 135);
+            factionImage.SizeMode = PictureBoxSizeMode.Zoom;
+            factionImage.TabIndex = 13;
+            factionImage.TabStop = false;
+            // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(label10);
+            settingsGroup.Controls.Add(LoadPresetButton);
+            settingsGroup.Controls.Add(SavePresetButton);
             settingsGroup.Controls.Add(minimizeCheck);
             settingsGroup.Controls.Add(profileBackupCheckBox);
             settingsGroup.Controls.Add(label7);
@@ -864,13 +870,41 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
+            // SavePresetButton
+            // 
+            SavePresetButton.Location = new Point(37, 78);
+            SavePresetButton.Name = "SavePresetButton";
+            SavePresetButton.Size = new Size(58, 23);
+            SavePresetButton.TabIndex = 34;
+            SavePresetButton.Text = "Save";
+            SavePresetButton.UseVisualStyleBackColor = true;
+            SavePresetButton.Click += SavePresetButton_Click;
+            // 
+            // LoadPresetButton
+            // 
+            LoadPresetButton.Location = new Point(101, 78);
+            LoadPresetButton.Name = "LoadPresetButton";
+            LoadPresetButton.Size = new Size(58, 23);
+            LoadPresetButton.TabIndex = 35;
+            LoadPresetButton.Text = "Load";
+            LoadPresetButton.UseVisualStyleBackColor = true;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(50, 63);
+            label10.Name = "label10";
+            label10.Size = new Size(94, 15);
+            label10.TabIndex = 36;
+            label10.Text = "Launcher Preset:";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 649);
-            Controls.Add(factionImage);
             Controls.Add(settingsGroup);
+            Controls.Add(factionImage);
             Controls.Add(BackupGroup);
             Controls.Add(groupBox4);
             Controls.Add(serverConsole);
@@ -884,10 +918,10 @@
             Load += Form1_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
@@ -922,17 +956,17 @@
         private Button button2;
         private LinkLabel linkLabel2;
         private PictureBox factionImage;
-        private Button button3;
+        private Button WipeButton;
         private Button settingsButton;
         private Button bottomButton;
         private Label label1;
         private Button button6;
         private Button button7;
-        private Button button8;
+        private Button InspectsButton;
         private Button button9;
-        private Button button10;
+        private Button HealthButton;
         private Button button11;
-        private Button button12;
+        private Button SkillsButton;
         private GroupBox groupBox3;
         private Button saveSkillsButton;
         private Label label2;
@@ -971,5 +1005,8 @@
         private ComboBox editionsBox;
         private CheckBox minimizeCheck;
         private Button DeleteProfileButton;
+        private Button LoadPresetButton;
+        private Button SavePresetButton;
+        private Label label10;
     }
 }

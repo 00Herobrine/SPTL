@@ -105,7 +105,7 @@ namespace WinFormsApp1
             TarkovCache.Initialize();
             ModManager.LoadMods();
             foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
-            Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
+            //Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
             /*if(aliveCheck()) bindToAki();
             else */
             // server check
@@ -709,9 +709,9 @@ namespace WinFormsApp1
             Size = new Size(width, height);
         }
         #region Mod Manager
+        Form md = new ModDownloader();
         private void ModsButton_Click(object sender, EventArgs e)
         {
-            Form md = new ModDownloader();
             md.Show();
             //if (ToggleMods()) LoadMods();
             /*listBox2.Items.Clear();
@@ -940,6 +940,11 @@ namespace WinFormsApp1
             if (MessageBox.Show("Delete Selected Profile", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
             AccountManager.Remove();
             LoadProfiles();
+        }
+
+        private void SavePresetButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -164,7 +164,7 @@ namespace SPTLauncher.Components
             return name;
         }
 
-        public void CacheNames(CacheType cacheType)
+/*        public void CacheNames(CacheType cacheType)
         {
             nameCache ??= JObject.Parse(File.ReadAllText(nameCachePath));
             string typePath = Paths.itemCache + "/" + cacheType.ToString().ToLower() + ".json";
@@ -174,7 +174,7 @@ namespace SPTLauncher.Components
                 string id = jToken["Item ID"].ToString();
                 nameCache[id] = cacheType.ToString();
             }
-        }
+        }*/
 
         public async static void GenerateCacheFile(CacheType cacheType)
         {
@@ -191,9 +191,9 @@ namespace SPTLauncher.Components
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
                 JToken jToken = JObject.Parse(responseBody);
-                string typePath = Paths.cachePath + "/" + cacheType.ToString().ToLower() + ".json";
+                string typePath = $"{Paths.itemCache}/{cacheType.ToString().ToLower()}.json";
                 File.WriteAllText(typePath, jToken["results"].ToString());
-                Form1.form.log("Generated cache for " + cacheType + ".");
+                Form1.form.log($"Generated cache for {cacheType}.");
                 caches[cacheType] = typePath;
                 //CacheNames(cacheType);
             }

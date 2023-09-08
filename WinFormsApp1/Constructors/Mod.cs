@@ -9,7 +9,7 @@ namespace SPTLauncher.Constructors
         private string name;
         private string? configPath;
         private string originalPath;
-        private bool enabled;
+        private bool enabled, plugin = false, client = false;
         private ModType modType = ModType.CLIENT;
 
         public Mod(string path)
@@ -21,7 +21,8 @@ namespace SPTLauncher.Constructors
             enabled = !path.Contains("DisabledMods");
             if (!enabled) originalPath = Form1.form.GetConfig().GetDisabledModPath(name);
             else originalPath = path;
-            if (originalPath.Contains("bepinex/plugins")) modType = ModType.SERVER;
+            if (originalPath.Contains("bepinex/plugins")) { modType = ModType.SERVER; plugin = true; }
+            if (originalPath.Contains("user")) { client = true; }
         }
 
         public override string ToString()
@@ -48,7 +49,16 @@ namespace SPTLauncher.Constructors
 
         public bool IsPlugin()
         {
-            return modType == ModType.SERVER;
+            return (modType == ModType.SERVER || plugin);
+        }
+
+        public bool IsClient()
+        {
+            return (modType == ModType.CLIENT || client);
+        }
+        public bool IsBoth()
+        {
+            return IsPlugin() && IsClient();
         }
 
         public ModType GetModType()

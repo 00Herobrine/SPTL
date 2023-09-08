@@ -6,7 +6,7 @@ namespace SPTLauncher
 {
     public partial class ModDownloader : Form
     {
-        public static ModDownloader? form;
+        public static ModDownloader form;
         private int page = 1;
         public ModDownloader()
         {
@@ -27,7 +27,7 @@ namespace SPTLauncher
         }
 
         bool loadingMods = false;
-        private async void modList_SelectedIndexChanged(object sender, EventArgs e)
+        private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
@@ -79,9 +79,29 @@ namespace SPTLauncher
             _ = mod.Download();
         }
 
+        public void UpdateProgressBar(int currentDownloadAmount, long downloadSize)
+        {
+            if (downloadSize == 0)
+            {
+                // Avoid division by zero error
+                downloadProgress.Value = 0;
+            }
+            else
+            {
+                int progressPercentage = (int)(((double)currentDownloadAmount / downloadSize) * 100);
+                downloadProgress.Value = progressPercentage;
+            }
+        }
+
         private void modList_DrawItem(object sender, DrawItemEventArgs e)
         {
             Debug.WriteLine("drawing mod");
+        }
+
+        private void ModDownloader_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
         }
     }
 }

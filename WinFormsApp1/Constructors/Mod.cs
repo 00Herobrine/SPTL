@@ -1,4 +1,5 @@
 ﻿using SPTLauncher.Components;
+using SPTLauncher.Components.ModManagement;
 using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
@@ -18,11 +19,11 @@ namespace SPTLauncher.Constructors
             name = path.Split("\\")[1];
             string configPath = path + "/config/config.json";
             if (File.Exists(configPath)) this.configPath = configPath;
-            enabled = !path.Contains("DisabledMods");
+            enabled = !path.Contains(Paths.disabledModsPath);
             if (!enabled) originalPath = Form1.form.GetConfig().GetDisabledModPath(name);
             else originalPath = path;
-            if (originalPath.Contains("bepinex/plugins")) { modType = ModType.SERVER; plugin = true; }
-            if (originalPath.Contains("user")) { client = true; }
+            if (originalPath.ToLower().Contains("bepinex/plugins")) { modType = ModType.SERVER; plugin = true; }
+            if (originalPath.ToLower().Contains("user")) { client = true; }
         }
 
         public override string ToString()
@@ -76,16 +77,26 @@ namespace SPTLauncher.Constructors
             return configPath != null;
         }
 
+        public void Toggle()
+        {
+            if (enabled) Disable();
+            else Enable();
+        }
         public void Enable()
         {
-            Form1.form.GetConfig().EnableMod(this);
+            Config.EnableMod(this);
             enabled = true;
         }
 
         public void Disable()
         {
-            Form1.form.GetConfig().DisableMod(this);
+            Config.DisableMod(this);
             enabled = false;
+        }
+
+        public void SetPath(string path)
+        {
+            this.path = path;
         }
 
         public string? GetConfigPath()

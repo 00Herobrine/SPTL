@@ -8,28 +8,20 @@ namespace SPTLauncher.Constructors
 {
     public class Config
 {
-        private string path;
+        private static string path;
         //private string gamePath;
-        private string apiKey = "";
+        private static string apiKey = "";
         //private long lastBackupTime;
-        private DateTime lastBackupTime;
-        private int backupInterval;
-        private JObject? jObject;
-        private JArray? jArray;
+        private static DateTime lastBackupTime;
+        private static int backupInterval;
+        private static JObject? jObject;
+        private static JArray? jArray;
         //public AkiData akiData;
-        public Config()
-        {
-            this.path = Paths.configPath;
-            Load();
-        }
-        public Config(string path) {
-            this.path = path;
-            Load();
-        }
 
-        public void Load()
+        public static void Load()
         {
-            string text = File.ReadAllText(path);
+            string text = File.ReadAllText(Paths.configPath);
+            path = Paths.configPath;
             jObject = JObject.Parse(text);
             if (jObject == null) return;
             if (jObject["DisabledMods"] != null)
@@ -49,22 +41,21 @@ namespace SPTLauncher.Constructors
             else SetBackupInterval((int)interval);
         }
 
-
         public static string ReadCoreFile() {
             return File.ReadAllText($"{Paths.serverConfigsPath}/core.json");
         }
 
-        public void setApiKey(string apiKey)
+        public static void setApiKey(string key)
         {
             jObject["apiKey"] = apiKey;
-            this.apiKey = apiKey;
+            apiKey = key;
             save();
         }
         public string getApiKey()
         {
             return apiKey;
         }
-        public void SetLastBackUpTime(DateTime time)
+        public static void SetLastBackUpTime(DateTime time)
         {
             jObject["LastBackup"] = time;
             lastBackupTime = time;
@@ -79,16 +70,16 @@ namespace SPTLauncher.Constructors
         {
             return backupInterval;
         }
-        public void SetBackupInterval(int interval)
+        public static void SetBackupInterval(int interval)
         {
             jObject["BackupInterval"] = interval;
             backupInterval = interval;
             save();
         }
 
-        public void save()
+        public static void save()
         {
-            File.WriteAllText(path, jObject.ToString());
+            File.WriteAllText(Paths.configPath, jObject.ToString());
         }
 
         public JObject getJObject()
@@ -96,30 +87,17 @@ namespace SPTLauncher.Constructors
             return jObject;
         }
 
-        public void DisableMod(Mod mod)
+        public static void DisableMod(Mod mod)
         {
-            string path;
-            if (mod.isEnabled())
-            {
-                path = Paths.disabledModsPath + "/" + mod.GetName();
-                jObject["DisabledMods"][mod.GetName()] = mod.GetOriginalPath();
-            }
-            else
-            {
-                path = mod.GetOriginalPath();
-                ((JObject) jObject["DisabledMods"]).Remove(mod.GetName());
-            }
-            Debug.Write($"path {path}");
-            Directory.Move(mod.GetPath(), path);
+            jObject["DisabledMods"][mod.GetName()] = mod.GetOriginalPath();
+            Directory.Move($"{mod.GetPath()}", $"{Paths.disabledModsPath}/{mod.GetName()}");
             save();
         }
 
-        public void EnableMod(Mod mod)
+        public static void EnableMod(Mod mod)
         {
-            string path = mod.GetOriginalPath() + "/" + mod.GetName();
-            Directory.Move(mod.GetPath(), path);
-            jArray[mod.GetName()] = null;
-            jObject["DisabledMods"] = jArray;
+            Directory.Move($"{mod.GetPath()}", $"{mod.GetOriginalPath()}");
+            ((JObject)jObject["DisabledMods"]).Remove(mod.GetName());
             save();
         }
 

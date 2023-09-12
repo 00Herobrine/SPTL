@@ -12,6 +12,7 @@ using SPTLauncher;
 using System.Text.RegularExpressions;
 using SPTLauncher.Components;
 using SPTLauncher.Constructors.Enums;
+using SPTLauncher.Components.ModManagement;
 
 namespace WinFormsApp1
 {
@@ -75,51 +76,24 @@ namespace WinFormsApp1
             Paths.localesFile = $"{Paths.databasePath}/locales/global/{language}.json";
         }
 
-        public void PathCheck()
-        {
-            List<string> paths = new List<string>
-            {
-                Paths.cachePath,
-                Paths.itemCache,
-                Paths.akiData,
-                Paths.gatoPath,
-                Paths.backupsPath,
-                Paths.modsFolder,
-                Paths.pluginsFolder
-            };
-            foreach (var path in paths)
-            {
-                if (path == null) continue;
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            }
-        }
-
         public async void StartUp()
         {
             BindToAkiAsync();
-            PathCheck();
             //LoadConfig();
             Paths.Initialize(debug);
+            Config.Load();
             LauncherSettings.Load();
             Traders.Initialize();
             TarkovCache.Initialize();
             ModManager.LoadMods();
             foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
+            ModsButton.Text = $"Mods {ModManager.mods.Count-ModManager.disabledAmount}/{ModManager.mods.Count}";
             //Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
             /*if(aliveCheck()) bindToAki();
             else */
             // server check
             //ConnectServer();
             // login check
-        }
-
-
-
-        public void LoadConfig()
-        {
-            config = new Config(Paths.configPath);
-            textBox1.Text = config.getApiKey();
-            BackUpInterval.Value = config.GetBackupInterval();
         }
 
         public async Task BindToAkiAsync()
@@ -619,8 +593,8 @@ namespace WinFormsApp1
 
         private void button4_Click(object sender, EventArgs e)
         {
-            config.setApiKey(textBox1.Text);
-            config.SetBackupInterval((int)BackUpInterval.Value);
+            Config.setApiKey(textBox1.Text);
+            Config.SetBackupInterval((int)BackUpInterval.Value);
         }
 
         public Config GetConfig()
@@ -747,8 +721,8 @@ namespace WinFormsApp1
                 return;
             }
             int index = modsListBox.SelectedIndex;
-            GetSelectedMod().Disable();
-            //ModManager.LoadMods();
+            GetSelectedMod().Toggle();
+            RenderMods();
             /*List<Mod> items = modsListBox.Items.Cast<Mod>().ToList();
             List<Mod> sortedItems = items.OrderBy(item => item.GetName())
                                        .ThenByDescending(item => item.IsPlugin())
@@ -756,6 +730,13 @@ namespace WinFormsApp1
             modsListBox.Items.Clear();
             foreach (Mod mod in sortedItems) modsListBox.Items.Add(mod);*/
             modsListBox.SelectedIndex = index;
+        }
+
+        private void RenderMods(bool reorganize = true)
+        {
+            if(reorganize) ModManager.LoadMods();
+            modsListBox.Items.Clear();
+            foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
         }
 
         #endregion
@@ -786,7 +767,7 @@ namespace WinFormsApp1
             if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
             string filePath = backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json";
             File.WriteAllText(filePath, File.ReadAllText(path));
-            config.SetLastBackUpTime(now);
+            Config.SetLastBackUpTime(now);
             if (logMessage == null) logMessage = "Backup Created " + Path.GetFileName(filePath);
             log(logMessage);
         }

@@ -1,24 +1,61 @@
-﻿using SPTLauncher.Components;
+﻿using OpenQA.Selenium.DevTools.V114.Memory;
+using SPTLauncher.Components.ModManagement;
 using System.Diagnostics;
+using System.Timers;
 using WinFormsApp1;
+using Timer = System.Windows.Forms.Timer;
 
 namespace SPTLauncher
 {
     public partial class ModDownloader : Form
     {
-        public static ModDownloader form;
+        public static ModDownloader? form;
         private int page = 1;
+        public Timer Timer;
         public ModDownloader()
         {
             InitializeComponent();
-            ModManager.WebRequestMods(2);
+            ModManager.Initialize();
+            Timer = new Timer();
+            Timer.Tick += TimerTick;
+            Timer.Interval = 1000;
+            Timer.Start();
             page = 2;
             form = this;
         }
 
+        private void TimerTick(object sender, EventArgs e)
+        {
+            if (modList.SelectedItem == null) return;
+            ModDownload mod = (ModDownload)modList.SelectedItem;
+            if(mod.totalBytes == 0) return;
+            downloadProgress.Value = CalculatePercentage(mod.bytes, mod.totalBytes);
+            // This method will be called every second
+            //Console.WriteLine("Timer ticked at: " + DateTime.Now);
+        }
+
+        public static int CalculatePercentage(long part, long whole)
+        {
+            if (whole == 0)
+            {
+                // Avoid division by zero error; you can choose to handle this case differently if needed.
+                return 0;
+            }
+
+            double percentage = (double)part / whole * 100;
+            if (percentage > 100) percentage = 100;
+            return (int)Math.Round(percentage);
+        }
+
         private void ModDownloader_Load(object sender, EventArgs e)
         {
+            Check();
+        }
 
+        public static void Check()
+        {
+            if (form == null) return;
+            if(form.modList.Items.Count > 0) form.modList.SelectedIndex = 0;
         }
 
         public void AddMod(ModDownload mod)
@@ -29,6 +66,7 @@ namespace SPTLauncher
         bool loadingMods = false;
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ModDownload mod = (ModDownload)modList.SelectedItem;
             if (!loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
                 page++;
@@ -36,6 +74,7 @@ namespace SPTLauncher
                 ModManager.WebRequestMods(page);
                 loadingMods = false;
             }
+            downloadProgress.Value = CalculatePercentage(mod.bytes, mod.totalBytes);
             LoadMod(GetSelectedModDownload());
         }
 

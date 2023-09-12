@@ -10,8 +10,10 @@ using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
+using System.IO;
+using System;
 
-namespace SPTLauncher.Components
+namespace SPTLauncher.Components.ModManagement
 {
     public enum ModType { CLIENT, SERVER }
     public enum ORIGIN
@@ -34,21 +36,23 @@ namespace SPTLauncher.Components
         public static List<Mod> mods = new();
         const string baseURL = "https://hub.sp-tarkov.com/files/";
         private static string xsrfToken = "";
-
-        public ModManager()
-        {
-            WebRequestMods();
-        }
+        public static int disabledAmount = 0;
 
         public static void Initialize()
         {
+            //LoadMods();
             WebRequestMods();
-            LoadMods();
+            WebRequestMods(2);
+            //ModDownloader.Check();
+
         }
 
+        private static string[] ignoredFiles = { "order.json", "spt" };
         public static void LoadMods()
         {
-            List<string> files = new List<string>();
+            disabledAmount = 0;
+            mods = new();
+            List<string> files = new();
             if (Directory.Exists(Paths.disabledModsPath))
             {
                 files.AddRange(Directory.GetFiles(Paths.disabledModsPath));
@@ -58,37 +62,27 @@ namespace SPTLauncher.Components
             {
                 files.AddRange(Directory.GetFiles(Paths.modsFolder));
                 files.AddRange(Directory.GetFiles(Paths.pluginsFolder));
-                if (Directory.Exists(Paths.pluginsFolder))
+            }
+            if (Directory.Exists(Paths.pluginsFolder))
+            {
+                files.AddRange(Directory.GetDirectories(Paths.modsFolder));
+                files.AddRange(Directory.GetDirectories(Paths.pluginsFolder));
+            }
+            int amount = files.Count;
+            foreach (string file in files)
+            {
+                string fileName = file.Split('\\')[1];
+                if (file.Contains(Paths.pluginsFolder + "\\aki-") || ignoredFiles.Contains(fileName.ToLower())) amount--;
+                else
                 {
-                    files.AddRange(Directory.GetDirectories(Paths.modsFolder));
-                    files.AddRange(Directory.GetDirectories(Paths.pluginsFolder));
-                }
-                int amount = files.Count;
-                int disabledAmount = 0;
-                foreach (string file in files)
-                {
-                    string fileName = file.Split('\\')[1];
-                    //log(fileName);
-                    if (file.Contains(Paths.pluginsFolder + "\\aki-") || fileName.Equals("order.json") || fileName.Equals("spt")) amount--;
-                    else
-                    {
-                        Mod mod = new(file);
-                        string d = "";
-                        if (!mod.isEnabled())
-                        {
-                            d = " DISABLED";
-                            disabledAmount++;
-                        }
-                        //int index = modsListBox.Items.Add(mod.GetName() + (mod.IsPlugin() ? " [P]" : " [C]") + d);
-                        mods.Add(mod);
-                    }
-                    //modsIndex = mods;
-                    //ModsButton.Text = "Mods" + ((amount > 0) ? $": {amount - disabledAmount}/{amount}" : "");
+                    Mod mod = new(file);
+                    if (!mod.isEnabled()) disabledAmount++;
+                    mods.Add(mod);
                 }
             }
         }
 
-        static string[] allowedFileTypes =
+        public static string[] allowedFileTypes =
         {
             "rar",
             "7z",
@@ -143,18 +137,35 @@ namespace SPTLauncher.Components
                 string useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
                 string formattedURL = FormatURL(downloadURL);
-                HttpResponseMessage response = await httpClient.GetAsync(formattedURL);
                 Form1.form.log("Formatted: " + formattedURL);
+                HttpResponseMessage response = await httpClient.GetAsync(formattedURL, HttpCompletionOption.ResponseHeadersRead);
                 if (response.IsSuccessStatusCode)
                 {
                     string filename = (GetFilenameFromResponse(response) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
                     string extension = filename.Replace("\"", "").Split(".")[^1];
                     Form1.form.log($"FN:{filename} Ex: {extension}");
-                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found"); return; }
-                    byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
-                    Form1.form.log("Downloading file");
+                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found."); return; }
+                    Form1.form.log($"Downloading file.");
+                    long byteSize = response.Content.Headers.ContentLength ?? 0;
+                    mod.totalBytes = byteSize;
+                    Form1.form.log($"Download Size: {FormatByteCount(byteSize)}");
+                    Stream contentStream = response.Content.ReadAsStream();
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
                     string fullSavePath = Path.Combine(savePath, filename);
-                    File.WriteAllBytes(fullSavePath, fileBytes);
+                    FileStream fileStream = new(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+                    {
+                        // Update the currentDownloadAmount as you read content
+                        mod.bytes += bytesRead;
+
+                        // Write the downloaded bytes to the file
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                        //ReportProgress(mod.bytes, byteSize);
+                    }
+                    //byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+                    //File.WriteAllBytes(fullSavePath, fileBytes);
+                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
                     Form1.form.log("File downloaded successfully!");
                 }
                 else
@@ -166,6 +177,27 @@ namespace SPTLauncher.Components
             {
                 Form1.form.log($"HTTP request error: {e.Message}");
             }
+        }
+
+        private static void ReportProgress(long currentBytes, long totalBytes)
+        {
+            // Calculate and report progress as needed
+            double progress = (double)currentBytes / totalBytes * 100;
+            Form1.form.log($"Progress: {progress:F2}%");
+        }
+
+        public static string FormatByteCount(long bytes)
+        {
+            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+            if (bytes == 0)
+            {
+                return "0" + sizeSuffixes[0];
+            }
+
+            int magnitude = (int)Math.Floor(Math.Log(bytes, 1024));
+            double adjustedSize = bytes / Math.Pow(1024, magnitude);
+
+            return string.Format("{0:0.##} {1}", adjustedSize, sizeSuffixes[magnitude]);
         }
 
         public static bool IsValidFileType(string input)
@@ -194,7 +226,7 @@ namespace SPTLauncher.Components
         {
             ORIGIN origin = GetOrigin(url);
             string updated = url;
-            switch(origin)
+            switch (origin)
             {
                 case ORIGIN.DROPBOX:
                     updated = updated.ToLower().Replace("dl=0", "dl=1");
@@ -361,6 +393,7 @@ namespace SPTLauncher.Components
         public string URL, name, author, description, imageURL, AkiVersion, lastUpdated, downloads;
         public int comments, reviews, ratings;
         public float stars;
+        public long bytes = 0, totalBytes = 0;
 
         public ModDownload(HtmlNode element)
         {
@@ -395,7 +428,7 @@ namespace SPTLauncher.Components
         public static string DecodeString(string input)
         {
             return HttpUtility.HtmlDecode(input);
-        } 
+        }
 
         override
         public string ToString()

@@ -43,6 +43,7 @@
             Ratings = new Label();
             button1 = new Button();
             downloadProgress = new ProgressBar();
+            DownloadLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -187,11 +188,21 @@
             downloadProgress.Size = new Size(484, 23);
             downloadProgress.TabIndex = 14;
             // 
+            // DownloadLabel
+            // 
+            DownloadLabel.AutoSize = true;
+            DownloadLabel.Location = new Point(223, 159);
+            DownloadLabel.Name = "DownloadLabel";
+            DownloadLabel.Size = new Size(111, 15);
+            DownloadLabel.TabIndex = 15;
+            DownloadLabel.Text = "Downloaded: 0B/0B";
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 452);
+            Controls.Add(DownloadLabel);
             Controls.Add(downloadProgress);
             Controls.Add(button1);
             Controls.Add(Ratings);
@@ -233,5 +244,6 @@
         private Label Ratings;
         private Button button1;
         private ProgressBar downloadProgress;
+        private Label DownloadLabel;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium.DevTools.V114.Memory;
 using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Constructors;
 using System.Diagnostics;
 using System.Timers;
 using WinFormsApp1;
@@ -28,23 +29,19 @@ namespace SPTLauncher
         {
             if (modList.SelectedItem == null) return;
             ModDownload mod = (ModDownload)modList.SelectedItem;
-            if(mod.totalBytes == 0) return;
-            downloadProgress.Value = CalculatePercentage(mod.bytes, mod.totalBytes);
+            if (mod.totalBytes == 0) return;
+            updateVars(mod);
             // This method will be called every second
             //Console.WriteLine("Timer ticked at: " + DateTime.Now);
         }
 
-        public static int CalculatePercentage(long part, long whole)
+        public void updateVars(ModDownload mod)
         {
-            if (whole == 0)
-            {
-                // Avoid division by zero error; you can choose to handle this case differently if needed.
-                return 0;
-            }
-
-            double percentage = (double)part / whole * 100;
-            if (percentage > 100) percentage = 100;
-            return (int)Math.Round(percentage);
+            string totalBytes = ModManager.FormatByteCount(mod.totalBytes);
+            string downloadedBytes = ModManager.FormatByteCount(mod.bytes);
+            string downloadSpeed = mod.downloadSpeed == 0 ? "" : $" ({ModManager.FormatByteCount((long)mod.downloadSpeed)})";
+            DownloadLabel.Text = mod.totalBytes == 0 ? "" : $"Downloaded {downloadedBytes}/{totalBytes}{downloadSpeed}";
+            downloadProgress.Value = mod.CalculatePercentageInt();
         }
 
         private void ModDownloader_Load(object sender, EventArgs e)
@@ -55,7 +52,7 @@ namespace SPTLauncher
         public static void Check()
         {
             if (form == null) return;
-            if(form.modList.Items.Count > 0) form.modList.SelectedIndex = 0;
+            if (form.modList.Items.Count > 0) form.modList.SelectedIndex = 0;
         }
 
         public void AddMod(ModDownload mod)
@@ -74,7 +71,7 @@ namespace SPTLauncher
                 ModManager.WebRequestMods(page);
                 loadingMods = false;
             }
-            downloadProgress.Value = CalculatePercentage(mod.bytes, mod.totalBytes);
+            updateVars(mod);
             LoadMod(GetSelectedModDownload());
         }
 

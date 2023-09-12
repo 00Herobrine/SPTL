@@ -150,8 +150,10 @@ namespace SPTLauncher.Components.ModManagement
                     mod.totalBytes = byteSize;
                     Form1.form.log($"Download Size: {FormatByteCount(byteSize)}");
                     Stream contentStream = response.Content.ReadAsStream();
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
+                    byte[] buffer = new byte[8192];
+                    int bytesRead = 0;
+                    mod.bytes = 0;
+                    DateTime startTime = DateTime.Now;
                     string fullSavePath = Path.Combine(savePath, filename);
                     FileStream fileStream = new(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
                     while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
@@ -161,10 +163,15 @@ namespace SPTLauncher.Components.ModManagement
 
                         // Write the downloaded bytes to the file
                         await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                        TimeSpan elapsedTime = DateTime.Now - startTime;
+                        mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
+                        //Form1.form.log($"Download Speed: {downloadSpeedKBps:F2} KB/s");
                         //ReportProgress(mod.bytes, byteSize);
                     }
                     //byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
                     //File.WriteAllBytes(fullSavePath, fileBytes);
+                    mod.downloadSpeed = 0;
                     ModInstaller.Install(new(fullSavePath, mod.name, extension));
                     Form1.form.log("File downloaded successfully!");
                 }
@@ -177,13 +184,6 @@ namespace SPTLauncher.Components.ModManagement
             {
                 Form1.form.log($"HTTP request error: {e.Message}");
             }
-        }
-
-        private static void ReportProgress(long currentBytes, long totalBytes)
-        {
-            // Calculate and report progress as needed
-            double progress = (double)currentBytes / totalBytes * 100;
-            Form1.form.log($"Progress: {progress:F2}%");
         }
 
         public static string FormatByteCount(long bytes)
@@ -394,6 +394,7 @@ namespace SPTLauncher.Components.ModManagement
         public int comments, reviews, ratings;
         public float stars;
         public long bytes = 0, totalBytes = 0;
+        public double downloadSpeed = 0;
 
         public ModDownload(HtmlNode element)
         {
@@ -465,6 +466,22 @@ namespace SPTLauncher.Components.ModManagement
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
             string downloadURL = "";
+        }
+        public int CalculatePercentageInt()
+        {
+            return (int)(Math.Round(CalculatePercentage()));
+        }
+        public double CalculatePercentage()
+        {
+            if (totalBytes == 0)
+            {
+                // Avoid division by zero error; you can choose to handle this case differently if needed.
+                return 0;
+            }
+
+            double percentage = (double)bytes / totalBytes * 100;
+            if (percentage > 100) percentage = 100;
+            return percentage;
         }
     }
 }

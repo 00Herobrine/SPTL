@@ -164,18 +164,6 @@ namespace SPTLauncher.Components
             return name;
         }
 
-/*        public void CacheNames(CacheType cacheType)
-        {
-            nameCache ??= JObject.Parse(File.ReadAllText(nameCachePath));
-            string typePath = Paths.itemCache + "/" + cacheType.ToString().ToLower() + ".json";
-            JObject cacheObject = JObject.Parse(File.ReadAllText(typePath));
-            foreach (JToken jToken in cacheObject[""])
-            {
-                string id = jToken["Item ID"].ToString();
-                nameCache[id] = cacheType.ToString();
-            }
-        }*/
-
         public async static void GenerateCacheFile(CacheType cacheType)
         {
             var client = new HttpClient();

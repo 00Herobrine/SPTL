@@ -12,6 +12,8 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
 using System.IO;
 using System;
+using System.Net.Http;
+using System.Xml.Linq;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -79,110 +81,6 @@ namespace SPTLauncher.Components.ModManagement
                     if (!mod.isEnabled()) disabledAmount++;
                     mods.Add(mod);
                 }
-            }
-        }
-
-        public static string[] allowedFileTypes =
-        {
-            "rar",
-            "7z",
-            "zip",
-            "dll"
-        };
-        public static async Task Download(bool thing, ModDownload mod)
-        {
-            //Get DownloadURL through selenium (need to change it's shit)
-            var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArguments("--headless");
-            chromeOptions.AddArguments("no-sandbox");
-            chromeOptions.AddArguments("--ignore-certificate-errors");
-            chromeOptions.AddArguments("--allow-running-insecure-content");
-
-            var driver = new ChromeDriver(chromeOptions);
-
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
-
-            driver.Navigate().GoToUrl(mod.URL);
-
-            string originalWindow = driver.CurrentWindowHandle;
-
-            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/header/nav/ul/li/a")).Click();
-
-            wait.Until(wd => wd.WindowHandles.Count == 2);
-
-            foreach (string window in driver.WindowHandles)
-            {
-                if (originalWindow != window)
-                {
-                    driver.SwitchTo().Window(window);
-                    break;
-                }
-            }
-
-            wait.Until(wd => wd.Title.Contains("License"));
-
-            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/form/section/dl[2]/dd/label/input")).Click();
-            driver.FindElement(By.XPath("/html/body/div[1]/section/div/div/form/div/input[1]")).Click();
-            string downloadURL = driver.FindElement(By.XPath("/html/body/div/div/p[2]/a")).GetAttribute("href");
-            Form1.form.log($"Download: {downloadURL} ORIGIN:{GetOrigin(downloadURL)}");
-
-            driver.Quit();
-
-            //HTTPRequest to download the file
-            string savePath = Paths.downloadingPath;
-            HttpClient httpClient = new();
-            try
-            {
-                // some mfers don't like you without a user-agent, fake asf fr
-                string useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
-                string formattedURL = FormatURL(downloadURL);
-                Form1.form.log("Formatted: " + formattedURL);
-                HttpResponseMessage response = await httpClient.GetAsync(formattedURL, HttpCompletionOption.ResponseHeadersRead);
-                if (response.IsSuccessStatusCode)
-                {
-                    string filename = (GetFilenameFromResponse(response) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
-                    string extension = filename.Replace("\"", "").Split(".")[^1];
-                    Form1.form.log($"FN:{filename} Ex: {extension}");
-                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found."); return; }
-                    Form1.form.log($"Downloading file.");
-                    long byteSize = response.Content.Headers.ContentLength ?? 0;
-                    mod.totalBytes = byteSize;
-                    Form1.form.log($"Download Size: {FormatByteCount(byteSize)}");
-                    Stream contentStream = response.Content.ReadAsStream();
-                    byte[] buffer = new byte[8192];
-                    int bytesRead = 0;
-                    mod.bytes = 0;
-                    DateTime startTime = DateTime.Now;
-                    string fullSavePath = Path.Combine(savePath, filename);
-                    FileStream fileStream = new(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
-                    while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
-                    {
-                        // Update the currentDownloadAmount as you read content
-                        mod.bytes += bytesRead;
-
-                        // Write the downloaded bytes to the file
-                        await fileStream.WriteAsync(buffer, 0, bytesRead);
-
-                        TimeSpan elapsedTime = DateTime.Now - startTime;
-                        mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
-                        //Form1.form.log($"Download Speed: {downloadSpeedKBps:F2} KB/s");
-                        //ReportProgress(mod.bytes, byteSize);
-                    }
-                    //byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
-                    //File.WriteAllBytes(fullSavePath, fileBytes);
-                    mod.downloadSpeed = 0;
-                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
-                    Form1.form.log("File downloaded successfully!");
-                }
-                else
-                {
-                    Form1.form.log($"HTTP request failed with status code: {response.StatusCode}");
-                }
-            }
-            catch (HttpRequestException e)
-            {
-                Form1.form.log($"HTTP request error: {e.Message}");
             }
         }
 
@@ -254,6 +152,13 @@ namespace SPTLauncher.Components.ModManagement
                    statusCode == System.Net.HttpStatusCode.RedirectMethod;
         }
 
+        public static string[] allowedFileTypes =
+{
+            "rar",
+            "7z",
+            "zip",
+            "dll"
+        };
         public static async Task Download(ModDownload mod, bool thing)
         {
             HttpClient client = new HttpClient();
@@ -269,90 +174,75 @@ namespace SPTLauncher.Components.ModManagement
 
             // download request
             string[] split = mod.URL.Split("/");
-            string downloadURL = $"{baseURL}license/{split[^2]}";
+            string licenseURL = $"{baseURL}license/{split[^2]}";
             HttpClient downloadClient = new();
-            response = await downloadClient.GetAsync(downloadURL);
+            response = await downloadClient.GetAsync(licenseURL);
             html = await response.Content.ReadAsStringAsync();
             string pattern = @"var SECURITY_TOKEN = '(.+?)';";
             Match match = Regex.Match(html, pattern);
             string t = match.Success ? match.Groups[1].Value : "";
-            HttpRequestMessage request = new(HttpMethod.Post, downloadURL);
-            /*var payloadData = new
+            HttpRequestMessage request = new(HttpMethod.Post, licenseURL);
+            string useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+            downloadClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
+            var content = new FormUrlEncodedContent(new[] // Thanks alrick. for saying that it can't be in json
             {
-                confirm = 1,
-                purchase = 0,
-                versionID = $"{versionID}",
-                t = $"{t}"
-            };
-            string jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payloadData);
-            StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");*/
-            string requestBody = $"confirm=1&purchase=0versionID={versionID}&t={t}";
-            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-            StringContent content = new StringContent(requestBody);
-            response = await downloadClient.PostAsync(downloadURL, content);
+                new KeyValuePair<string, string>("confirm", "1"),
+                new KeyValuePair<string, string>("purchase", "0"),
+                new KeyValuePair<string, string>("versionID", versionID),
+                new KeyValuePair<string, string>("t", t)
+            });
+            //string jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payloadData);
+            response = await downloadClient.PostAsync(licenseURL, content);
             html = await response.Content.ReadAsStringAsync();
             doc.LoadHtml(html);
-            Debug.WriteLine($"versionID:{versionID} t:{t} Redirect:{IsRedirect(response.StatusCode)} B:{requestBody}");
-            Debug.WriteLine(html);
-        }
-
-        public static async Task Download(ModDownload mod)
-        {
-            HttpClient client = new HttpClient();
-            string[] split = mod.URL.Split("/");
-            string downloadURL = $"{baseURL}license/{split[^2]}";
-            string versionID = downloadURL.Split("/").Last();
-            // Send a GET request to the specified URL
-            client.DefaultRequestHeaders.Add("confirm", "1");
-            client.DefaultRequestHeaders.Add("purchase", "0");
-            client.DefaultRequestHeaders.Add("versionID", versionID);
-            client.DefaultRequestHeaders.Add("t", xsrfToken);
-            //client.DefaultRequestHeaders.Add("Cookie", $"welovesenko_user_session={xsrfToken}");
-            HttpRequestMessage request = new(HttpMethod.Post, downloadURL);
-            string requestBody = "{\"key\": \"value\"}";
-            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await client.SendAsync(request);
-            HtmlDocument doc = new();
-            string html = await response.Content.ReadAsStringAsync();
-            doc.LoadHtml(html);
-            Debug.WriteLine($"DL: {downloadURL} VID: {versionID} ML: {mod.URL} TKN: {xsrfToken} RES:{response}");
-            Debug.WriteLine(response.Headers);
-            //HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@itemprop='downloadUrl']");
-            /*if (nodes != null)
+            string downloadURL = doc.DocumentNode.SelectSingleNode(".//a[@class='button buttonPrimary noDereferer']").Attributes["href"].Value;
+            string savePath = Paths.downloadingPath;
+            HttpClient httpClient = new();
+            try
             {
-                foreach (HtmlNode node in nodes)
+                // some mfers don't like you without a user-agent, fake asf fr
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
+                string formattedURL = FormatURL(downloadURL);
+                Form1.form.log("Formatted: " + formattedURL);
+                HttpResponseMessage response2 = await httpClient.GetAsync(formattedURL, HttpCompletionOption.ResponseHeadersRead);
+                if (response2.IsSuccessStatusCode)
                 {
-                    downloadURL = node.GetAttributeValue("href", "");
-                }
-                string _URL = URL.Replace("https://hub.sp-tarkov.com/files/file/", "");
-                string modLink = $"{_URL}";
-                string newURL = $"{baseURL}license/{modLink}";
-                string versionID = downloadURL.Split("/").Last();
-                var client2 = new HttpClient();
-                client2.DefaultRequestHeaders.Add("confirm", "1");
-                client2.DefaultRequestHeaders.Add("purchase", "0");
-                client2.DefaultRequestHeaders.Add("versionID", versionID);
-                client2.DefaultRequestHeaders.Add("welovesenko_user_session", xsrfToken);
-                string basedURL = newURL + $"?confirm=1&purchase=0&versionID={versionID}&t={xsrfToken}";
-                response = await client2.GetAsync(newURL, HttpCompletionOption.ResponseContentRead);
-                Debug.WriteLine($"UL: {newURL} BL: {basedURL} _U:{_URL} U: {URL} D: {downloadURL}");
-                if (response.StatusCode == HttpStatusCode.Redirect)
-                {
-                    var redirectUrl = response.Headers.Location.AbsoluteUri;
-                    Console.WriteLine($"Redirect URL: {redirectUrl}");
+                    string filename = (GetFilenameFromResponse(response2) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
+                    string extension = filename.Replace("\"", "").Split(".")[^1];
+                    Form1.form.log($"FN:{filename} Ex: {extension}");
+                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found."); return; }
+                    Form1.form.log($"Downloading file.");
+                    long byteSize = response2.Content.Headers.ContentLength ?? 0;
+                    mod.totalBytes = byteSize;
+                    Form1.form.log($"Download Size: {FormatByteCount(byteSize)}");
+                    Stream contentStream = response2.Content.ReadAsStream();
+                    byte[] buffer = new byte[8192];
+                    int bytesRead = 0;
+                    mod.bytes = 0;
+                    DateTime startTime = DateTime.Now;
+                    string fullSavePath = Path.Combine(savePath, filename);
+                    FileStream fileStream = new(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+                    {
+                        mod.bytes += bytesRead;
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                        TimeSpan elapsedTime = DateTime.Now - startTime;
+                        mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
+                    }
+                    mod.downloadSpeed = 0;
+                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
+                    Form1.form.log("File downloaded successfully!");
                 }
                 else
                 {
-                    Console.WriteLine("Request was not redirected");
+                    Form1.form.log($"HTTP request failed with status code: {response2.StatusCode}");
                 }
             }
-            string r = await response.Content.ReadAsStringAsync();
-            Debug.WriteLine($"Response:\n{r}");
-            // string downloadURL = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL']").Attributes["href"].Value;
-            //HtmlNode downloadNode = doc.DocumentNode.SelectSingleNode("//a[class='button buttonPrimary externalURL'");
-            //string downloadURL = downloadNode.Attributes["href"].Value;
-            //Debug.WriteLine($"Download URL: {downloadURL}");
-            //Form1.form.log(html);*/
+            catch (HttpRequestException e)
+            {
+                Form1.form.log($"HTTP request error: {e.Message}");
+            }
         }
 
         public async static void WebRequestMods(int page = 1)
@@ -449,7 +339,7 @@ namespace SPTLauncher.Components.ModManagement
         {
             await Task.Run(async () =>
             {
-                ModManager.Download(true, this);
+                ModManager.Download(this, true);
             });
         }
 

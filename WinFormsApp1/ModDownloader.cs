@@ -41,6 +41,7 @@ namespace SPTLauncher
             string downloadedBytes = ModManager.FormatByteCount(mod.bytes);
             string downloadSpeed = mod.downloadSpeed == 0 ? "" : $" ({ModManager.FormatByteCount((long)mod.downloadSpeed)})";
             DownloadLabel.Text = mod.totalBytes == 0 ? "" : $"Downloaded {downloadedBytes}/{totalBytes}{downloadSpeed}";
+            downloadProgress.Visible = mod.totalBytes != 0;
             downloadProgress.Value = mod.CalculatePercentageInt();
         }
 
@@ -124,7 +125,7 @@ namespace SPTLauncher
             }
             else
             {
-                int progressPercentage = (int)(((double)currentDownloadAmount / downloadSize) * 100);
+                int progressPercentage = (int)((double)currentDownloadAmount / downloadSize * 100);
                 downloadProgress.Value = progressPercentage;
             }
         }

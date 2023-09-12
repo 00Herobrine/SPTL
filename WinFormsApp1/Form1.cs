@@ -101,11 +101,6 @@ namespace WinFormsApp1
             log("Attemping to bind to Aki.");
             await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
             si = ServerManager.SelectedServer;
-            //var delInstance = new PingServer(Ping);
-            //var asyncResult = delInstance.BeginInvoke(out response, null, null);
-            //delInstance.EndInvoke(out response, asyncResult);
-            //var valueWhenDone = response;
-            //bool online = ServerManager.PingServer();
             Process[] processes = GetServerProcesses();
             if (processes.Length > 0)
             {

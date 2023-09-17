@@ -1,23 +1,15 @@
 ﻿using HtmlAgilityPack;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using OpenQA.Selenium;
 using SPTLauncher.Constructors;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
-using System.IO;
-using System;
-using System.Net.Http;
-using System.Xml.Linq;
 
 namespace SPTLauncher.Components.ModManagement
 {
-    public enum ModType { CLIENT, SERVER }
+    public enum ModType { CLIENT, PLUGIN }
     public enum ORIGIN
     {
         [Description("github.com")]
@@ -31,22 +23,19 @@ namespace SPTLauncher.Components.ModManagement
         DIRECT,
         INVALID
     }
-    public class ModManager
+    internal class ModManager
     {
-        public ModDownload curDownload = null;
+        public ModDownload? curDownload = null;
         public static List<ModDownload> downloadableMods = new();
         public static List<Mod> mods = new();
         const string baseURL = "https://hub.sp-tarkov.com/files/";
-        private static string xsrfToken = "";
         public static int disabledAmount = 0;
 
         public static void Initialize()
         {
-            //LoadMods();
             WebRequestMods();
             WebRequestMods(2);
-            //ModDownloader.Check();
-
+            ModManagerConfig.Initialize();
         }
 
         private static string[] ignoredFiles = { "order.json", "spt" };
@@ -245,20 +234,25 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
+        private static void CreateConfigSection(ModDownload modDownload)
+        {
+            ModConfig conf = new()
+            {
+                AkiVersion = modDownload.AkiVersion,
+                Name = modDownload.name,
+                AutoUpdate = false,
+            };
+        }
+
         public async static void WebRequestMods(int page = 1)
         {
             string url = $"https://hub.sp-tarkov.com/files/?pageNo={page}&sortField=time&sortOrder=DESC";
-            string className = "box128";
             HttpClient client = new HttpClient();
-            // Send a GET request to the specified URL
             HttpResponseMessage response = await client.GetAsync(url);
-            Debug.WriteLine($"Querying for {className} on {url}");
-            // Read the response content as a string
             string html = await response.Content.ReadAsStringAsync();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
             HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[starts-with(@class, 'filebaseFileCard')]");
-            // Loop through the elements and print their inner text
             foreach (HtmlNode element in elements)
             {
                 downloadableMods.Add(new ModDownload(element));

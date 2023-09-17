@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SPTLauncher.Constructors;
 using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Windows.Forms.VisualStyles;
 using WinFormsApp1;
 
 namespace SPTLauncher.Components
@@ -15,10 +16,31 @@ namespace SPTLauncher.Components
 
     internal class TarkovCache
     {
-        public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>();
+        public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>
+        {
+        { CacheType.ARMOR, CacheTab.ARMOR },
+        { CacheType.BACKPACKS, CacheTab.WEARABLES },
+        { CacheType.CLOTHING, CacheTab.WEARABLES },
+        { CacheType.HEADPHONES, CacheTab.WEARABLES },
+        { CacheType.HELMETS, CacheTab.WEARABLES },
+        { CacheType.RIGS, CacheTab.WEARABLES },
+        { CacheType.FIREARMS, CacheTab.WEAPONS },
+        { CacheType.AMMO, CacheTab.WEAPONS },
+        { CacheType.MAGAZINES, CacheTab.WEAPONS },
+        { CacheType.GRENADES, CacheTab.WEAPONS },
+        { CacheType.FOOD, CacheTab.CONSUMABLES },
+        { CacheType.CONTAINERS, CacheTab.MISC },
+        { CacheType.ITEMS, CacheTab.MISC },
+        { CacheType.KNIVES, CacheTab.WEAPONS },
+        { CacheType.KEYS, CacheTab.KEYS },
+        { CacheType.MAPS, CacheTab.MISC },
+        { CacheType.MEDICALS, CacheTab.CONSUMABLES },
+        { CacheType.MODS, CacheTab.MISC },
+        { CacheType.MONEY, CacheTab.MISC }
+        };
         public static Dictionary<CacheType, string> caches = new Dictionary<CacheType, string>();
         public static Dictionary<string, CachedItem> itemCache = new Dictionary<string, CachedItem>(); // itemID, cached item
-        private string nameCachePath = Paths.itemCache + "/idnames.json";
+        public static Dictionary<string, CachedQuest> questCache = new();
         private static JObject nameCache = new JObject();
         private static JObject names = new JObject();
         #region Filtering
@@ -45,33 +67,9 @@ namespace SPTLauncher.Components
         {
             if (!Directory.Exists(Paths.itemCache)) Directory.CreateDirectory(Paths.itemCache);
             //if (!Directory.Exists(Paths.tarkovCachePath)) Directory.CreateDirectory(mainPath);
-            LoadTabs();
             GenerateCache();
         }
 
-        public static void LoadTabs()
-        {
-            tabs.Clear();
-            tabs.Add(CacheType.ARMOR, CacheTab.ARMOR);
-            tabs.Add(CacheType.BACKPACKS, CacheTab.WEARABLES);
-            tabs.Add(CacheType.CLOTHING, CacheTab.WEARABLES);
-            tabs.Add(CacheType.HEADPHONES, CacheTab.WEARABLES);
-            tabs.Add(CacheType.HELMETS, CacheTab.WEARABLES);
-            tabs.Add(CacheType.RIGS, CacheTab.WEARABLES);
-            tabs.Add(CacheType.FIREARMS, CacheTab.WEAPONS);
-            tabs.Add(CacheType.AMMO, CacheTab.WEAPONS);
-            tabs.Add(CacheType.MAGAZINES, CacheTab.WEAPONS);
-            tabs.Add(CacheType.GRENADES, CacheTab.WEAPONS);
-            tabs.Add(CacheType.FOOD, CacheTab.CONSUMABLES);
-            tabs.Add(CacheType.CONTAINERS, CacheTab.MISC);
-            tabs.Add(CacheType.ITEMS, CacheTab.MISC);
-            tabs.Add(CacheType.KNIVES, CacheTab.WEAPONS);
-            tabs.Add(CacheType.KEYS, CacheTab.KEYS);
-            tabs.Add(CacheType.MAPS, CacheTab.MISC);
-            tabs.Add(CacheType.MEDICALS, CacheTab.CONSUMABLES);
-            tabs.Add(CacheType.MODS, CacheTab.MISC);
-            tabs.Add(CacheType.MONEY, CacheTab.MISC);
-        }
 
         public static void GenerateCache()
         {
@@ -91,6 +89,30 @@ namespace SPTLauncher.Components
             if (!missing) Form1.form.log("All files cached.");
             UpdateNameCache();
             ItemCheck();
+            InitalizeQuestCache();
+        }
+
+        private static string ReadQuestsFile()
+        {
+            return File.ReadAllText($"{Paths.databasePath}/templates/quests.json");
+        }
+        private static void InitalizeQuestCache()
+        {
+            try
+            {
+                string jsonData = ReadQuestsFile();
+                questCache = JsonConvert.DeserializeObject<Dictionary<string, CachedQuest>>(jsonData) ?? new();
+                Form1.form.log($"Loaded {questCache.Count} quests");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Exception while deserializing JSON: " + ex.Message);
+            }
+        }
+
+        public static CachedQuest GetQuestByID(string id)
+        {
+            return questCache[id];
         }
 
         public static void ItemCheck()
@@ -171,7 +193,7 @@ namespace SPTLauncher.Components
 
             var request = new HttpRequestMessage(HttpMethod.Get, "v1/" + cacheType.ToString().ToLower());
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            request.Headers.Add("AUTH-Token", Form1.form.GetConfig().getApiKey());
+            request.Headers.Add("AUTH-Token", Config.GetApiKey());
 
             HttpResponseMessage response = await client.SendAsync(request);
 

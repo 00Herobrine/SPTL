@@ -62,7 +62,7 @@
             // Author
             // 
             Author.AutoSize = true;
-            Author.Location = new Point(386, 20);
+            Author.Location = new Point(373, 20);
             Author.Name = "Author";
             Author.Size = new Size(76, 15);
             Author.TabIndex = 1;
@@ -71,7 +71,7 @@
             // AkiVersion
             // 
             AkiVersion.AutoSize = true;
-            AkiVersion.Location = new Point(386, 35);
+            AkiVersion.Location = new Point(373, 35);
             AkiVersion.Name = "AkiVersion";
             AkiVersion.Size = new Size(98, 15);
             AkiVersion.TabIndex = 2;
@@ -103,15 +103,15 @@
             // 
             ModImage.Location = new Point(223, 1);
             ModImage.Name = "ModImage";
-            ModImage.Size = new Size(163, 153);
-            ModImage.SizeMode = PictureBoxSizeMode.AutoSize;
+            ModImage.Size = new Size(144, 144);
+            ModImage.SizeMode = PictureBoxSizeMode.CenterImage;
             ModImage.TabIndex = 5;
             ModImage.TabStop = false;
             // 
             // ModName
             // 
             ModName.AutoSize = true;
-            ModName.Location = new Point(386, 5);
+            ModName.Location = new Point(373, 5);
             ModName.Name = "ModName";
             ModName.Size = new Size(77, 15);
             ModName.TabIndex = 6;
@@ -128,7 +128,7 @@
             // lastUpdated
             // 
             lastUpdated.AutoSize = true;
-            lastUpdated.Location = new Point(386, 50);
+            lastUpdated.Location = new Point(373, 50);
             lastUpdated.Name = "lastUpdated";
             lastUpdated.Size = new Size(156, 15);
             lastUpdated.TabIndex = 8;
@@ -137,7 +137,7 @@
             // Downloads
             // 
             Downloads.AutoSize = true;
-            Downloads.Location = new Point(386, 65);
+            Downloads.Location = new Point(373, 65);
             Downloads.Name = "Downloads";
             Downloads.Size = new Size(78, 15);
             Downloads.TabIndex = 9;
@@ -146,7 +146,7 @@
             // Reviews
             // 
             Reviews.AutoSize = true;
-            Reviews.Location = new Point(386, 80);
+            Reviews.Location = new Point(373, 80);
             Reviews.Name = "Reviews";
             Reviews.Size = new Size(61, 15);
             Reviews.TabIndex = 10;
@@ -155,7 +155,7 @@
             // Rating
             // 
             Rating.AutoSize = true;
-            Rating.Location = new Point(386, 95);
+            Rating.Location = new Point(373, 95);
             Rating.Name = "Rating";
             Rating.Size = new Size(81, 15);
             Rating.TabIndex = 11;
@@ -164,7 +164,7 @@
             // Ratings
             // 
             Ratings.AutoSize = true;
-            Ratings.Location = new Point(386, 110);
+            Ratings.Location = new Point(373, 110);
             Ratings.Name = "Ratings";
             Ratings.Size = new Size(58, 15);
             Ratings.TabIndex = 12;
@@ -191,7 +191,7 @@
             // DownloadLabel
             // 
             DownloadLabel.AutoSize = true;
-            DownloadLabel.Location = new Point(223, 159);
+            DownloadLabel.Location = new Point(223, 160);
             DownloadLabel.Name = "DownloadLabel";
             DownloadLabel.Size = new Size(111, 15);
             DownloadLabel.TabIndex = 15;
@@ -212,12 +212,12 @@
             Controls.Add(lastUpdated);
             Controls.Add(Description);
             Controls.Add(ModName);
-            Controls.Add(ModImage);
             Controls.Add(linkLabel1);
             Controls.Add(DownloadModButton);
             Controls.Add(AkiVersion);
             Controls.Add(Author);
             Controls.Add(modList);
+            Controls.Add(ModImage);
             Name = "ModDownloader";
             Text = "ModHandler";
             FormClosing += ModDownloader_FormClosing;

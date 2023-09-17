@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using SPTLauncher.Components;
 using SPTLauncher.Constructors.Enums;
 using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Forms.Reporting;
 
 namespace WinFormsApp1
 {
@@ -78,22 +79,23 @@ namespace WinFormsApp1
 
         public async void StartUp()
         {
-            BindToAkiAsync();
-            //LoadConfig();
+            BindToAkiAsync(); // call this to another thread
             Paths.Initialize(debug);
+            md = new ModDownloader();
             Config.Load();
             LauncherSettings.Load();
             Traders.Initialize();
             TarkovCache.Initialize();
             ModManager.LoadMods();
             foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
-            ModsButton.Text = $"Mods {ModManager.mods.Count-ModManager.disabledAmount}/{ModManager.mods.Count}";
-            //Debug.WriteLine("Download from " + ModDownload.GetOrigin("https://github.com/silversupreme/SPT-Spawn/releases/download/v1.0.1/Gaylatea-Spawn.dll"));
-            /*if(aliveCheck()) bindToAki();
-            else */
-            // server check
-            //ConnectServer();
-            // login check
+            UpdateModsButton();
+            UpdateSettingsValues();
+        }
+
+        public void UpdateSettingsValues()
+        {
+            textBox1.Text = Config.GetApiKey();
+            profileBackupCheckBox.Checked = Config.BackupState();
         }
 
         public async Task BindToAkiAsync()
@@ -153,8 +155,21 @@ namespace WinFormsApp1
         private void Form1_Load(object sender, EventArgs e)
         {
             StartUp();
+            LoadToolTips();
             activeGroupBox = groupBox3;
             Text += $" - {LauncherSettings.akiData.akiVersion}";
+        }
+
+        public void LoadToolTips()
+        {
+            ToolTip donationTip = new();
+            ToolTip bugTip = new();
+            ToolTip settingsTip = new();
+            ToolTip folderTip = new();
+            donationTip.SetToolTip(donatePicture, "Donation!");
+            bugTip.SetToolTip(BugsFeedbackBox, "Bug Reports & Feedback");
+            settingsTip.SetToolTip(SettingsButton, "Settings");
+            folderTip.SetToolTip(OpenFolderButton, "Open Game Folder");
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -387,7 +402,7 @@ namespace WinFormsApp1
         {
             string dll = Paths.gameFolder + "/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll";
             string bpf = Paths.gameFolder + "/Aki_Data/Launcher/Patches/aki-core/EscapeFromTarkov_Data/Managed/Assembly-CSharp.dll.bpf";
-            Aki.Launcher.Helpers.FilePatcher.Patch(dll, bpf, false);
+            FilePatcher.Patch(dll, bpf, false);
             ProcessStartInfo startGame = new ProcessStartInfo(Path.Combine(Paths.gameFolder, "EscapeFromTarkov.exe"))
             {
                 //$"-force-gfx-jobs native -token={account.id} -config={Json.Serialize(new ClientConfig(server.backendUrl))}";
@@ -421,11 +436,6 @@ namespace WinFormsApp1
             }
             if (minimizeCheck.Checked) { WindowState = FormWindowState.Minimized; }
             StartClient(AccountManager.SelectedAccount.id);
-        }
-
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            OpenGameFolderCommand();
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -498,11 +508,6 @@ namespace WinFormsApp1
             }
         }
 
-        private void bottomButton_Click(object sender, EventArgs e)
-        {
-            scrollToBottom();
-        }
-
         public void scrollToBottom()
         {
             serverConsole.SelectionStart = serverConsole.Text.Length;
@@ -556,7 +561,6 @@ namespace WinFormsApp1
 
         private void settingsButton_Click(object sender, EventArgs e)
         {
-            toggleActiveTab(settingsGroup);
         }
 
 
@@ -588,7 +592,7 @@ namespace WinFormsApp1
 
         private void button4_Click(object sender, EventArgs e)
         {
-            Config.setApiKey(textBox1.Text);
+            Config.SetApiKey(textBox1.Text);
             Config.SetBackupInterval((int)BackUpInterval.Value);
         }
 
@@ -607,7 +611,6 @@ namespace WinFormsApp1
         private void button13_Click(object sender, EventArgs e)
         {
             if (GetSelectedProfile() == null) return;
-            if (GetSelectedProfile().GetEncyclopedia() == null) GetSelectedProfile().generateEncyclopedia();
             GetSelectedProfile().GetEncyclopedia().Show();
         }
 
@@ -678,7 +681,7 @@ namespace WinFormsApp1
             Size = new Size(width, height);
         }
         #region Mod Manager
-        Form md = new ModDownloader();
+        Form md;
         private void ModsButton_Click(object sender, EventArgs e)
         {
             md.Show();
@@ -706,6 +709,12 @@ namespace WinFormsApp1
             else ModConfig.Enabled = false;
             if (mod.isEnabled()) button16.Text = "Disable";
             else button16.Text = "Enable";
+            UpdateModsButton();
+        }
+
+        public void UpdateModsButton()
+        {
+            ModsButton.Text = $"Mods {ModManager.mods.Count - ModManager.disabledAmount}/{ModManager.mods.Count}";
         }
 
         private void button16_Click(object sender, EventArgs e)
@@ -729,7 +738,7 @@ namespace WinFormsApp1
 
         private void RenderMods(bool reorganize = true)
         {
-            if(reorganize) ModManager.LoadMods();
+            if (reorganize) ModManager.LoadMods();
             modsListBox.Items.Clear();
             foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
         }
@@ -742,7 +751,7 @@ namespace WinFormsApp1
             Profile selectedProfile = GetSelectedProfile();
             if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
             string id = selectedProfile.getAccountInfo().id;
-            DateTime startTime = config.GetLastBackupTime();
+            DateTime startTime = Config.GetLastBackupTime();
             DateTime now = DateTime.Now;
             TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
             TimeSpan difference = now - startTime;
@@ -754,7 +763,7 @@ namespace WinFormsApp1
             CreateProfileBackup(id, DateTime.Now);
         }
 
-        public void CreateProfileBackup(string id, DateTime now, string logMessage = null)
+        public void CreateProfileBackup(string id, DateTime now, string? logMessage = null)
         {
             string path = Paths.profilesFolder + "/" + id + ".json";
             string backupPath = Paths.backupsPath + "/" + id;
@@ -763,7 +772,7 @@ namespace WinFormsApp1
             string filePath = backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json";
             File.WriteAllText(filePath, File.ReadAllText(path));
             Config.SetLastBackUpTime(now);
-            if (logMessage == null) logMessage = "Backup Created " + Path.GetFileName(filePath);
+            logMessage ??= "Backup Created " + Path.GetFileName(filePath);
             log(logMessage);
         }
 
@@ -878,7 +887,7 @@ namespace WinFormsApp1
         {
             Profile profile = GetSelectedProfile();
             if (profile == null) return;
-            backupCheckBox.Checked = GetConfig().ToggleBackups(profile.getID());
+            backupCheckBox.Checked = Config.ToggleBackups();
         }
 
         bool bypass = true;
@@ -921,6 +930,39 @@ namespace WinFormsApp1
         private void SavePresetButton_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void donatePicture_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer.exe", "https://www.google.com");
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            scrollToBottom();
+        }
+
+        private void QuestButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        Form? fb;
+        private void BugsFeedbackBox_Click(object sender, EventArgs e)
+        {
+            fb ??= new Feedback();
+            fb.Show();
+            //Thing.SendFeedBack("This program is proper trash fr.");
+        }
+
+        private void OpenFolderButton_Click(object sender, EventArgs e)
+        {
+            OpenGameFolderCommand();
+        }
+
+        private void SettingsButton_Click(object sender, EventArgs e)
+        {
+            toggleActiveTab(settingsGroup);
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 using SPTLauncher.Constructors;
 using SPTLauncher.Constructors.Enums;
 
@@ -12,7 +8,7 @@ namespace SPTLauncher.Components
     {
         public static LANG language;
         public static Config config = new();
-        public static AkiData akiData = new();
+        public static AkiData akiData;
         private static List<Profile> cachedProfiles = new();
         private static List<Mod> cachedMods = new();
         //private static LauncherSettings? settings;
@@ -20,7 +16,7 @@ namespace SPTLauncher.Components
         public static void Load()
         {
             config = new Config();
-            //akiData = new AkiData();
+            akiData = JsonConvert.DeserializeObject<AkiData>(Config.ReadCoreFile());
         }
 
         public static List<Profile> GetProfiles()

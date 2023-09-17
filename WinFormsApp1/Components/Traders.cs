@@ -28,11 +28,6 @@ namespace SPTLauncher.Components
         {
             return traders.Values.ToList();
         }
-/*        public static Dictionary<string, Trader> GetTraders()
-        {
-            return traders;
-        }*/
-
         public static Trader GetTrader(string id)
         {
             return traders[id];
@@ -44,6 +39,7 @@ namespace SPTLauncher.Components
 
         public static string ReadTradersFile()
         {
+            if (tradersFilePath == null) return "";
             return File.ReadAllText(tradersFilePath);
         }
     }

@@ -1,8 +1,6 @@
-﻿using OpenQA.Selenium.DevTools.V114.Memory;
+﻿using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
-using SPTLauncher.Constructors;
 using System.Diagnostics;
-using System.Timers;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
 
@@ -39,8 +37,8 @@ namespace SPTLauncher
         {
             string totalBytes = ModManager.FormatByteCount(mod.totalBytes);
             string downloadedBytes = ModManager.FormatByteCount(mod.bytes);
-            string downloadSpeed = mod.downloadSpeed == 0 ? "" : $" ({ModManager.FormatByteCount((long)mod.downloadSpeed)})";
-            DownloadLabel.Text = mod.totalBytes == 0 ? "" : $"Downloaded {downloadedBytes}/{totalBytes}{downloadSpeed}";
+            string downloadSpeed = mod.downloadSpeed == 0 ? "" : $" ({ModManager.FormatByteCount((long)mod.downloadSpeed)}/s)";
+            DownloadLabel.Text = mod.totalBytes == 0 ? "" : $"Downloaded: {downloadedBytes}/{totalBytes}{downloadSpeed}";
             downloadProgress.Visible = mod.totalBytes != 0;
             downloadProgress.Value = mod.CalculatePercentageInt();
         }
@@ -65,6 +63,7 @@ namespace SPTLauncher
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
             ModDownload mod = (ModDownload)modList.SelectedItem;
+            ModImage.Image = Image.FromFile($"{Paths.iconsPath}/roller144.gif");
             if (!loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
                 page++;

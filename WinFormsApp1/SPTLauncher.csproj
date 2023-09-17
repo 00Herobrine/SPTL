@@ -21,10 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.53" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.12.4" />
-    <PackageReference Include="Splat" Version="14.6.8" />
   </ItemGroup>
 
   <ItemGroup>

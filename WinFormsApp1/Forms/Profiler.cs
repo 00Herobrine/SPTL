@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WinFormsApp1;
 
-namespace SPTLauncher
+namespace SPTLauncher.Forms
 {
     internal class Profiler : Form1
     {
         public void CreateProfile()
         {
-            
+
         }
     }
 }

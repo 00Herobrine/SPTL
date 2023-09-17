@@ -34,6 +34,7 @@
             backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
+            button11 = new Button();
             SkillsButton = new Button();
             HealthButton = new Button();
             button9 = new Button();
@@ -58,6 +59,11 @@
             comboBox1 = new ComboBox();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
+            BugsFeedbackBox = new PictureBox();
+            donatePicture = new PictureBox();
+            label10 = new Label();
+            LoadPresetButton = new Button();
+            SavePresetButton = new Button();
             minimizeCheck = new CheckBox();
             profileBackupCheckBox = new CheckBox();
             label7 = new Label();
@@ -67,24 +73,24 @@
             button4 = new Button();
             linkLabel3 = new LinkLabel();
             textBox1 = new TextBox();
-            button11 = new Button();
+            OpenFolderButton = new PictureBox();
             button14 = new Button();
-            settingsButton = new Button();
             label5 = new Label();
             startServerButton = new Button();
             label6 = new Label();
             stateLabel = new Label();
             groupBox2 = new GroupBox();
+            SettingsButton = new PictureBox();
+            QuestButton = new Button();
             ModsButton = new Button();
             button5 = new Button();
             dictionaryButton = new Button();
-            bottomButton = new Button();
-            button2 = new Button();
             autoStartCheckBox = new CheckBox();
             autoScrollBox = new CheckBox();
             linkLabel1 = new LinkLabel();
             killServerButton = new Button();
             autoKillCheckBox = new CheckBox();
+            pictureBox1 = new PictureBox();
             serverConsole = new RichTextBox();
             groupBox4 = new GroupBox();
             button16 = new Button();
@@ -98,16 +104,18 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
-            SavePresetButton = new Button();
-            LoadPresetButton = new Button();
-            label10 = new Label();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)donatePicture).BeginInit();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)OpenFolderButton).BeginInit();
             groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)SettingsButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             groupBox4.SuspendLayout();
             BackupGroup.SuspendLayout();
             SuspendLayout();
@@ -119,6 +127,7 @@
             groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
+            groupBox1.Controls.Add(button11);
             groupBox1.Controls.Add(SkillsButton);
             groupBox1.Controls.Add(HealthButton);
             groupBox1.Controls.Add(button9);
@@ -191,6 +200,16 @@
             IDLabel.Size = new Size(26, 19);
             IDLabel.TabIndex = 26;
             IDLabel.Text = "ID:";
+            // 
+            // button11
+            // 
+            button11.Location = new Point(567, 214);
+            button11.Name = "button11";
+            button11.Size = new Size(75, 23);
+            button11.TabIndex = 23;
+            button11.Text = "Traders";
+            button11.UseVisualStyleBackColor = true;
+            button11.Click += button11_Click;
             // 
             // SkillsButton
             // 
@@ -420,6 +439,8 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(BugsFeedbackBox);
+            settingsGroup.Controls.Add(donatePicture);
             settingsGroup.Controls.Add(label10);
             settingsGroup.Controls.Add(LoadPresetButton);
             settingsGroup.Controls.Add(SavePresetButton);
@@ -440,10 +461,60 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
+            // BugsFeedbackBox
+            // 
+            BugsFeedbackBox.Image = SPTLauncher.Properties.Resources.bug;
+            BugsFeedbackBox.Location = new Point(44, 251);
+            BugsFeedbackBox.Name = "BugsFeedbackBox";
+            BugsFeedbackBox.Size = new Size(32, 32);
+            BugsFeedbackBox.SizeMode = PictureBoxSizeMode.Zoom;
+            BugsFeedbackBox.TabIndex = 37;
+            BugsFeedbackBox.TabStop = false;
+            BugsFeedbackBox.Click += BugsFeedbackBox_Click;
+            // 
+            // donatePicture
+            // 
+            donatePicture.Image = SPTLauncher.Properties.Resources.donate;
+            donatePicture.Location = new Point(6, 251);
+            donatePicture.Name = "donatePicture";
+            donatePicture.Size = new Size(32, 32);
+            donatePicture.SizeMode = PictureBoxSizeMode.Zoom;
+            donatePicture.TabIndex = 14;
+            donatePicture.TabStop = false;
+            donatePicture.Click += donatePicture_Click;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(50, 63);
+            label10.Name = "label10";
+            label10.Size = new Size(94, 15);
+            label10.TabIndex = 36;
+            label10.Text = "Launcher Preset:";
+            // 
+            // LoadPresetButton
+            // 
+            LoadPresetButton.Location = new Point(101, 78);
+            LoadPresetButton.Name = "LoadPresetButton";
+            LoadPresetButton.Size = new Size(58, 23);
+            LoadPresetButton.TabIndex = 35;
+            LoadPresetButton.Text = "Load";
+            LoadPresetButton.UseVisualStyleBackColor = true;
+            // 
+            // SavePresetButton
+            // 
+            SavePresetButton.Location = new Point(37, 78);
+            SavePresetButton.Name = "SavePresetButton";
+            SavePresetButton.Size = new Size(58, 23);
+            SavePresetButton.TabIndex = 34;
+            SavePresetButton.Text = "Save";
+            SavePresetButton.UseVisualStyleBackColor = true;
+            SavePresetButton.Click += SavePresetButton_Click;
+            // 
             // minimizeCheck
             // 
             minimizeCheck.AutoSize = true;
-            minimizeCheck.Location = new Point(113, 241);
+            minimizeCheck.Location = new Point(113, 214);
             minimizeCheck.Name = "minimizeCheck";
             minimizeCheck.Size = new Size(134, 19);
             minimizeCheck.TabIndex = 33;
@@ -455,7 +526,7 @@
             profileBackupCheckBox.AutoSize = true;
             profileBackupCheckBox.Checked = true;
             profileBackupCheckBox.CheckState = CheckState.Checked;
-            profileBackupCheckBox.Location = new Point(6, 241);
+            profileBackupCheckBox.Location = new Point(6, 214);
             profileBackupCheckBox.Name = "profileBackupCheckBox";
             profileBackupCheckBox.Size = new Size(107, 19);
             profileBackupCheckBox.TabIndex = 32;
@@ -465,7 +536,7 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(98, 215);
+            label7.Location = new Point(98, 188);
             label7.Name = "label7";
             label7.Size = new Size(41, 15);
             label7.TabIndex = 31;
@@ -474,7 +545,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(6, 193);
+            label4.Location = new Point(6, 166);
             label4.Name = "label4";
             label4.Size = new Size(91, 15);
             label4.TabIndex = 30;
@@ -482,7 +553,7 @@
             // 
             // BackUpInterval
             // 
-            BackUpInterval.Location = new Point(6, 211);
+            BackUpInterval.Location = new Point(6, 184);
             BackUpInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
             BackUpInterval.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             BackUpInterval.Name = "BackUpInterval";
@@ -496,7 +567,7 @@
             checkBox1.Checked = true;
             checkBox1.CheckState = CheckState.Checked;
             checkBox1.Enabled = false;
-            checkBox1.Location = new Point(6, 261);
+            checkBox1.Location = new Point(6, 232);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(107, 19);
             checkBox1.TabIndex = 28;
@@ -505,7 +576,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(189, 259);
+            button4.Location = new Point(189, 232);
             button4.Name = "button4";
             button4.Size = new Size(58, 23);
             button4.TabIndex = 3;
@@ -533,15 +604,16 @@
             textBox1.TabIndex = 0;
             textBox1.UseSystemPasswordChar = true;
             // 
-            // button11
+            // OpenFolderButton
             // 
-            button11.Location = new Point(67, 278);
-            button11.Name = "button11";
-            button11.Size = new Size(75, 23);
-            button11.TabIndex = 23;
-            button11.Text = "Traders";
-            button11.UseVisualStyleBackColor = true;
-            button11.Click += button11_Click;
+            OpenFolderButton.Image = SPTLauncher.Properties.Resources.folder;
+            OpenFolderButton.Location = new Point(33, 229);
+            OpenFolderButton.Name = "OpenFolderButton";
+            OpenFolderButton.Size = new Size(32, 32);
+            OpenFolderButton.SizeMode = PictureBoxSizeMode.Zoom;
+            OpenFolderButton.TabIndex = 38;
+            OpenFolderButton.TabStop = false;
+            OpenFolderButton.Click += OpenFolderButton_Click;
             // 
             // button14
             // 
@@ -552,16 +624,6 @@
             button14.Text = "Recipes";
             button14.UseVisualStyleBackColor = true;
             button14.Click += button14_Click;
-            // 
-            // settingsButton
-            // 
-            settingsButton.Location = new Point(6, 231);
-            settingsButton.Name = "settingsButton";
-            settingsButton.Size = new Size(121, 23);
-            settingsButton.TabIndex = 15;
-            settingsButton.Text = "Settings";
-            settingsButton.UseVisualStyleBackColor = true;
-            settingsButton.Click += settingsButton_Click;
             // 
             // label5
             // 
@@ -603,12 +665,12 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(SettingsButton);
+            groupBox2.Controls.Add(OpenFolderButton);
+            groupBox2.Controls.Add(QuestButton);
             groupBox2.Controls.Add(ModsButton);
             groupBox2.Controls.Add(button5);
             groupBox2.Controls.Add(dictionaryButton);
-            groupBox2.Controls.Add(bottomButton);
-            groupBox2.Controls.Add(button2);
-            groupBox2.Controls.Add(button11);
             groupBox2.Controls.Add(autoStartCheckBox);
             groupBox2.Controls.Add(autoScrollBox);
             groupBox2.Controls.Add(linkLabel1);
@@ -617,7 +679,6 @@
             groupBox2.Controls.Add(stateLabel);
             groupBox2.Controls.Add(startServerButton);
             groupBox2.Controls.Add(label6);
-            groupBox2.Controls.Add(settingsButton);
             groupBox2.Controls.Add(autoKillCheckBox);
             groupBox2.Controls.Add(button14);
             groupBox2.Location = new Point(656, -6);
@@ -625,6 +686,27 @@
             groupBox2.Size = new Size(135, 302);
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
+            // 
+            // SettingsButton
+            // 
+            SettingsButton.Image = SPTLauncher.Properties.Resources.settings;
+            SettingsButton.Location = new Point(71, 229);
+            SettingsButton.Name = "SettingsButton";
+            SettingsButton.Size = new Size(32, 32);
+            SettingsButton.SizeMode = PictureBoxSizeMode.Zoom;
+            SettingsButton.TabIndex = 38;
+            SettingsButton.TabStop = false;
+            SettingsButton.Click += SettingsButton_Click;
+            // 
+            // QuestButton
+            // 
+            QuestButton.Location = new Point(6, 121);
+            QuestButton.Name = "QuestButton";
+            QuestButton.Size = new Size(121, 23);
+            QuestButton.TabIndex = 31;
+            QuestButton.Text = "Quest Manager";
+            QuestButton.UseVisualStyleBackColor = true;
+            QuestButton.Click += QuestButton_Click;
             // 
             // ModsButton
             // 
@@ -656,26 +738,6 @@
             dictionaryButton.UseVisualStyleBackColor = true;
             dictionaryButton.Click += dictionaryButton_Click;
             // 
-            // bottomButton
-            // 
-            bottomButton.Location = new Point(6, 257);
-            bottomButton.Name = "bottomButton";
-            bottomButton.Size = new Size(67, 23);
-            bottomButton.TabIndex = 12;
-            bottomButton.Text = "Bottom";
-            bottomButton.UseVisualStyleBackColor = true;
-            bottomButton.Click += bottomButton_Click;
-            // 
-            // button2
-            // 
-            button2.Location = new Point(6, 120);
-            button2.Name = "button2";
-            button2.Size = new Size(121, 23);
-            button2.TabIndex = 11;
-            button2.Text = "Open Folder";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click_1;
-            // 
             // autoStartCheckBox
             // 
             autoStartCheckBox.AutoSize = true;
@@ -691,11 +753,11 @@
             autoScrollBox.AutoSize = true;
             autoScrollBox.Checked = true;
             autoScrollBox.CheckState = CheckState.Checked;
-            autoScrollBox.Location = new Point(77, 260);
+            autoScrollBox.Location = new Point(19, 260);
             autoScrollBox.Name = "autoScrollBox";
-            autoScrollBox.Size = new Size(52, 19);
+            autoScrollBox.Size = new Size(95, 19);
             autoScrollBox.TabIndex = 8;
-            autoScrollBox.Text = "Auto";
+            autoScrollBox.Text = "Auto Bottom";
             autoScrollBox.UseVisualStyleBackColor = true;
             // 
             // linkLabel1
@@ -729,6 +791,17 @@
             autoKillCheckBox.TabIndex = 9;
             autoKillCheckBox.Text = "Auto";
             autoKillCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Image = SPTLauncher.Properties.Resources.down;
+            pictureBox1.Location = new Point(757, 612);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(32, 32);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 37;
+            pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // serverConsole
             // 
@@ -870,39 +943,12 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
-            // SavePresetButton
-            // 
-            SavePresetButton.Location = new Point(37, 78);
-            SavePresetButton.Name = "SavePresetButton";
-            SavePresetButton.Size = new Size(58, 23);
-            SavePresetButton.TabIndex = 34;
-            SavePresetButton.Text = "Save";
-            SavePresetButton.UseVisualStyleBackColor = true;
-            SavePresetButton.Click += SavePresetButton_Click;
-            // 
-            // LoadPresetButton
-            // 
-            LoadPresetButton.Location = new Point(101, 78);
-            LoadPresetButton.Name = "LoadPresetButton";
-            LoadPresetButton.Size = new Size(58, 23);
-            LoadPresetButton.TabIndex = 35;
-            LoadPresetButton.Text = "Load";
-            LoadPresetButton.UseVisualStyleBackColor = true;
-            // 
-            // label10
-            // 
-            label10.AutoSize = true;
-            label10.Location = new Point(50, 63);
-            label10.Name = "label10";
-            label10.Size = new Size(94, 15);
-            label10.TabIndex = 36;
-            label10.Text = "Launcher Preset:";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 649);
+            Controls.Add(pictureBox1);
             Controls.Add(settingsGroup);
             Controls.Add(factionImage);
             Controls.Add(BackupGroup);
@@ -924,9 +970,14 @@
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)donatePicture).EndInit();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
+            ((System.ComponentModel.ISupportInitialize)OpenFolderButton).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)SettingsButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             groupBox4.ResumeLayout(false);
             BackupGroup.ResumeLayout(false);
             BackupGroup.PerformLayout();
@@ -953,12 +1004,9 @@
         private CheckBox autoKillCheckBox;
         private CheckBox autoStartCheckBox;
         private Button PlayButton;
-        private Button button2;
         private LinkLabel linkLabel2;
         private PictureBox factionImage;
         private Button WipeButton;
-        private Button settingsButton;
-        private Button bottomButton;
         private Label label1;
         private Button button6;
         private Button button7;
@@ -1008,5 +1056,11 @@
         private Button LoadPresetButton;
         private Button SavePresetButton;
         private Label label10;
+        private PictureBox donatePicture;
+        private PictureBox pictureBox1;
+        private Button QuestButton;
+        private PictureBox BugsFeedbackBox;
+        private PictureBox OpenFolderButton;
+        private PictureBox SettingsButton;
     }
 }

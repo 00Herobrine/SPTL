@@ -22,12 +22,11 @@ namespace WinFormsApp1
         {
             string path = Paths.profilesFolder + "/" + accountID + ".json";
             JObject jObject = JObject.Parse(File.ReadAllText(path));
-            foreach (JProperty jToken in jObject["characters"]["pmc"]["Encyclopedia"])
+            foreach (JProperty jToken in jObject["characters"]["pmc"]["Encyclopedia"] ?? "")
             {
                 //string name = getDisplayName(id)
-                var id = jToken.Name;
-                var value = (bool)jToken.Value;
-                int listID = checkedListBox1.Items.Add($"ID: {id}", value);
+                EncyclopediaEntry entry = new(jToken);
+                checkedListBox1.Items.Add(entry, entry.inspected);
             }
         }
 
@@ -41,11 +40,21 @@ namespace WinFormsApp1
         {
 
         }
-
-        public string getDisplayName(string id)
+    }
+    public class EncyclopediaEntry
+    {
+        public string id { get; set; }
+        public bool inspected { get; set; }
+        public string Name { get; set; }
+        public EncyclopediaEntry(JProperty token)
         {
-
-            return "";
+            id = token.Name;
+            inspected = (bool)token.Value;
+            Name = TarkovCache.GetReadableName(id);
+        }
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

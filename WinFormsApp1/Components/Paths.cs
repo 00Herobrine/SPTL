@@ -1,12 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using WinFormsApp1;
+﻿using WinFormsApp1;
 
 namespace SPTLauncher.Components
 {
     internal class Paths
     {
-        public static string gameFolder, profilesFolder, modManagerFolder, configPath, cachePath, itemCache, akiData, productionPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;
+        public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath,
+            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, iconsPath, localesFile, databasePath, serverPath, serverConfigsPath;
 
         public static void Initialize(bool debug = false)
         {
@@ -14,12 +13,14 @@ namespace SPTLauncher.Components
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
             modManagerFolder = $"{cachePath}/ModManager";
+            modManagerConfigPath = $"{modManagerFolder}/config.json";
             modsFolder = $"{gameFolder}/user/mods";
             pluginsFolder = $"{gameFolder}/bepinex/plugins";
             akiData = $"{gameFolder}/Aki_Data";
-            serverPath = $"{akiData}/server";
+            serverPath = $"{akiData}/Server";
             configPath = $"{cachePath}/config.json";
             itemCache = $"{cachePath}/items";
+            iconsPath = $"{cachePath}/icons";
             gatoPath = $"{cachePath}/gato";
             backupsPath = $"{cachePath}/backups";
             databasePath = $"{serverPath}/database";

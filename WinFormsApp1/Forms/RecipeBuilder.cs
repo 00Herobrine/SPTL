@@ -114,7 +114,8 @@ namespace SPTLauncher
             //requirementList.SelectedIndex = index;
             if (requirementList.SelectedIndex == -1) if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
                 else return; // no requirements left, should clear boxes
-            RecipeRequirement requirement = getSelectedRecipe().GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID());
+            RecipeRequirement? requirement = getSelectedRecipe().GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID());
+            if (requirement == null) return;
             LoadRequirement(requirement);
         }
 
@@ -148,7 +149,8 @@ namespace SPTLauncher
             recipe.setEndProduct(endProductBox.Text);
             recipe.setProductionTime((int)productionTime.Value);
             recipe.getModuleRequirement().setRequiredModuleLvl((int)requiredModuleLvl.Value);
-            recipe.GetRecipeRequirement(((RecipeRequirement)requirementList.SelectedItem).getID()).setCount((int)RequiredAmount.Value);
+            RecipeRequirement selectedItem = (RecipeRequirement)requirementList.SelectedItem;
+            if(selectedItem.getID() != null) recipe.GetRecipeRequirement(selectedItem.getID()).setCount((int)RequiredAmount.Value);
             string id = listBox1.SelectedItem.ToString();
             //_recipes[id] = recipe;
             recipe.updateSettings();
@@ -182,7 +184,7 @@ namespace SPTLauncher
             typeToggle(ToolCheckBox);
         }
 
-        public CheckBox activeCheckBox;
+        public CheckBox? activeCheckBox;
         public void typeToggle(CheckBox checkBox)
         {
             //Debug.WriteLine("Toggle ran");

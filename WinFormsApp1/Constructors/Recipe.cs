@@ -283,7 +283,7 @@ namespace SPTLauncher.Constructors
             return values.ToArray();
         }
 
-        public RecipeRequirement? GetRecipeRequirement(string id)
+        public RecipeRequirement GetRecipeRequirement(string id)
         {
             if (requirements.ContainsKey(id))
             {
@@ -296,7 +296,7 @@ namespace SPTLauncher.Constructors
 
     public class RecipeRequirement
     {
-        private string itemID;
+        private string? itemID;
         private int count;
         private bool returnOnCraft;
 
@@ -334,9 +334,13 @@ namespace SPTLauncher.Constructors
             }
         }
 
-        public string getID()
+        public string? getID()
         {
             return itemID;
+        }
+        public bool IsModule()
+        {
+            return requiredModule != null;
         }
         public void setID(string id)
         {

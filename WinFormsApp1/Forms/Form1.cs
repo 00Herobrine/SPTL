@@ -96,6 +96,8 @@ namespace WinFormsApp1
         {
             textBox1.Text = Config.GetApiKey();
             profileBackupCheckBox.Checked = Config.BackupState();
+            BackUpInterval.Value = Config.GetBackupInterval();
+            minimizeCheck.Checked = Config.file.MinimizeOnLaunch;
         }
 
         public async Task BindToAkiAsync()
@@ -594,6 +596,8 @@ namespace WinFormsApp1
         {
             Config.SetApiKey(textBox1.Text);
             Config.SetBackupInterval((int)BackUpInterval.Value);
+            Config.file.MinimizeOnLaunch = minimizeCheck.Checked;
+            Config.save();
         }
 
         public Config GetConfig()

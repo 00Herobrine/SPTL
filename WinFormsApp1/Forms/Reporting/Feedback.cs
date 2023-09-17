@@ -29,17 +29,18 @@ namespace SPTLauncher.Forms.Reporting
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string? check = FormIncompleteCheck();
+            string? check = ValidityCheck();
             if (check == null)
-                Thing.SendFeedBack(richTextBox1.Text, (Severity)comboBox1.SelectedItem, BugReportBox.Checked);
+                Thing.SendFeedBack(richTextBox1.Text, (Severity)comboBox1.SelectedItem, BugReportBox.Checked, textBox1.Text);
             else Debug.WriteLine(check);
         }
 
-        private string? FormIncompleteCheck()
+        private string? ValidityCheck()
         {
             if (richTextBox1.Text == "" || richTextBox1.Text == null) return "No Text Input";
             if (activeCheckBox == null) return "No Report Type";
             if (comboBox1.SelectedItem == null) return "No Severity Type";
+            if (richTextBox1.Text.Length > 1200) return "Too Many Characters";
             return null;
         }
 

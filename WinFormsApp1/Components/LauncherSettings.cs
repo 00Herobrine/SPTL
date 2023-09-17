@@ -11,7 +11,6 @@ namespace SPTLauncher.Components
         public static AkiData akiData;
         private static List<Profile> cachedProfiles = new();
         private static List<Mod> cachedMods = new();
-        //private static LauncherSettings? settings;
 
         public static void Load()
         {

@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace SPTLauncher.Components
 {
-    internal struct ConfigStruct
+    public struct ConfigStruct
     {
         [DataMember(Name = "apiKey")]
         public string apiKey { get; set; }
@@ -19,6 +19,8 @@ namespace SPTLauncher.Components
 
         [DataMember(Name = "Backups")]
         public bool Backups { get; set; }
+        [DataMember(Name = "MinimizeOnLaunch"), DefaultValue(false)]
+        public bool MinimizeOnLaunch { get; set; }
     }
 
     internal struct DisabledMod

@@ -9,7 +9,7 @@ namespace SPTLauncher.Components
         private static string apiKey = "";
         private static DateTime lastBackupTime;
         private static int backupInterval;
-        private static ConfigStruct file;
+        public static ConfigStruct file;
 
         public static void Load()
         {
@@ -65,7 +65,7 @@ namespace SPTLauncher.Components
 
         public static void save()
         {
-            File.WriteAllText(Paths.configPath, file.ToString());
+            File.WriteAllText(Paths.configPath, JsonConvert.SerializeObject(file));
         }
 
         public static void DisableMod(Mod mod)

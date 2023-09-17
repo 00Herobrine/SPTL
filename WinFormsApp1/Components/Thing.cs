@@ -2,6 +2,7 @@
 using SPTLauncher.Forms.Feedback;
 using SPTLauncher.Forms.Reporting;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text;
 using WinFormsApp1;
 
@@ -13,9 +14,13 @@ namespace SPTLauncher.Components
         private readonly static string bugIcon = "https://i.imgur.com/jqiL5Zc.png";
         private readonly static string feedbackIcon = "https://i.imgur.com/ObLRXa0.png";
 
-        public static async void SendFeedBack(string message, Severity severity, bool bugreport = false)
+        public static async void SendFeedBack(string message, Severity severity, bool bugreport = false, string? name = null)
         {
             string ID = GenerateID(8);
+            string subtext = $"ID: {ID}";
+            if (name != null && name != "") {
+                subtext += $" Tag: {name}";
+            }
             var webhook = new DiscordWebhook
             {
                 username = bugreport ? "Bug Report" : "Feedback",
@@ -24,14 +29,15 @@ namespace SPTLauncher.Components
                 {
                     new Embeds
                     {
-                        author = new Author { name = severity.ToString(), url = bugreport ? bugIcon : feedbackIcon, icon_url = bugreport ? bugIcon : feedbackIcon },
                         title = "Message:",
                         description = message,
+                        author = new Author { name = severity.ToString(), url = bugreport ? bugIcon : feedbackIcon, icon_url = bugreport ? bugIcon : feedbackIcon },
                         color = GetDecimalColor(severity).ToString(),
                         footer = new Footer
                         {
-                            text = $"ID: {ID}"
+                            text = subtext
                         },
+                        timestamp = DateTime.Now,
                     },
                 }
             };

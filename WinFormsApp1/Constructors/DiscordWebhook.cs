@@ -5,7 +5,17 @@
         public string username { get; set; }
         public string avatar_url { get; set; }
         public string? content { get; set; }
+        public string thread_name { get; set; }
+        public bool tts { get; set; }
+        public Mentions allowed_mentions { get; set; }
+        public int flags { get; set; }
         public List<Embeds>? embeds { get; set; }
+
+    }
+    public struct Mentions
+    {
+        public List<string> parse { get; set; }
+        public List<string> users { get; set; }
     }
     public struct Embeds
     {
@@ -14,13 +24,13 @@
         public string? url { get; set; }
         public string description { get; set; }
         public string color { get; set; }
-        public DateTime timestamp { get; set; }
+        public DateTime? timestamp { get; set; }
         public List<EmbedField> fields { get; set; }
-        public ImageSect image { get; set; }
-        public ImageSect thumbnail { get; set; }
+        public ImageSection image { get; set; }
+        public ImageSection thumbnail { get; set; }
         public Footer? footer { get; set; }
     }
-    public struct ImageSect
+    public struct ImageSection
     {
         string url { get; set; }
     }

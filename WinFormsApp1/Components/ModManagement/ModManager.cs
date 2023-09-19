@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
+using System;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -134,13 +135,6 @@ namespace SPTLauncher.Components.ModManagement
             return origin;
         }
 
-        static bool IsRedirect(System.Net.HttpStatusCode statusCode)
-        {
-            return statusCode == System.Net.HttpStatusCode.Moved ||
-                   statusCode == System.Net.HttpStatusCode.Redirect ||
-                   statusCode == System.Net.HttpStatusCode.RedirectMethod;
-        }
-
         public static string[] allowedFileTypes =
 {
             "rar",
@@ -148,10 +142,9 @@ namespace SPTLauncher.Components.ModManagement
             "zip",
             "dll"
         };
-        public static async Task Download(ModDownload mod, bool thing)
+        public static async Task Download(ModDownload mod)
         {
             HttpClient client = new HttpClient();
-            //HttpRequestMessage request = new(HttpMethod.Get, mod.URL);
             HttpResponseMessage response = await client.GetAsync(mod.URL);
             string html = await response.Content.ReadAsStringAsync();
             HtmlDocument doc = new();
@@ -170,7 +163,7 @@ namespace SPTLauncher.Components.ModManagement
             string pattern = @"var SECURITY_TOKEN = '(.+?)';";
             Match match = Regex.Match(html, pattern);
             string t = match.Success ? match.Groups[1].Value : "";
-            HttpRequestMessage request = new(HttpMethod.Post, licenseURL);
+            // some mfers don't like you without a user-agent, fake asf fr
             string useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
             downloadClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
             var content = new FormUrlEncodedContent(new[] // Thanks alrick. for saying that it can't be in json
@@ -189,7 +182,6 @@ namespace SPTLauncher.Components.ModManagement
             HttpClient httpClient = new();
             try
             {
-                // some mfers don't like you without a user-agent, fake asf fr
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
                 string formattedURL = FormatURL(downloadURL);
                 Form1.form.log("Formatted: " + formattedURL);
@@ -198,7 +190,6 @@ namespace SPTLauncher.Components.ModManagement
                 {
                     string filename = (GetFilenameFromResponse(response2) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
                     string extension = filename.Replace("\"", "").Split(".")[^1];
-                    Form1.form.log($"FN:{filename} Ex: {extension}");
                     if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found."); return; }
                     Form1.form.log($"Downloading file.");
                     long byteSize = response2.Content.Headers.ContentLength ?? 0;
@@ -210,18 +201,22 @@ namespace SPTLauncher.Components.ModManagement
                     mod.bytes = 0;
                     DateTime startTime = DateTime.Now;
                     string fullSavePath = Path.Combine(savePath, filename);
-                    FileStream fileStream = new(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
-                    while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
-                    {
-                        mod.bytes += bytesRead;
-                        await fileStream.WriteAsync(buffer, 0, bytesRead);
 
-                        TimeSpan elapsedTime = DateTime.Now - startTime;
-                        mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
+                    using (FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+                        {
+                            mod.bytes += bytesRead;
+                            await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+
+                            TimeSpan elapsedTime = DateTime.Now - startTime;
+                            mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
+                        }
                     }
+
                     mod.downloadSpeed = 0;
-                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
                     Form1.form.log("File downloaded successfully!");
+                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
                 }
                 else
                 {
@@ -240,6 +235,7 @@ namespace SPTLauncher.Components.ModManagement
             {
                 AkiVersion = modDownload.AkiVersion,
                 Name = modDownload.name,
+                URL = modDownload.URL,
                 AutoUpdate = false,
             };
         }
@@ -254,9 +250,7 @@ namespace SPTLauncher.Components.ModManagement
             doc.LoadHtml(html);
             HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[starts-with(@class, 'filebaseFileCard')]");
             foreach (HtmlNode element in elements)
-            {
                 downloadableMods.Add(new ModDownload(element));
-            }
         }
 
         public static List<ModDownload> GetModDownloads()
@@ -268,6 +262,10 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
+        }
+        public static void DisplayModDownload(ModDownload modDownload)
+        {
+            ModDownloader.form?.AddMod(modDownload);
         }
     }
 
@@ -297,7 +295,6 @@ namespace SPTLauncher.Components.ModManagement
             ratings = 0;
             HtmlNode ratingsNode = element.SelectSingleNode(".//span[@class='filebaseFileNumberOfRatings']");
             if (ratingsNode != null) ratings = int.Parse(ratingsNode.InnerText.Trim().Replace("(", "").Replace(")", ""));
-            //downloads = int.Parse();
             if (ratingNode != null)
             {
                 string[] v = ratingNode.Attributes["title"].Value.Split("; ");
@@ -305,9 +302,8 @@ namespace SPTLauncher.Components.ModManagement
                 reviews = int.Parse(v[1].Split(" ")[0]);
             }
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
-            //Form1.form.log($"N:{name} A:{author} V:{AkiVersion} UP:{lastUpdated} S:{s} R:{r} IU:{imageURL} U:{URL} Description:\n{description}");
             Origin = GetOrigin(URL);
-            ModDownloader.form.AddMod(this);
+            ModManager.DisplayModDownload(this);
         }
 
         public static string DecodeString(string input)
@@ -333,23 +329,8 @@ namespace SPTLauncher.Components.ModManagement
         {
             await Task.Run(async () =>
             {
-                ModManager.Download(this, true);
+                await ModManager.Download(this);
             });
-        }
-
-        public async Task DownloadCall(string url)
-        {
-            HttpClient client = new HttpClient();
-            // Send a GET request to the specified URL
-            HttpResponseMessage response = await client.GetAsync(URL);
-            // Read the response content as a string
-            string html = await response.Content.ReadAsStringAsync();
-            //Debug.WriteLine($"Loading html\n{html}");
-            //File.WriteAllText(Form1.form.GetCachePath() + "/last.html", html);
-            // Get all elements with class 'filebaseFileCard new'
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            string downloadURL = "";
         }
         public int CalculatePercentageInt()
         {
@@ -358,10 +339,7 @@ namespace SPTLauncher.Components.ModManagement
         public double CalculatePercentage()
         {
             if (totalBytes == 0)
-            {
-                // Avoid division by zero error; you can choose to handle this case differently if needed.
                 return 0;
-            }
 
             double percentage = (double)bytes / totalBytes * 100;
             if (percentage > 100) percentage = 100;

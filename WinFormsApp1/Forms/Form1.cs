@@ -14,6 +14,7 @@ using SPTLauncher.Components;
 using SPTLauncher.Constructors.Enums;
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Forms.Reporting;
+using SPTLauncher.Forms.Feedback;
 
 namespace WinFormsApp1
 {
@@ -28,17 +29,11 @@ namespace WinFormsApp1
         private Timer _timer = new Timer();
         private int port = 6969;
         private int processID;
-        #region paths
         public static string serverURL;
-        /*        public static string gameFolder, profilesFolder, serverURL, configPath, cachePath, itemCache, akiData, productionPath,
-                    gatoPath, backupsPath, modsFolder, pluginsFolder, disabledModsPath, localesFile, databasePath, serverPath, serverConfigsPath;*/
-        #endregion
         public static LANG language = LANG.EN;
         private string Prefix = "[Hero's Launcher] ";
         public static Form1 form;
         public string[] editions;
-        // do automatic profile backups, let the user set how often they should occur.
-
         public enum STATE { OFFLINE, STARTING, ONLINE }
 
         public delegate void PingServer(out bool returnValue);
@@ -117,7 +112,7 @@ namespace WinFormsApp1
                 if (autoStartCheckBox.Checked) LaunchServer();
                 //server = new Process();
             }
-            if (ServerManager.SelectedServer != null) editions = ServerManager.SelectedServer.editions;
+            if (ServerManager.SelectedServer != null) StoreEditions();
         }
 
         public static Process[] GetServerProcesses()
@@ -320,12 +315,10 @@ namespace WinFormsApp1
             if (ServerManager.SelectedServer == null)
                 ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
             if (!ServerManager.PingServer()) return;
+            if (ServerManager.SelectedServer == null) return;
             editions = ServerManager.SelectedServer.editions;
             editionsBox.Items.Clear();
             editionsBox.Items.AddRange(editions);
-            if (editions.Length > 0)
-                if (GetSelectedProfile() != null) editionsBox.SelectedItem = GetSelectedProfile().getAccountInfo().edition;
-                else editionsBox.SelectedIndex = 0;
         }
 
         public void TimerInterval(object sender, EventArgs e)
@@ -902,7 +895,7 @@ namespace WinFormsApp1
             if (!profile.getAccountInfo().wipe) if (MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
             string edition = editionsBox.SelectedText;
             AccountManager.SelectedAccount.edition = edition;
-            //AccountManager.WipeAsync(edition);
+            AccountManager.WipeAsync(edition);
             AccountManager.UpdateProfileInfo();
             log($"Changed {profile.getAccountInfo().nickname} to {edition}");
             LoadProfiles();

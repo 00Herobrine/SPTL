@@ -1,4 +1,5 @@
 ﻿using SPTLauncher.Constructors;
+using System.Diagnostics;
 using System.IO.Compression;
 using WinFormsApp1;
 
@@ -8,25 +9,17 @@ namespace SPTLauncher.Components.ModManagement
     {
         public static void Install(DownloadedMod toInstall)
         {
-            if (toInstall == null)
-            {
-                Form1.form.log("Invalid mod to install.");
-                return;
-            }
+            if (toInstall == null) { Form1.form.log("Invalid mod to install."); return; }
+            string modFilePath = toInstall.path.Replace("\\", "/");
 
-            string modFilePath = toInstall.path;
-
-            // Check if the mod file exists
+            // Check if the downloaded mod file exists
             if (!File.Exists(modFilePath))
             {
                 Form1.form.log($"Mod file '{modFilePath}' not found.");
                 return;
-            }
+            } // add a check to see if the mod is installed (outdated, or just replacing it) add a confirmation
+            Debug.WriteLine("Downloaded Path to install: " + modFilePath);
 
-            // Check if it's a ZIP file
-            //string extension = modFilePath.Split(".")[^0];
-            //Form1.form.log("Got extension " + extension);
-            //if(ModManager.allowedFileTypes.Contains(modFilePath) ) { }
             if (!modFilePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 Form1.form.log("The provided mod file is not a ZIP file.");
@@ -42,40 +35,16 @@ namespace SPTLauncher.Components.ModManagement
 
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    // Check for the presence of Bepinex folder
-                    if (entry.FullName.StartsWith("Bepinex/", StringComparison.OrdinalIgnoreCase))
-                    {
+                    if (entry.FullName.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase))
                         foundBepinex = true;
-                    }
-
-                    // Check for the presence of User folder
-                    if (entry.FullName.StartsWith("user/", StringComparison.OrdinalIgnoreCase))
-                    {
+                    else if (entry.FullName.StartsWith("user/", StringComparison.OrdinalIgnoreCase))
                         foundUser = true;
-                    }
                 }
 
                 if (foundBepinex || foundUser)
                 {
-                    string bepinexPath = $@"{Paths.gameFolder}";
-                    string userPath = $@"{Paths.gameFolder}";
-
-                    // Extract the Bepinex and User folders to their respective paths
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.FullName.StartsWith("Bepinex/", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string destinationPath = Path.Combine(bepinexPath, entry.FullName[..8]);
-                            entry.ExtractToFile(bepinexPath, true);
-                        }
-                        else if (entry.FullName.StartsWith("user/", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string destinationPath = Path.Combine(userPath, entry.FullName[..5]);
-                            entry.ExtractToFile(userPath, true);
-                        }
-                    }
-
-                    Form1.form.log("Mod installation successful.");
+                    archive.ExtractToDirectory(Paths.gameFolder, true);
+                    Form1.form.log($"Installation for {toInstall.name} successful.");
                 }
                 else
                 {
@@ -88,5 +57,5 @@ namespace SPTLauncher.Components.ModManagement
                 Form1.form.log($"An error occurred: {ex.Message}");
             }
         }
-    }
+    }   
 }

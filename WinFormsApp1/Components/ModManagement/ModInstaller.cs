@@ -31,7 +31,6 @@ namespace SPTLauncher.Components.ModManagement
                 ZipArchive archive = ZipFile.OpenRead(modFilePath);
                 bool foundBepinex = false;
                 bool foundUser = false;
-                List<string> files = new();
 
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
@@ -49,7 +48,6 @@ namespace SPTLauncher.Components.ModManagement
                 else
                 {
                     Form1.form.log($"The ZIP file does not contain the required 'Bepinex' or 'user' folders.");
-                    Form1.form.log($"Contains: {files.ToArray()}");
                 }
             }
             catch (Exception ex)

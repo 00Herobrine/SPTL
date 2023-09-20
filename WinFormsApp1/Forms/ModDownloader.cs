@@ -54,9 +54,11 @@ namespace SPTLauncher
             if (form.modList.Items.Count > 0) form.modList.SelectedIndex = 0;
         }
 
-        public void AddMod(ModDownload mod)
+        public static void DisplayModDownload(ModDownload mod)
         {
-            modList.Items.Add(mod);
+            if (form == null) return;
+            if (form.SearchBox.Text != "" && form.SearchBox.Text != null) return;
+            form.modList.Items.Add(mod);
         }
 
         bool loadingMods = false;
@@ -64,7 +66,7 @@ namespace SPTLauncher
         {
             ModDownload mod = (ModDownload)modList.SelectedItem;
             ModImage.Image = Image.FromFile($"{Paths.iconsPath}/roller144.gif");
-            if (!loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
+            if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
                 page++;
                 loadingMods = true;
@@ -138,6 +140,20 @@ namespace SPTLauncher
         {
             this.Hide();
             e.Cancel = true;
+        }
+
+        private void SearchBox_TextChanged(object sender, EventArgs e)
+        {
+            ModDownload? selected = (ModDownload)modList.SelectedItem;
+            modList.Items.Clear();
+            modList.Items.AddRange(FilterDownloads(SearchBox.Text).ToArray());
+            if (selected != null) modList.SelectedItem = selected;
+        }
+
+        private static List<ModDownload> FilterDownloads(string? input = null)
+        {
+            if (input == null || input == "") return ModManager.downloadableMods;
+            else return ModManager.downloadableMods.FindAll(o => o.name.ToLowerInvariant().Contains(input.ToLowerInvariant()));
         }
     }
 }

@@ -31,7 +31,5 @@ namespace SPTLauncher.Components.ModManagement
             Config = JObject.Parse(config);
             return config;
         }
-
-
     }
 }

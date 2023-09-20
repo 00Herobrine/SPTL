@@ -486,7 +486,7 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(50, 63);
+            label10.Location = new Point(77, 63);
             label10.Name = "label10";
             label10.Size = new Size(94, 15);
             label10.TabIndex = 36;
@@ -494,7 +494,7 @@
             // 
             // LoadPresetButton
             // 
-            LoadPresetButton.Location = new Point(101, 78);
+            LoadPresetButton.Location = new Point(128, 78);
             LoadPresetButton.Name = "LoadPresetButton";
             LoadPresetButton.Size = new Size(58, 23);
             LoadPresetButton.TabIndex = 35;
@@ -503,7 +503,7 @@
             // 
             // SavePresetButton
             // 
-            SavePresetButton.Location = new Point(37, 78);
+            SavePresetButton.Location = new Point(64, 78);
             SavePresetButton.Name = "SavePresetButton";
             SavePresetButton.Size = new Size(58, 23);
             SavePresetButton.TabIndex = 34;
@@ -600,7 +600,7 @@
             textBox1.Location = new Point(6, 37);
             textBox1.Name = "textBox1";
             textBox1.PasswordChar = '*';
-            textBox1.Size = new Size(177, 23);
+            textBox1.Size = new Size(241, 23);
             textBox1.TabIndex = 0;
             textBox1.UseSystemPasswordChar = true;
             // 

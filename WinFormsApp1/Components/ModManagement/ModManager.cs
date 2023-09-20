@@ -7,6 +7,7 @@ using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
 using System;
+using System.Runtime.InteropServices;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -240,6 +241,33 @@ namespace SPTLauncher.Components.ModManagement
             };
         }
 
+        public static void CreateSymbolicLink(string sourceDirName, string destDirName)
+        {
+            Form1.form.log("Creating Symlink of " + sourceDirName + " to " + destDirName);
+            bool linkCreated = CreateSymbolicLink(sourceDirName, destDirName, SymbolicLinkTarget.Directory);
+
+            if (linkCreated)
+            {
+                Form1.form.log("CreateSymbolicLink succeeded.");
+            }
+            else
+            {
+                int errorCode = Marshal.GetLastWin32Error();
+                Form1.form.log("CreateSymbolicLink failed with error code: " + errorCode);
+            }
+        }
+
+        // P/Invoke method to create a symbolic link
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLinkTarget dwFlags);
+
+        // Enum for symbolic link flags
+        private enum SymbolicLinkTarget
+        {
+            File = 0,
+            Directory = 1
+        }
+
         public async static void WebRequestMods(int page = 1)
         {
             string url = $"https://hub.sp-tarkov.com/files/?pageNo={page}&sortField=time&sortOrder=DESC";
@@ -262,10 +290,6 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
-        }
-        public static void DisplayModDownload(ModDownload modDownload)
-        {
-            ModDownloader.form?.AddMod(modDownload);
         }
     }
 
@@ -303,7 +327,7 @@ namespace SPTLauncher.Components.ModManagement
             }
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
             Origin = GetOrigin(URL);
-            ModManager.DisplayModDownload(this);
+            ModDownloader.DisplayModDownload(this);
         }
 
         public static string DecodeString(string input)

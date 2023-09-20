@@ -44,6 +44,8 @@
             button1 = new Button();
             downloadProgress = new ProgressBar();
             DownloadLabel = new Label();
+            SearchBox = new TextBox();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -197,11 +199,30 @@
             DownloadLabel.TabIndex = 15;
             DownloadLabel.Text = "Downloaded: 0B/0B";
             // 
+            // SearchBox
+            // 
+            SearchBox.Location = new Point(607, 148);
+            SearchBox.Name = "SearchBox";
+            SearchBox.Size = new Size(100, 23);
+            SearchBox.TabIndex = 16;
+            SearchBox.TextChanged += SearchBox_TextChanged;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(559, 151);
+            label1.Name = "label1";
+            label1.Size = new Size(45, 15);
+            label1.TabIndex = 17;
+            label1.Text = "Search:";
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 452);
+            Controls.Add(label1);
+            Controls.Add(SearchBox);
             Controls.Add(DownloadLabel);
             Controls.Add(downloadProgress);
             Controls.Add(button1);
@@ -245,5 +266,7 @@
         private Button button1;
         private ProgressBar downloadProgress;
         private Label DownloadLabel;
+        private TextBox SearchBox;
+        private Label label1;
     }
 }

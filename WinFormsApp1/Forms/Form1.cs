@@ -954,7 +954,9 @@ namespace WinFormsApp1
 
         private void OpenFolderButton_Click(object sender, EventArgs e)
         {
-            OpenGameFolderCommand();
+            ModManager.CreateSymbolicLink(@$"{Paths.modManagerFolder}/Plugins/AmandsSense/", @$"{Paths.pluginsFolder}/");
+
+            //OpenGameFolderCommand();
         }
 
         private void SettingsButton_Click(object sender, EventArgs e)

@@ -119,9 +119,11 @@ namespace SPTLauncher.Components.ModManagement
             switch (origin)
             {
                 case ORIGIN.DROPBOX:
-                    updated = updated.ToLower().Replace("dl=0", "dl=1");
+                    // some people don't format their links correctly sigh
+                    updated = updated.ToLower().Replace("dl=0", "dl=1").Replace("amp;", "");
                     break;
                 case ORIGIN.GOOGLE:
+                    if (url.Contains("export=download") && url.Contains("id=")) return url; // some people already have direct links
                     string googleID = url.Split("d/")[1].Split("/")[0];
                     updated = baseGoogleLink + googleID;
                     break;
@@ -176,11 +178,60 @@ namespace SPTLauncher.Components.ModManagement
                 new KeyValuePair<string, string>("t", t)
             });
             //string jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payloadData);
+            string savePath = Paths.downloadingPath;
             response = await downloadClient.PostAsync(licenseURL, content);
+            if (response.IsSuccessStatusCode)
+            {
+                string? filename = GetFilenameFromResponse(response);
+                Form1.log("filename thing");
+                if (filename != null)
+                {
+                    filename = filename.Replace("\"", "");
+                    Form1.log($"File Included FN: {filename}");
+                    string extension = filename.Replace("\"", "").Split(".")[^1];
+                    if (!IsValidFileType(extension.TrimEnd())) { Form1.log("No File Found."); return; }
+                    Form1.log($"Downloading file.");
+                    long byteSize = response.Content.Headers.ContentLength ?? 0;
+                    mod.totalBytes = byteSize;
+                    Form1.log($"Download Size: {FormatByteCount(byteSize)}");
+                    mod.bytes = 0;
+                    using (Stream contentStream = await response.Content.ReadAsStreamAsync())
+                    {
+                        byte[] buffer = new byte[8192];
+                        int bytesRead = 0;
+                        mod.bytes = 0;
+                        DateTime startTime = DateTime.Now;
+                        string fullSavePath = Path.Combine(savePath, filename.Replace("\"", ""));
+                        try
+                        {
+                            using (FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                                    mod.bytes += bytesRead;
+                                    TimeSpan elapsedTime = DateTime.Now - startTime;
+                                    mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
+                                }
+                            }
+                            mod.downloadSpeed = 0;
+                            Form1.log("File downloaded successfully!");
+                            ModInstaller.Install(new(fullSavePath, mod.name, extension));
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log any exceptions that occur during the download process
+                            Form1.log($"Error during download: {ex.Message}");
+                        }
+                    }
+                    Form1.log("returning");
+                    return;
+                }
+            }
             html = await response.Content.ReadAsStringAsync();
             doc.LoadHtml(html);
             string downloadURL = doc.DocumentNode.SelectSingleNode(".//a[@class='button buttonPrimary noDereferer']").Attributes["href"].Value;
-            string savePath = Paths.downloadingPath;
             HttpClient httpClient = new();
             try
             {
@@ -297,7 +348,8 @@ namespace SPTLauncher.Components.ModManagement
     public class ModDownload
     {
         public ORIGIN Origin;
-        public string URL, name, author, description, imageURL, imageName, AkiVersion, lastUpdated, downloads;
+        public string? imageURL, imageName;
+        public string URL, name, author, description, AkiVersion, lastUpdated, downloads;
         public int comments, reviews, ratings;
         public float stars;
         public long bytes = 0, totalBytes = 0;
@@ -310,8 +362,8 @@ namespace SPTLauncher.Components.ModManagement
             URL = element.SelectSingleNode(".//a[@class='box128']").Attributes["href"].Value;
             HtmlNode spanNode = element.SelectSingleNode(".//span[@class='filebaseFileIcon']");
             HtmlNode imageNode = element.SelectSingleNode(".//img");
-            imageURL = imageNode != null ? imageNode.GetAttributeValue("src", "") : "";
-            imageName = imageURL.Split("/")[^1];
+            imageURL = imageNode?.GetAttributeValue("src", "");
+            imageName = imageURL?.Split("/")[^1];
             HtmlNode ratingNode = element.SelectSingleNode(".//li[@class='jsTooltip filebaseFileRating']");
             HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
             author = att.SelectSingleNode(".//li").InnerText;

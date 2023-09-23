@@ -1,6 +1,8 @@
 ﻿using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
 using System.Diagnostics;
+using System.Windows.Forms;
+using System.Xml;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
 
@@ -37,6 +39,7 @@ namespace SPTLauncher
 
         public void updateVars(ModDownload mod)
         {
+            if (mod == null) return;
             string totalBytes = ModManager.FormatByteCount(mod.totalBytes);
             string downloadedBytes = ModManager.FormatByteCount(mod.bytes);
             string downloadSpeed = mod.downloadSpeed == 0 ? "" : $" ({ModManager.FormatByteCount((long)mod.downloadSpeed)}/s)";
@@ -86,6 +89,7 @@ namespace SPTLauncher
 
         public void LoadMod(ModDownload mod)
         {
+            if(mod == null) return;
             ModName.Text = mod.name;
             Author.Text = $"Author: {mod.author}";
             AkiVersion.Text = $"Version: {mod.AkiVersion}";
@@ -97,8 +101,12 @@ namespace SPTLauncher
             Ratings.Text = $"Ratings: {mod.ratings}";
             Reviews.Text = $"Reviews: {mod.reviews}";
         }
+
+        private readonly string[] allowedImageTypes = ["png", "jpg", "gif"];
         private void LoadImage(ModDownload mod)
         {
+            bool allowed = mod.imageURL != null && allowedImageTypes.Contains(mod.imageURL.Split(".")[^1].ToString());
+            if (!allowed) { ModImage.ImageLocation = $"{Paths.cachePath}/icons/NotFound.png"; return; }
             string imagePath = $"{Paths.iconsCachePath}/{mod.imageName}";
             if (File.Exists(imagePath)) ModImage.ImageLocation = imagePath;
             else ModImage.ImageLocation = mod.imageURL;

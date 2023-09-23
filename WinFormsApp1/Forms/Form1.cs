@@ -961,7 +961,6 @@ namespace WinFormsApp1
         {
             fb ??= new Feedback();
             fb.Show();
-            //Thing.SendFeedBack("This program is proper trash fr.");
         }
 
         private void OpenFolderButton_Click(object sender, EventArgs e)

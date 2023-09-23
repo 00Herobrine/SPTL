@@ -1,9 +1,11 @@
 ﻿using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives.SevenZip;
+using SharpCompress.Archives.Zip;
+using SharpCompress.Common;
+using SharpCompress.Common.Tar;
 using SPTLauncher.Constructors;
 using System.Diagnostics;
-using System.IO.Compression;
 using WinFormsApp1;
 
 namespace SPTLauncher.Components.ModManagement
@@ -26,13 +28,13 @@ namespace SPTLauncher.Components.ModManagement
             switch(toInstall.extension)
             {
                 case "zip":
-                    success = ExtractZip(toInstall);
+                    success = ExtractArchive(toInstall);
                     break;
                 case "rar":
-                    success = ExtractRar(toInstall);
+                    success = ExtractArchive(toInstall);
                     break;
                 case "7z":
-                    success = Extract7z(toInstall);
+                    success = ExtractArchive(toInstall);
                     break;
                 case "dll":
                     success = MoveFile(toInstall);
@@ -46,71 +48,83 @@ namespace SPTLauncher.Components.ModManagement
             return false;
         }
 
-        private static bool HasClientFolder(SharpCompress.Common.Entry entry)
+        private static bool HasClientFolder(Entry entry)
         {
             return false;
         }
-        private static bool HasBepinex(SharpCompress.Common.Entry entry)
+        private static bool HasBepinex(Entry entry)
         {
             return false;
         }
-
-        private static bool Extract7z(DownloadedMod toInstall)
+        private static bool DirectoryIsBepinex(string dir)
         {
-            SevenZipArchive archive = SevenZipArchive.Open(toInstall.path);
-            foreach(var entry in archive.Entries.Where(entry => entry.IsDirectory))
+            return dir.Contains("/bepinex");
+        }
+        private static bool ExtractArchive(DownloadedMod toInstall)
+        {
+            IArchive? archive = null;
+            switch(toInstall.extension)
             {
-                if (entry.Key.StartsWith("user/", StringComparison.OrdinalIgnoreCase)) toInstall.client = true;
-                else if (entry.Key.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase)) toInstall.plugin = true;
-                else if (entry.Key.EndsWith(".dll")) MoveFile(toInstall);
+                case "rar":
+                    archive = ArchiveFactory.Open(toInstall.path);
+                    break;
+                case "zip":
+                    archive = ArchiveFactory.Open(toInstall.path);
+                    break;
+                case "7z":
+                    archive = ArchiveFactory.Open(toInstall.path);
+                    break;
             }
-            if (toInstall.client || toInstall.plugin) { archive.ExtractToDirectory(Paths.gameFolder); return true; }
-            else { Process.Start("explorer.exe", $"/select,\"{toInstall.path}\""); Form1.log($"The 7z file does not contain the required 'Bepinex' or 'user' folders."); }
-            return false;
-        }
-
-        private static bool ExtractRar(DownloadedMod toInstall)
-        {
-            RarArchive rar = RarArchive.Open(toInstall.path);
-            foreach (var entry in rar.Entries.Where(entry => entry.IsDirectory))
-            {
-                if (entry.Key.StartsWith("user/", StringComparison.OrdinalIgnoreCase)) toInstall.client = true;
-                else if (entry.Key.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase)) toInstall.plugin = true;
-            }
-            if (toInstall.client || toInstall.plugin) { rar.ExtractToDirectory(Paths.gameFolder); return true; }
-            else { Process.Start("explorer.exe", $"/select,\"{toInstall.path}\""); Form1.log($"The rar file does not contain the required 'Bepinex' or 'user' folders."); }
-            return false;
-        }
-
-        private static bool ExtractZip(DownloadedMod toInstall)
-        {
+            if (archive == null) return false;
             string modFilePath = @toInstall.path.Replace("\\", "/");
             try
             {
-                ZipArchive archive = ZipFile.OpenRead(modFilePath);
-                int folderCount = archive.Entries.Where(entry => Directory.Exists(entry.FullName)).Count();
-                foreach (ZipArchiveEntry entry in archive.Entries)
+                int rootFolderCount = archive.Entries.Where(_entry => _entry.IsDirectory && !_entry.Key.Any(c => c == '\\')).Count();
+                foreach (IArchiveEntry entry in archive.Entries)
                 {
-                    if (entry.FullName.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase))
+                    if (entry.Key.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase))
                         toInstall.plugin = true;
-                    else if (entry.FullName.StartsWith("user/", StringComparison.OrdinalIgnoreCase)) 
+                    else if (entry.Key.StartsWith("user/", StringComparison.OrdinalIgnoreCase) ||
+                        entry.Key.Contains("mod.ts", StringComparison.OrdinalIgnoreCase) ||
+                        entry.Key.Contains("config.js", StringComparison.OrdinalIgnoreCase))
                         toInstall.client = true;
+                    else if (entry.Key.Contains("/bepinex/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        toInstall.plugin = true;
+                        toInstall.subrooted = true;
+                    }
+                    else if (entry.Key.Contains("/user/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        toInstall.client = true;
+                        toInstall.subrooted = true;
+                    }
                 }
-                if (toInstall.plugin || toInstall.client)
+                if (toInstall.subrooted)
                 {
-                    archive.ExtractToDirectory(Paths.gameFolder, true);
+                    foreach (var entry in archive.Entries.Where(_entry => _entry.IsDirectory))
+                    {
+                        string path = DirectoryIsBepinex(entry.Key) ? Paths.pluginsFolder : Paths.modsFolder;
+                        entry.WriteToDirectory(path);
+                    }
                     return true;
                 }
-                else if (folderCount == 1)
+                else if (rootFolderCount == 1 && toInstall.client)
                 {
-                    archive.ExtractToDirectory($"{Paths.modsFolder}");
+                    string folderName = archive.Entries.Where(entry => entry.IsDirectory).First().Key;
+                    bool custom = !folderName.Equals("user");
+                    archive.ExtractToDirectory(custom ? $"{Paths.modsFolder}" : Paths.gameFolder);
+                    return true;
+                }
+                else if (toInstall.plugin || toInstall.client)
+                {
+                    archive.ExtractToDirectory(Paths.gameFolder);
                     return true;
                 }
                 else
                 {
                     Form1.log(modFilePath);
-                    Process.Start("explorer.exe", modFilePath);
-                    Form1.log($"The ZIP file does not contain the required 'Bepinex' or 'user' folders.");
+                    Process.Start("explorer.exe", Paths.downloadingPath);
+                    Form1.log($"The {toInstall.extension} file does not contain the required 'Bepinex' or 'user' folders.");
                 }
             }
             catch (Exception ex)
@@ -119,6 +133,7 @@ namespace SPTLauncher.Components.ModManagement
             }
             return false;
         }
+        
 
         private static bool MoveFile(DownloadedMod toInstall)
         {
@@ -133,7 +148,7 @@ namespace SPTLauncher.Components.ModManagement
             switch (mod.extension.ToLower())
             {
                 case "dll":
-                    return Paths.modsFolder;
+                    return Paths.pluginsFolder;
                 default:
                     break;
             }

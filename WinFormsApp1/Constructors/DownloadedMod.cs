@@ -5,7 +5,7 @@ namespace SPTLauncher.Constructors
     internal class DownloadedMod
     {
         public string name, extension, path, akiVersion = "";
-        public bool client = false, plugin = false;
+        public bool client = false, plugin = false, subrooted = false;
 
         public DownloadedMod(string path, string name, string extension)
         {

@@ -9,6 +9,8 @@ namespace SPTLauncher
     public partial class ModDownloader : Form
     {
         public static ModDownloader? form;
+        private ModDownload? selected;
+
         private int page = 1;
         public Timer Timer;
         public ModDownloader()
@@ -87,13 +89,19 @@ namespace SPTLauncher
             ModName.Text = mod.name;
             Author.Text = $"Author: {mod.author}";
             AkiVersion.Text = $"Version: {mod.AkiVersion}";
-            ModImage.ImageLocation = mod.imageURL;
+            LoadImage(mod);
             Description.Text = mod.description;
             lastUpdated.Text = $"Updated: {mod.lastUpdated}";
             Downloads.Text = $"Downloads: {mod.downloads.Split(" ")[0]}";
             Rating.Text = $"Rating: {mod.stars}/5";
             Ratings.Text = $"Ratings: {mod.ratings}";
             Reviews.Text = $"Reviews: {mod.reviews}";
+        }
+        private void LoadImage(ModDownload mod)
+        {
+            string imagePath = $"{Paths.iconsCachePath}/{mod.imageName}";
+            if (File.Exists(imagePath)) ModImage.ImageLocation = imagePath;
+            else ModImage.ImageLocation = mod.imageURL;
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -113,7 +121,7 @@ namespace SPTLauncher
         {
             ModDownload mod = GetSelectedModDownload();
             if (mod == null) return;
-            Form1.form.log($"Downloading mod {mod.name} URL: {mod.URL}");
+            Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
         }
 
@@ -144,7 +152,7 @@ namespace SPTLauncher
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-            ModDownload? selected = (ModDownload)modList.SelectedItem;
+            if (modList.SelectedItem != null) selected = (ModDownload)modList.SelectedItem;
             modList.Items.Clear();
             modList.Items.AddRange(FilterDownloads(SearchBox.Text).ToArray());
             if (selected != null) modList.SelectedItem = selected;

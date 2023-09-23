@@ -43,7 +43,7 @@ namespace SPTLauncher.Constructors
 
         public Encyclopedia GenerateEncyclopedia()
         {
-            Form1.form.log("Generated Encyclopedia for " + id);
+            Form1.log("Generated Encyclopedia for " + id);
             return new Encyclopedia(id);
         }
 

@@ -41,11 +41,9 @@
             Reviews = new Label();
             Rating = new Label();
             Ratings = new Label();
-            button1 = new Button();
             downloadProgress = new ProgressBar();
             DownloadLabel = new Label();
             SearchBox = new TextBox();
-            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -54,9 +52,9 @@
             modList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             modList.FormattingEnabled = true;
             modList.ItemHeight = 15;
-            modList.Location = new Point(0, 0);
+            modList.Location = new Point(0, 25);
             modList.Name = "modList";
-            modList.Size = new Size(222, 454);
+            modList.Size = new Size(239, 394);
             modList.TabIndex = 0;
             modList.DrawItem += modList_DrawItem;
             modList.SelectedIndexChanged += modList_SelectedIndexChanged;
@@ -64,7 +62,7 @@
             // Author
             // 
             Author.AutoSize = true;
-            Author.Location = new Point(373, 20);
+            Author.Location = new Point(395, 20);
             Author.Name = "Author";
             Author.Size = new Size(76, 15);
             Author.TabIndex = 1;
@@ -73,7 +71,7 @@
             // AkiVersion
             // 
             AkiVersion.AutoSize = true;
-            AkiVersion.Location = new Point(373, 35);
+            AkiVersion.Location = new Point(395, 35);
             AkiVersion.Name = "AkiVersion";
             AkiVersion.Size = new Size(98, 15);
             AkiVersion.TabIndex = 2;
@@ -81,7 +79,7 @@
             // 
             // DownloadModButton
             // 
-            DownloadModButton.Location = new Point(713, 417);
+            DownloadModButton.Location = new Point(245, 150);
             DownloadModButton.Name = "DownloadModButton";
             DownloadModButton.Size = new Size(75, 23);
             DownloadModButton.TabIndex = 3;
@@ -92,7 +90,7 @@
             // linkLabel1
             // 
             linkLabel1.AutoSize = true;
-            linkLabel1.Location = new Point(739, 5);
+            linkLabel1.Location = new Point(680, 5);
             linkLabel1.Name = "linkLabel1";
             linkLabel1.Size = new Size(49, 15);
             linkLabel1.TabIndex = 4;
@@ -103,7 +101,7 @@
             // 
             // ModImage
             // 
-            ModImage.Location = new Point(223, 1);
+            ModImage.Location = new Point(245, 1);
             ModImage.Name = "ModImage";
             ModImage.Size = new Size(144, 144);
             ModImage.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -113,7 +111,7 @@
             // ModName
             // 
             ModName.AutoSize = true;
-            ModName.Location = new Point(373, 5);
+            ModName.Location = new Point(395, 5);
             ModName.Name = "ModName";
             ModName.Size = new Size(77, 15);
             ModName.TabIndex = 6;
@@ -121,16 +119,16 @@
             // 
             // Description
             // 
-            Description.Location = new Point(223, 202);
+            Description.Location = new Point(245, 206);
             Description.Name = "Description";
-            Description.Size = new Size(484, 238);
+            Description.Size = new Size(484, 213);
             Description.TabIndex = 7;
             Description.Text = "";
             // 
             // lastUpdated
             // 
             lastUpdated.AutoSize = true;
-            lastUpdated.Location = new Point(373, 50);
+            lastUpdated.Location = new Point(395, 50);
             lastUpdated.Name = "lastUpdated";
             lastUpdated.Size = new Size(156, 15);
             lastUpdated.TabIndex = 8;
@@ -139,7 +137,7 @@
             // Downloads
             // 
             Downloads.AutoSize = true;
-            Downloads.Location = new Point(373, 65);
+            Downloads.Location = new Point(395, 65);
             Downloads.Name = "Downloads";
             Downloads.Size = new Size(78, 15);
             Downloads.TabIndex = 9;
@@ -148,7 +146,7 @@
             // Reviews
             // 
             Reviews.AutoSize = true;
-            Reviews.Location = new Point(373, 80);
+            Reviews.Location = new Point(395, 80);
             Reviews.Name = "Reviews";
             Reviews.Size = new Size(61, 15);
             Reviews.TabIndex = 10;
@@ -157,7 +155,7 @@
             // Rating
             // 
             Rating.AutoSize = true;
-            Rating.Location = new Point(373, 95);
+            Rating.Location = new Point(395, 95);
             Rating.Name = "Rating";
             Rating.Size = new Size(81, 15);
             Rating.TabIndex = 11;
@@ -166,26 +164,15 @@
             // Ratings
             // 
             Ratings.AutoSize = true;
-            Ratings.Location = new Point(373, 110);
+            Ratings.Location = new Point(395, 110);
             Ratings.Name = "Ratings";
             Ratings.Size = new Size(58, 15);
             Ratings.TabIndex = 12;
             Ratings.Text = "Ratings: 0";
             // 
-            // button1
-            // 
-            button1.Location = new Point(169, 1);
-            button1.Name = "button1";
-            button1.Size = new Size(53, 22);
-            button1.TabIndex = 13;
-            button1.Text = "More";
-            button1.UseVisualStyleBackColor = true;
-            button1.Visible = false;
-            button1.Click += button1_Click;
-            // 
             // downloadProgress
             // 
-            downloadProgress.Location = new Point(223, 177);
+            downloadProgress.Location = new Point(245, 177);
             downloadProgress.Name = "downloadProgress";
             downloadProgress.Size = new Size(484, 23);
             downloadProgress.TabIndex = 14;
@@ -193,7 +180,7 @@
             // DownloadLabel
             // 
             DownloadLabel.AutoSize = true;
-            DownloadLabel.Location = new Point(223, 160);
+            DownloadLabel.Location = new Point(326, 156);
             DownloadLabel.Name = "DownloadLabel";
             DownloadLabel.Size = new Size(111, 15);
             DownloadLabel.TabIndex = 15;
@@ -201,31 +188,21 @@
             // 
             // SearchBox
             // 
-            SearchBox.Location = new Point(607, 148);
+            SearchBox.Location = new Point(0, 1);
             SearchBox.Name = "SearchBox";
-            SearchBox.Size = new Size(100, 23);
+            SearchBox.PlaceholderText = "Search...";
+            SearchBox.Size = new Size(239, 23);
             SearchBox.TabIndex = 16;
             SearchBox.TextChanged += SearchBox_TextChanged;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(559, 151);
-            label1.Name = "label1";
-            label1.Size = new Size(45, 15);
-            label1.TabIndex = 17;
-            label1.Text = "Search:";
             // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 452);
-            Controls.Add(label1);
+            ClientSize = new Size(739, 420);
             Controls.Add(SearchBox);
             Controls.Add(DownloadLabel);
             Controls.Add(downloadProgress);
-            Controls.Add(button1);
             Controls.Add(Ratings);
             Controls.Add(Rating);
             Controls.Add(Reviews);
@@ -263,10 +240,8 @@
         private Label Reviews;
         private Label Rating;
         private Label Ratings;
-        private Button button1;
         private ProgressBar downloadProgress;
         private Label DownloadLabel;
         private TextBox SearchBox;
-        private Label label1;
     }
 }

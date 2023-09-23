@@ -35,7 +35,7 @@ namespace WinFormsApp1.Constructors
                     //for(int i = 0; i < skills.)
                 }
             }
-            else Form1.form.log("path '" + infoPath + "' doesn't exist");
+            else Form1.log("path '" + infoPath + "' doesn't exist");
             //skills[Skills(ID)];
 
         }

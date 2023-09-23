@@ -73,7 +73,7 @@ namespace SPTLauncher.Components
 
         public static void GenerateCache()
         {
-            Form1.form.log("Launcher-Cache File Check.");
+            Form1.log("Launcher-Cache File Check.");
             bool missing = false;
             foreach (CacheType cacheType in Enum.GetValues<CacheType>())
             {
@@ -86,7 +86,7 @@ namespace SPTLauncher.Components
                 }
                 else caches[cacheType] = cachePath;
             }
-            if (!missing) Form1.form.log("All files cached.");
+            if (!missing) Form1.log("All files cached.");
             UpdateNameCache();
             ItemCheck();
             InitalizeQuestCache();
@@ -102,7 +102,7 @@ namespace SPTLauncher.Components
             {
                 string jsonData = ReadQuestsFile();
                 questCache = JsonConvert.DeserializeObject<Dictionary<string, CachedQuest>>(jsonData) ?? new();
-                Form1.form.log($"Loaded {questCache.Count} quests");
+                Form1.log($"Loaded {questCache.Count} quests");
             }
             catch (Exception ex)
             {
@@ -203,13 +203,13 @@ namespace SPTLauncher.Components
                 JToken jToken = JObject.Parse(responseBody);
                 string typePath = $"{Paths.itemCache}/{cacheType.ToString().ToLower()}.json";
                 File.WriteAllText(typePath, jToken["results"].ToString());
-                Form1.form.log($"Generated cache for {cacheType}.");
+                Form1.log($"Generated cache for {cacheType}.");
                 caches[cacheType] = typePath;
                 //CacheNames(cacheType);
             }
             else
             {
-                Form1.form.log("Failed to get cache for " + cacheType + " Status code: " + response.StatusCode);
+                Form1.log("Failed to get cache for " + cacheType + " Status code: " + response.StatusCode);
             }
         }
 

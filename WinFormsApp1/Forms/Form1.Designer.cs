@@ -59,6 +59,7 @@
             comboBox1 = new ComboBox();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
+            ImageCachingCheck = new CheckBox();
             BugsFeedbackBox = new PictureBox();
             donatePicture = new PictureBox();
             label10 = new Label();
@@ -439,6 +440,7 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(ImageCachingCheck);
             settingsGroup.Controls.Add(BugsFeedbackBox);
             settingsGroup.Controls.Add(donatePicture);
             settingsGroup.Controls.Add(label10);
@@ -460,6 +462,19 @@
             settingsGroup.TabStop = false;
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
+            // 
+            // ImageCachingCheck
+            // 
+            ImageCachingCheck.AutoSize = true;
+            ImageCachingCheck.Checked = true;
+            ImageCachingCheck.CheckState = CheckState.Checked;
+            ImageCachingCheck.Location = new Point(113, 233);
+            ImageCachingCheck.Name = "ImageCachingCheck";
+            ImageCachingCheck.Size = new Size(106, 19);
+            ImageCachingCheck.TabIndex = 38;
+            ImageCachingCheck.Text = "Image Caching";
+            ImageCachingCheck.UseVisualStyleBackColor = true;
+            ImageCachingCheck.CheckedChanged += ImageCachingCheck_CheckedChanged;
             // 
             // BugsFeedbackBox
             // 
@@ -576,7 +591,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(189, 232);
+            button4.Location = new Point(189, 256);
             button4.Name = "button4";
             button4.Size = new Size(58, 23);
             button4.TabIndex = 3;
@@ -1062,5 +1077,6 @@
         private PictureBox BugsFeedbackBox;
         private PictureBox OpenFolderButton;
         private PictureBox SettingsButton;
+        private CheckBox ImageCachingCheck;
     }
 }

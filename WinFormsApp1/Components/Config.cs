@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SPTLauncher.Constructors;
 using System.Diagnostics;
+using WinFormsApp1;
 
 namespace SPTLauncher.Components
 {
@@ -86,8 +87,17 @@ namespace SPTLauncher.Components
         {
             bool backup = !file.Backups;
             file.Backups = backup;
-            save();
             return backup;
+        }
+
+        public static void SetImageCache(bool state)
+        {
+            file.ImageCaching = state;
+            save();
+        }
+        public static bool GetImageCaching()
+        {
+            return file.ImageCaching;
         }
 
         public static bool BackupState()

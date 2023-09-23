@@ -197,7 +197,7 @@ namespace SPTLauncher.Constructors
             Debug.WriteLine(requirement.GetJToken().ToString());
             Debug.WriteLine(array);
             jToken["requirements"] = array;
-            Form1.form.log($"Removed {requirement} requirement for {requirement.parent}");
+            Form1.log($"Removed {requirement} requirement for {requirement.parent}");
             updateSettings();
         }
         public Dictionary<string, RecipeRequirement> GetRecipeRequirements()
@@ -402,7 +402,7 @@ namespace SPTLauncher.Constructors
             jToken[name] = updated;
             JToken token = jToken.Parent;
             parent.jToken["requirements"] = jToken.Parent;
-            Form1.form.log($"Updated requirement for {parent}");
+            Form1.log($"Updated requirement for {parent}");
         }
 
         public bool hasRequiredModule()

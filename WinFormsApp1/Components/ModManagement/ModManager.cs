@@ -8,6 +8,7 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Web;
 using System;
 using System.Runtime.InteropServices;
+using System.Net.Http;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -185,17 +186,17 @@ namespace SPTLauncher.Components.ModManagement
             {
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(useragent);
                 string formattedURL = FormatURL(downloadURL);
-                Form1.form.log("Formatted: " + formattedURL);
+                Form1.log("Formatted: " + formattedURL);
                 HttpResponseMessage response2 = await httpClient.GetAsync(formattedURL, HttpCompletionOption.ResponseHeadersRead);
                 if (response2.IsSuccessStatusCode)
                 {
                     string filename = (GetFilenameFromResponse(response2) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
                     string extension = filename.Replace("\"", "").Split(".")[^1];
-                    if (!IsValidFileType(extension.TrimEnd())) { Form1.form.log("No File Found."); return; }
-                    Form1.form.log($"Downloading file.");
+                    if (!IsValidFileType(extension.TrimEnd())) { Form1.log("No File Found."); return; }
+                    Form1.log($"Downloading file.");
                     long byteSize = response2.Content.Headers.ContentLength ?? 0;
                     mod.totalBytes = byteSize;
-                    Form1.form.log($"Download Size: {FormatByteCount(byteSize)}");
+                    Form1.log($"Download Size: {FormatByteCount(byteSize)}");
                     Stream contentStream = response2.Content.ReadAsStream();
                     byte[] buffer = new byte[8192];
                     int bytesRead = 0;
@@ -216,17 +217,17 @@ namespace SPTLauncher.Components.ModManagement
                     }
 
                     mod.downloadSpeed = 0;
-                    Form1.form.log("File downloaded successfully!");
+                    Form1.log("File downloaded successfully!");
                     ModInstaller.Install(new(fullSavePath, mod.name, extension));
                 }
                 else
                 {
-                    Form1.form.log($"HTTP request failed with status code: {response2.StatusCode}");
+                    Form1.log($"HTTP request failed with status code: {response2.StatusCode}");
                 }
             }
             catch (HttpRequestException e)
             {
-                Form1.form.log($"HTTP request error: {e.Message}");
+                Form1.log($"HTTP request error: {e.Message}");
             }
         }
 
@@ -243,17 +244,17 @@ namespace SPTLauncher.Components.ModManagement
 
         public static void CreateSymbolicLink(string sourceDirName, string destDirName)
         {
-            Form1.form.log("Creating Symlink of " + sourceDirName + " to " + destDirName);
-            bool linkCreated = CreateSymbolicLink(sourceDirName, destDirName, SymbolicLinkTarget.Directory);
+                Form1.log("Creating Symlink of " + sourceDirName + " to " + destDirName);
+                bool linkCreated = CreateSymbolicLink(sourceDirName, destDirName, SymbolicLinkTarget.Directory);
 
             if (linkCreated)
             {
-                Form1.form.log("CreateSymbolicLink succeeded.");
+                Form1.log("CreateSymbolicLink succeeded.");
             }
             else
             {
                 int errorCode = Marshal.GetLastWin32Error();
-                Form1.form.log("CreateSymbolicLink failed with error code: " + errorCode);
+                Form1.log("CreateSymbolicLink failed with error code: " + errorCode);
             }
         }
 
@@ -296,7 +297,7 @@ namespace SPTLauncher.Components.ModManagement
     public class ModDownload
     {
         public ORIGIN Origin;
-        public string URL, name, author, description, imageURL, AkiVersion, lastUpdated, downloads;
+        public string URL, name, author, description, imageURL, imageName, AkiVersion, lastUpdated, downloads;
         public int comments, reviews, ratings;
         public float stars;
         public long bytes = 0, totalBytes = 0;
@@ -310,6 +311,7 @@ namespace SPTLauncher.Components.ModManagement
             HtmlNode spanNode = element.SelectSingleNode(".//span[@class='filebaseFileIcon']");
             HtmlNode imageNode = element.SelectSingleNode(".//img");
             imageURL = imageNode != null ? imageNode.GetAttributeValue("src", "") : "";
+            imageName = imageURL.Split("/")[^1];
             HtmlNode ratingNode = element.SelectSingleNode(".//li[@class='jsTooltip filebaseFileRating']");
             HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
             author = att.SelectSingleNode(".//li").InnerText;
@@ -327,12 +329,37 @@ namespace SPTLauncher.Components.ModManagement
             }
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
             Origin = GetOrigin(URL);
+            if(!File.Exists($"{Paths.iconsCachePath}/{imageName}") && Config.GetImageCaching()) CacheImage();
             ModDownloader.DisplayModDownload(this);
         }
 
         public static string DecodeString(string input)
         {
             return HttpUtility.HtmlDecode(input);
+        }
+
+        private async void CacheImage()
+        {
+            HttpClient client = new();
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(imageURL);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+                    File.WriteAllBytes($"{Paths.iconsCachePath}/{imageName}", imageBytes);
+                    Debug.WriteLine("Image downloaded successfully.");
+                }
+                else
+                {
+                    Debug.WriteLine($"Failed to download image. Status code: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
         override

@@ -132,7 +132,7 @@ namespace SPTLauncher
                 RequiredAmount.Value = requirement.getCount();
                 ToolCheckBox.Checked = requirement.isReturnedOnCraft();
             }
-            else { Form1.form.log("Error loading requirement"); }
+            else { Form1.log("Error loading requirement"); }
         }
 
         private void SaveRecipeButton_Click(object sender, EventArgs e)
@@ -154,7 +154,7 @@ namespace SPTLauncher
             string id = listBox1.SelectedItem.ToString();
             //_recipes[id] = recipe;
             recipe.updateSettings();
-            Form1.form.log("Updated recipe " + recipe.getName(true));
+            Form1.log("Updated recipe " + recipe.getName(true));
         }
 
         public static void UpdateRecipesFile(JToken token)

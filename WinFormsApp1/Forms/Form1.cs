@@ -15,6 +15,7 @@ using SPTLauncher.Constructors.Enums;
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Forms.Reporting;
 using SPTLauncher.Forms.Feedback;
+using System.Runtime.CompilerServices;
 
 namespace WinFormsApp1
 {
@@ -31,8 +32,8 @@ namespace WinFormsApp1
         private int processID;
         public static string serverURL;
         public static LANG language = LANG.EN;
-        private string Prefix = "[Hero's Launcher] ";
-        public static Form1 form;
+        private static string Prefix = "[Hero's Launcher] ";
+        public static Form1? form;
         public string[] editions;
         public enum STATE { OFFLINE, STARTING, ONLINE }
 
@@ -82,9 +83,15 @@ namespace WinFormsApp1
             Traders.Initialize();
             TarkovCache.Initialize();
             ModManager.LoadMods();
-            foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
+            DisplayMods();
             UpdateModsButton();
             UpdateSettingsValues();
+        }
+
+        public static void DisplayMods()
+        {
+            if (form == null) return;
+            foreach (Mod mod in ModManager.mods) form.modsListBox.Items.Add(mod);
         }
 
         public void UpdateSettingsValues()
@@ -93,6 +100,7 @@ namespace WinFormsApp1
             profileBackupCheckBox.Checked = Config.BackupState();
             BackUpInterval.Value = Config.GetBackupInterval();
             minimizeCheck.Checked = Config.file.MinimizeOnLaunch;
+            ImageCachingCheck.Checked = Config.file.ImageCaching;
         }
 
         public async Task BindToAkiAsync()
@@ -163,10 +171,12 @@ namespace WinFormsApp1
             ToolTip bugTip = new();
             ToolTip settingsTip = new();
             ToolTip folderTip = new();
+            ToolTip imageCachingTip = new();
             donationTip.SetToolTip(donatePicture, "Donation!");
             bugTip.SetToolTip(BugsFeedbackBox, "Bug Reports & Feedback");
             settingsTip.SetToolTip(SettingsButton, "Settings");
             folderTip.SetToolTip(OpenFolderButton, "Open Game Folder");
+            imageCachingTip.SetToolTip(ImageCachingCheck, "Toggles Mod Manager Image Caching");
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -331,14 +341,15 @@ namespace WinFormsApp1
             return ServerManager.PingServer();
         }
 
-        public async void log(string text)
+        public static async void log(string text)
         {
+            if (form == null) return;
             await Task.Run(() =>
             {
-                this.Invoke(new Action(() =>
+                form.Invoke(new Action(() =>
                 {
-                    serverConsole.Text += Prefix + text + "\n";
-                    if (checkBox1.Checked) scrollToBottom();
+                    form.serverConsole.Text += Prefix + text + "\n";
+                    if (form.checkBox1.Checked) form.scrollToBottom();
                 }));
             });
         }
@@ -714,6 +725,7 @@ namespace WinFormsApp1
             ModsButton.Text = $"Mods {ModManager.mods.Count - ModManager.disabledAmount}/{ModManager.mods.Count}";
         }
 
+        internal Mod? selectedMod = null;
         private void button16_Click(object sender, EventArgs e)
         {
             if (serverState == STATE.ONLINE || serverState == STATE.STARTING)
@@ -721,7 +733,7 @@ namespace WinFormsApp1
                 MessageBox.Show("Cannot disable mods while server is running.", "SERVER RUNNING", MessageBoxButtons.OK);
                 return;
             }
-            int index = modsListBox.SelectedIndex;
+            selectedMod = GetSelectedMod();
             GetSelectedMod().Toggle();
             RenderMods();
             /*List<Mod> items = modsListBox.Items.Cast<Mod>().ToList();
@@ -730,7 +742,7 @@ namespace WinFormsApp1
                                        .ToList();
             modsListBox.Items.Clear();
             foreach (Mod mod in sortedItems) modsListBox.Items.Add(mod);*/
-            modsListBox.SelectedIndex = index;
+            if (selectedMod != null) modsListBox.SelectedItem = selectedMod;
         }
 
         private void RenderMods(bool reorganize = true)
@@ -955,13 +967,17 @@ namespace WinFormsApp1
         private void OpenFolderButton_Click(object sender, EventArgs e)
         {
             ModManager.CreateSymbolicLink(@$"{Paths.modManagerFolder}/Plugins/AmandsSense/", @$"{Paths.pluginsFolder}/");
-
             //OpenGameFolderCommand();
         }
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
             toggleActiveTab(settingsGroup);
+        }
+
+        private void ImageCachingCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            Config.SetImageCache(ImageCachingCheck.Checked);
         }
     }
 }

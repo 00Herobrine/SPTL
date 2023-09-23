@@ -5,7 +5,7 @@ namespace SPTLauncher.Components
     internal class Paths
     {
         public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, iconsPath, localesFile, databasePath, serverPath, serverConfigsPath;
+            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, iconsPath, iconsCachePath, localesFile, databasePath, serverPath, serverConfigsPath;
 
         public static void Initialize(bool debug = false)
         {
@@ -21,6 +21,7 @@ namespace SPTLauncher.Components
             configPath = $"{cachePath}/config.json";
             itemCache = $"{cachePath}/items";
             iconsPath = $"{cachePath}/icons";
+            iconsCachePath = $"{modManagerFolder}/icons";
             gatoPath = $"{cachePath}/gato";
             backupsPath = $"{cachePath}/backups";
             databasePath = $"{serverPath}/database";
@@ -42,6 +43,8 @@ namespace SPTLauncher.Components
                 Paths.gatoPath,
                 Paths.backupsPath,
                 Paths.modsFolder,
+                Paths.modManagerFolder,
+                Paths.iconsCachePath,
                 Paths.pluginsFolder
             };
             foreach (var path in paths)

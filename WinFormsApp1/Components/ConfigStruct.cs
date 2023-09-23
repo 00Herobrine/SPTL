@@ -21,6 +21,8 @@ namespace SPTLauncher.Components
         public bool Backups { get; set; }
         [DataMember(Name = "MinimizeOnLaunch"), DefaultValue(false)]
         public bool MinimizeOnLaunch { get; set; }
+        [DataMember(Name = "ImageCaching"), DefaultValue(true)]
+        public bool ImageCaching { get; set; }
     }
 
     internal struct DisabledMod

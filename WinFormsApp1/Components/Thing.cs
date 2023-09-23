@@ -49,11 +49,11 @@ namespace SPTLauncher.Components
 
             if (response.IsSuccessStatusCode)
             {
-                Form1.form.log("Message sent successfully!");
+                Form1.log("Message sent successfully!");
             }
             else
             {
-                Form1.form.log("Message sending failed with status code: " + response.StatusCode);
+                Form1.log("Message sending failed with status code: " + response.StatusCode);
             }
             string responseContent = await response.Content.ReadAsStringAsync();
             Debug.WriteLine("Sent: " + json);

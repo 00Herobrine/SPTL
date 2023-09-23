@@ -118,11 +118,10 @@ namespace SPTLauncher
             Process.Start("explorer", GetSelectedModDownload().URL);
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             page++;
             ModManager.WebRequestMods(page);
-            //modManager.WebRequestMods(page++);
         }
 
         private void DownloadModButton_Click(object sender, EventArgs e)

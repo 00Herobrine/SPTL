@@ -63,77 +63,121 @@ namespace SPTLauncher.Components.ModManagement
             else if (path.Contains("user")) return Paths.modsFolder;
             else return Paths.pluginsFolder;
         }
-        private static readonly string[] modFiles = ["mod.ts", "config.js", "mod.js" ];
+        private static readonly string[] modFiles = [ "mod.ts", "package.json", "mod.js" ];
         private static bool ExtractArchive(DownloadedMod toInstall)
         {
             IArchive archive = ArchiveFactory.Open(toInstall.path);
             if (archive == null) return false;
-            string modFilePath = toInstall.path.Replace("\\", "/");
+
             try
             {
-                //if (archive.Entries == null) return false;
-                int rootFolderCount = archive.Entries.Where(_entry => _entry.IsDirectory && _entry.Key.Count(c => c == '/') == 0).Count();
-                //Form1.log("1");
+                List<string> rootFolders = GetRootFolders(archive);
+                //foreach (string e in rootFolders) Form1.log(e);
                 foreach (IArchiveEntry entry in archive.Entries)
                 {
-                    string name = entry.Key ?? " ";
-                    string[] parts = name.Split('/');
-                    string ending = parts.Length > 0 ? parts[^1] : "NOT NAMED SHIT";
-                    if (name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) { entry.WriteToDirectory(GetDestination(name)); return true; }
-                    if (name.StartsWith("bepinex/", StringComparison.OrdinalIgnoreCase))
-                        toInstall.plugin = true;
-                    else if (name.StartsWith("user/", StringComparison.OrdinalIgnoreCase) || modFiles.Contains(ending))
-                        toInstall.client = true;
-                    else if (name.Contains("/bepinex/", StringComparison.OrdinalIgnoreCase))
+                    if (IsDllFile(entry.Key))
                     {
-                        toInstall.plugin = true;
-                        toInstall.subrooted = true;
+                        entry.WriteToDirectory(GetDestination(entry.Key));
+                        return true;
                     }
-                    else if (name.Contains("/user/", StringComparison.OrdinalIgnoreCase))
-                    {
-                        toInstall.client = true;
-                        toInstall.subrooted = true;
-                    }
+                    HandleModEntry(entry.Key, toInstall);
                 }
-                //Form1.log("2 " + rootFolderCount);
+
                 if (toInstall.subrooted)
-                {
-                    //Form1.log("3");
-                    foreach (var entry in archive.Entries.Where(_entry => _entry.IsDirectory))
-                    {
-                        string path = DirectoryIsBepinex(entry.Key) ? Paths.pluginsFolder : Paths.modsFolder;
-                        entry.WriteToDirectory(path);
-                    }
-                    return true;
-                }
-                else if (rootFolderCount == 1 && toInstall.client)
-                {
-                    //Form1.log("4");
-                    string folderName = archive.Entries.Where(entry => entry.IsDirectory).First().Key;
-                    bool custom = !folderName.Equals("user");
-                    archive.ExtractToDirectory(custom ? $"{Paths.modsFolder}" : Paths.gameFolder);
-                    return true;
-                }
+                    return ExtractSubrootedArchive(archive, rootFolders);
+                else if (rootFolders.Count == 1 && toInstall.client)
+                    return ExtractSingleRootArchive(archive, rootFolders, toInstall);
                 else if (toInstall.plugin || toInstall.client)
                 {
-                    //Form1.log("5");
                     archive.ExtractToDirectory(Paths.gameFolder);
                     return true;
                 }
-                else
-                {
-                    Form1.log(modFilePath);
-                    Process.Start("explorer.exe", @Paths.downloadingPath);
-                    Form1.log($"The {toInstall.extension} file does not contain the required 'Bepinex' or 'user' folders.");
-                }
+                else HandleMissingFolders(toInstall);
             }
             catch (Exception ex)
             {
                 Form1.log($"An error occurred: {ex.Message}");
             }
+
             return false;
         }
-        
+
+        private static List<string> GetRootFolders(IArchive archive)
+        {
+            return archive.Entries
+                .Where(entry => entry.IsDirectory)
+                .Select(entry => entry.Key.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Split(Path.AltDirectorySeparatorChar)[0])
+                .Distinct()
+                .ToList();
+        }
+
+        private static bool IsDllFile(string entryKey)
+        {
+            return entryKey.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void HandleModEntry(string entryKey, DownloadedMod toInstall)
+        {
+            entryKey = FormatPathChars(entryKey);
+            string file = entryKey.Split("/").Last();
+            //Form1.log("Checking " + entryKey + " F: " + modFiles.Contains(file));
+            if (entryKey.StartsWith($"bepinex{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+            {
+                toInstall.plugin = true;
+                if (entryKey.Contains($"/bepinex/", StringComparison.OrdinalIgnoreCase))
+                {
+                    toInstall.subrooted = true;
+                }
+            }
+            else if (entryKey.StartsWith("user/", StringComparison.OrdinalIgnoreCase))
+            {
+                toInstall.client = true;
+                if (modFiles.Contains(entryKey.Split('/').Last()))
+                {
+                    toInstall.subrooted = true;
+                }
+            }
+            else if (modFiles.Contains(file))
+            {
+                toInstall.client = true;
+            }
+        }
+        private static string FormatPathChars(string input)
+        {
+            return input.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+
+        private static bool ExtractSubrootedArchive(IArchive archive, List<string> rootFolders)
+        {
+            try
+            {
+                foreach (var entry in archive.Entries.Where(entry => entry.IsDirectory))
+                {
+                    string path = DirectoryIsBepinex(entry.Key) ? Paths.pluginsFolder : Paths.modsFolder;
+                    entry.WriteToDirectory(path);
+                    return true;
+                }
+            } catch (Exception e) { Form1.log(e.Message); return false; }
+            return false;
+        }
+
+        private static bool ExtractSingleRootArchive(IArchive archive, List<string> rootFolders, DownloadedMod toInstall)
+        {
+            try
+            {
+                string folderName = archive.Entries.First(entry => entry.IsDirectory).Key;
+                bool custom = !folderName.Equals("user");
+                archive.ExtractToDirectory(custom ? Paths.modsFolder : Paths.gameFolder);
+                return true;
+            } catch(Exception e) { Form1.log(e.Message); return false; }
+        }
+
+        private static void HandleMissingFolders(DownloadedMod toInstall)
+        {
+            Form1.log(toInstall.path.Replace("\\", "/"));
+            Process.Start("explorer.exe", Paths.downloadingPath);
+            Form1.log($"The {toInstall.extension} file does not contain the required 'Bepinex' or 'user' folders.");
+        }
 
         private static bool MoveFile(DownloadedMod toInstall)
         {

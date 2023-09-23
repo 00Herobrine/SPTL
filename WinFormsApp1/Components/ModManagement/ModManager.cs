@@ -241,8 +241,18 @@ namespace SPTLauncher.Components.ModManagement
                 if (response2.IsSuccessStatusCode)
                 {
                     string filename = (GetFilenameFromResponse(response2) ?? GetFilenameFromUrl(downloadURL)).Replace("\"", "");
+                    bool downloaded = FileAlreadyDownloaded(filename);
+                    string fullSavePath = Path.Combine(savePath, filename);
                     string extension = filename.Replace("\"", "").Split(".")[^1];
-                    if (!IsValidFileType(extension.TrimEnd())) { Form1.log("No File Found."); return; }
+                    if (downloaded) { Form1.log("already downloaded"); ModInstaller.Install(new(fullSavePath, mod.name, extension)); return; }
+                    if (!IsValidFileType(extension.TrimEnd())) {
+                        Form1.log("No File Found.");
+                        if(MessageBox.Show("No file downloaded on attached page. Open in browser?", "No File Found", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = formattedURL,
+                            UseShellExecute = true
+                        }); return; }
                     Form1.log($"Downloading file.");
                     long byteSize = response2.Content.Headers.ContentLength ?? 0;
                     mod.totalBytes = byteSize;
@@ -252,7 +262,6 @@ namespace SPTLauncher.Components.ModManagement
                     int bytesRead = 0;
                     mod.bytes = 0;
                     DateTime startTime = DateTime.Now;
-                    string fullSavePath = Path.Combine(savePath, filename);
 
                     using (FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
@@ -280,7 +289,10 @@ namespace SPTLauncher.Components.ModManagement
                 Form1.log($"HTTP request error: {e.Message}");
             }
         }
-
+        private static bool FileAlreadyDownloaded(string name)
+        {
+            return File.Exists($"{Paths.downloadingPath}/{name}");
+        }
         private static void CreateConfigSection(ModDownload modDownload)
         {
             ModConfig conf = new()

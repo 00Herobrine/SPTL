@@ -225,7 +225,6 @@ namespace SPTLauncher.Components.ModManagement
                             Form1.log($"Error during download: {ex.Message}");
                         }
                     }
-                    Form1.log("returning");
                     return;
                 }
             }

@@ -1,28 +1,38 @@
-﻿using System.ComponentModel;
-using System.Runtime.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace SPTLauncher.Components
 {
     public struct ConfigStruct
     {
-        [DataMember(Name = "apiKey")]
+        [JsonProperty("apiKey")]
         public string apiKey { get; set; }
 
-        [DataMember(Name = "LastBackup")]
+        [JsonProperty("LastBackup")]
         public DateTime LastBackup { get; set; }
 
-        [DataMember(Name = "BackupInterval"), DefaultValue(-1)]
+        [JsonProperty("BackupInterval")]
         public int BackupInterval { get; set; }
 
-        [DataMember(Name = "DisabledMods")]
-        public Dictionary<string, string> DisabledMods { get; set; }
-
-        [DataMember(Name = "Backups")]
+        [JsonProperty("BackupsEnabled")]
         public bool Backups { get; set; }
-        [DataMember(Name = "MinimizeOnLaunch"), DefaultValue(false)]
+        [JsonProperty("MinimizeOnLaunch")]
         public bool MinimizeOnLaunch { get; set; }
-        [DataMember(Name = "ImageCaching"), DefaultValue(true)]
+        [JsonProperty("ImageCaching")]
         public bool ImageCaching { get; set; }
+        public bool AutoUpdate {  get; set; }
+        [JsonProperty("DisabledMods")]
+        public Dictionary<string, string> DisabledMods { get; set; }
+        public ConfigStruct()
+        {
+            // Initialize properties with default values.
+            apiKey = "";
+            LastBackup = DateTime.MinValue;
+            DisabledMods = new Dictionary<string, string>();
+            BackupInterval = 60;
+            Backups = false;
+            MinimizeOnLaunch = false;
+            ImageCaching = true;
+        }
     }
 
     internal struct DisabledMod

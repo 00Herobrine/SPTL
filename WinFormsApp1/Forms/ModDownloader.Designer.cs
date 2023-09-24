@@ -175,6 +175,7 @@
             downloadProgress.Location = new Point(245, 177);
             downloadProgress.Name = "downloadProgress";
             downloadProgress.Size = new Size(484, 23);
+            downloadProgress.Style = ProgressBarStyle.Continuous;
             downloadProgress.TabIndex = 14;
             // 
             // DownloadLabel

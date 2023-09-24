@@ -570,7 +570,6 @@
             // 
             BackUpInterval.Location = new Point(6, 184);
             BackUpInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
-            BackUpInterval.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             BackUpInterval.Name = "BackUpInterval";
             BackUpInterval.Size = new Size(91, 23);
             BackUpInterval.TabIndex = 29;

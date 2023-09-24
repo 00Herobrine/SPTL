@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using SPTLauncher.Constructors;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -9,6 +8,7 @@ using System.Web;
 using System;
 using System.Runtime.InteropServices;
 using System.Net.Http;
+using SPTLauncher.Components.RecipeManagement;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -289,6 +289,8 @@ namespace SPTLauncher.Components.ModManagement
                 Form1.log($"HTTP request error: {e.Message}");
             }
         }
+
+
         private static bool FileAlreadyDownloaded(string name)
         {
             return File.Exists($"{Paths.downloadingPath}/{name}");

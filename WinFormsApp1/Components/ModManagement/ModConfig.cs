@@ -1,6 +1,6 @@
 ﻿namespace SPTLauncher.Components.ModManagement
 {
-    internal struct ModConfig
+    public struct ModConfig
     {
         public string Name { get; set; }
         public string AkiVersion { get; set; }

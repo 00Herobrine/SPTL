@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using SPTLauncher.Components;
-using SPTLauncher.Constructors;
+using SPTLauncher.Components.RecipeManagement;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using WinFormsApp1;

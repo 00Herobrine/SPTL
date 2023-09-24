@@ -1,7 +1,4 @@
-﻿using SPTLauncher.Components;
-using SPTLauncher.Components.ModManagement;
-
-namespace SPTLauncher.Constructors
+﻿namespace SPTLauncher.Components.ModManagement
 {
     public class Mod
     {
@@ -49,12 +46,12 @@ namespace SPTLauncher.Constructors
 
         public bool IsPlugin()
         {
-            return (modType == ModType.PLUGIN || plugin);
+            return modType == ModType.PLUGIN || plugin;
         }
 
         public bool IsClient()
         {
-            return (modType == ModType.CLIENT || client);
+            return modType == ModType.CLIENT || client;
         }
         public bool IsBoth()
         {

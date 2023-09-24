@@ -1,22 +1,18 @@
 ﻿using Newtonsoft.Json;
-using SPTLauncher.Constructors;
+using SPTLauncher.Components.ModManagement;
 using System.Diagnostics;
-using WinFormsApp1;
 
 namespace SPTLauncher.Components
 {
     public class Config
     {
-        private static string apiKey = "";
         private static DateTime lastBackupTime;
-        private static int backupInterval;
         public static ConfigStruct file;
 
         public static void Load()
         {
-            string text = File.ReadAllText(Paths.configPath ?? "");
-            file = JsonConvert.DeserializeObject<ConfigStruct>(text);
-            Debug.WriteLine(file);
+            LoadFile();
+            Debug.WriteLine(JsonConvert.SerializeObject(file));
             SetApiKey(file.apiKey);
             string time = file.LastBackup.ToString();
             if (time == "" || time == null) SetLastBackUpTime(DateTime.Now);
@@ -24,6 +20,28 @@ namespace SPTLauncher.Components
             int interval = file.BackupInterval;
             if(interval < 0) SetBackupInterval(1440);
             else SetBackupInterval(interval);
+        }
+        public static void LoadFile()
+        {
+            try
+            {
+                if (!File.Exists(Paths.configPath)) {
+                    ConfigStruct defaultStruct = new();
+                    string json = JsonConvert.SerializeObject(defaultStruct);
+                    File.WriteAllText(Paths.configPath, json);
+                    file = defaultStruct;
+                return;
+            }
+                if (File.Exists(Paths.configPath))
+                {
+                    string json = File.ReadAllText(Paths.configPath);
+                    file = JsonConvert.DeserializeObject<ConfigStruct>(json);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading config: {ex.Message}");
+            }
         }
 
         public static string ReadCoreFile()
@@ -33,13 +51,12 @@ namespace SPTLauncher.Components
 
         public static void SetApiKey(string key, bool saveFile = false)
         {
-            apiKey = key;
             file.apiKey = key;
             if (saveFile) save();
         }
         public static string GetApiKey()
         {
-            return apiKey;
+            return file.apiKey;
         }
         public static void SetLastBackUpTime(DateTime time, bool saveFile = false)
         {
@@ -55,11 +72,10 @@ namespace SPTLauncher.Components
 
         public static int GetBackupInterval()
         {
-            return backupInterval;
+            return file.BackupInterval;
         }
         public static void SetBackupInterval(int interval, bool saveFile = false)
         {
-            backupInterval = interval;
             file.BackupInterval = interval;
             if (saveFile) save();
         }

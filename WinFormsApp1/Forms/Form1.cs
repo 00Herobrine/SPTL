@@ -14,8 +14,7 @@ using SPTLauncher.Components;
 using SPTLauncher.Constructors.Enums;
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Forms.Reporting;
-using SPTLauncher.Forms.Feedback;
-using System.Runtime.CompilerServices;
+using SPTLauncher.Components.BackupManagement;
 
 namespace WinFormsApp1
 {
@@ -506,7 +505,7 @@ namespace WinFormsApp1
                 editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
                 expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
                 factionImage.ImageLocation = info.SideImage;
-                backupCheckBox.Checked = GetSelectedProfile().BackupsEnabled();
+                backupCheckBox.Checked = Config.BackupState();
             }
             else
             {
@@ -622,11 +621,11 @@ namespace WinFormsApp1
             GetSelectedProfile().GetEncyclopedia().Show();
         }
 
-        public Profile GetSelectedProfile()
+        public static Profile GetSelectedProfile()
         {
-            int index = profilesList.SelectedIndex;
-            if (index == -1 || index > profilesList.Items.Count) return null;
-            return cachedProfiles[profilesList.SelectedIndex];
+            int index = form.profilesList.SelectedIndex;
+            if (index == -1 || index > form.profilesList.Items.Count) return null;
+            return form.cachedProfiles[form.profilesList.SelectedIndex];
         }
 
         private void button14_Click(object sender, EventArgs e)
@@ -764,25 +763,7 @@ namespace WinFormsApp1
             DateTime now = DateTime.Now;
             TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
             TimeSpan difference = now - startTime;
-            if (difference >= interval) CreateProfileBackup(id, now, "Auto-Backup Created");
-        }
-
-        public void CreateProfileBackup(string id)
-        {
-            CreateProfileBackup(id, DateTime.Now);
-        }
-
-        public void CreateProfileBackup(string id, DateTime now, string? logMessage = null)
-        {
-            string path = Paths.profilesFolder + "/" + id + ".json";
-            string backupPath = Paths.backupsPath + "/" + id;
-            if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
-            if (!Directory.Exists(backupPath + "/" + now.ToLongDateString())) Directory.CreateDirectory(backupPath + "/" + now.ToLongDateString());
-            string filePath = backupPath + "/" + now.ToLongDateString() + "/" + now.ToLongTimeString().Replace(":", ";") + ".json";
-            File.WriteAllText(filePath, File.ReadAllText(path));
-            Config.SetLastBackUpTime(now);
-            logMessage ??= "Backup Created " + Path.GetFileName(filePath);
-            log(logMessage);
+            if (difference >= interval) BackupManager.CreateProfileBackup(id, now, "Auto-Backup Created");
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -831,7 +812,7 @@ namespace WinFormsApp1
             string date = BackupDatesBox.Text;
             string backup = BackupsList.Text;
             string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
-            RestoreBackup(id, backupPath);
+            BackupManager.RestoreBackup(id, backupPath);
         }
 
         private void SaveRestoreButton_Click(object sender, EventArgs e)
@@ -840,15 +821,9 @@ namespace WinFormsApp1
             string date = BackupDatesBox.Text;
             string backup = BackupsList.Text;
             string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
-            CreateProfileBackup(id);
-            RestoreBackup(id, backupPath);
+            BackupManager.CreateProfileBackup(id);
+            BackupManager.RestoreBackup(id, backupPath);
             ReloadBackupIndexes();
-        }
-
-        public void RestoreBackup(string id, string backupPath)
-        {
-            File.Copy($"{backupPath}", $"{Paths.profilesFolder}/{id}.json", true);
-            log("Restored Backup " + Path.GetFileName(backupPath));
         }
 
         public void ReloadBackupIndexes()

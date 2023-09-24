@@ -1,5 +1,6 @@
 ﻿using Aki.Launcher;
 using Aki.Launcher.Models.Launcher;
+using SPTLauncher.Components.BackupManagement;
 using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
@@ -10,14 +11,11 @@ namespace SPTLauncher.Constructors
         private ProfileInfo profileInfo;
         private AccountInfo accountInfo;
         private Encyclopedia? encyclopedia;
-        //private bool backup;
         public Profile(string id, ProfileInfo profileInfo, AccountInfo accountInfo)
         {
             this.id = id;
             this.profileInfo = profileInfo;
             this.accountInfo = accountInfo;
-            //backup = Form1.form.GetConfig().BackupState();
-           // Debug.WriteLine($"profile {profileInfo.Username} backups-enabled {backup}");
         }
 
         public string getID()
@@ -47,10 +45,9 @@ namespace SPTLauncher.Constructors
             return new Encyclopedia(id);
         }
 
-        public bool BackupsEnabled()
+        public void CreateBackup()
         {
-            return false;
-            //return backup;
+            BackupManager.CreateProfileBackup(id);
         }
     }
 }

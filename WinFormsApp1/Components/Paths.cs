@@ -9,7 +9,7 @@ namespace SPTLauncher.Components
 
         public static void Initialize(bool debug = false)
         {
-            gameFolder = debug ? "F:/SPT-3.6.1-2" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+            gameFolder = debug ? "F:/SPT" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
             modManagerFolder = $"{cachePath}/ModManager";
@@ -44,6 +44,8 @@ namespace SPTLauncher.Components
                 Paths.backupsPath,
                 Paths.modsFolder,
                 Paths.modManagerFolder,
+                Paths.downloadingPath,
+                Paths.disabledModsPath,
                 Paths.iconsCachePath,
                 Paths.pluginsFolder
             };

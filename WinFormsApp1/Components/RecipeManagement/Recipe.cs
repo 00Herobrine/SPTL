@@ -1,66 +1,13 @@
 ﻿using Aki.Launcher.Attributes;
 using Newtonsoft.Json.Linq;
-using SPTLauncher.Components;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
 using WinFormsApp1;
 
-namespace SPTLauncher.Constructors
+namespace SPTLauncher.Components.RecipeManagement
 {
-    public enum Module
-    {
-        [Description("Vents"), Range(1, 3)]
-        VENTS = 0,
-        [Description("Security"), Range(1, 3)]
-        SECURITY = 1,
-        [Description("Lavoratory"), Range(1, 3)]
-        LAVORATORY = 2,
-        [Description("Stash"), Range(1, 4)]
-        STASH = 3,
-        [Description("Generator"), Range(1, 3)]
-        GENERATOR = 4,
-        [Description("Heating"), Range(1, 3)]
-        HEATING = 5,
-        [Description("Water Collector"), Range(1, 3)]
-        WATER = 6,
-        [Description("Medstation"), Range(1, 3)]
-        MEDICAL = 7,
-        [Description("Nutrition Unit"), Range(1, 3)]
-        NUTRITION = 8,
-        [Description("Rest Space"), Range(1, 3)]
-        RESTSPACE = 9,
-        [Description("Workbench"), Range(1, 3)]
-        WORKBENCH = 10,
-        [Description("Intelligence Center"), Range(1, 3)]
-        INTELLIGENCE = 11,
-        [Description("Shooting Range"), Range(1, 3)]
-        SHOOTINGRANGE = 12,
-        [Description("Library"), Range(1, 1)]
-        LIBRARY = 13,
-        [Description("Scav Case"), Range(1, 1)]
-        SCAVBOX = 14,
-        [Description("Illumination"), Range(1, 3)]
-        LIGHTING = 15,
-/*        [Description("Place of Fame"), Range(1, 1)]
-        FAME = 16,*/
-        [Description("Air Filtering Unit"), Range(1, 1)]
-        AIRFILTER = 17,
-        [Description("Solar Power"), Range(1, 1)]
-        SOLAR = 18,
-        [Description("Booze Generator"), Range(1, 1)]
-        BOOZEGENERATOR = 19,
-        [Description("Bitcoin Farm"), Range(1, 3)]
-        BTC = 20,
-        [Description("Christmas Tree"), Range(1, 1)]
-        CHRISTMAS = 21,
-        [Description("Broken Wall"), Range(1, 6)]
-        BROKENWALL = 22,
-        [Description("Gym"), Range(1, 2)]
-        GYM = 23
-    }
-
     public class Recipe
     {
         private string _id;
@@ -100,7 +47,7 @@ namespace SPTLauncher.Constructors
             module = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
             if (jToken["name"] != null) name = jToken["name"].ToString();
             //reqs = JArray.Parse(jToken["requirements"].ToString());
-            foreach(JToken req in GetRequirementsArray())
+            foreach (JToken req in GetRequirementsArray())
             {
                 if (req["areaType"] != null) requiredModule = new RecipeRequirement(req, this);
                 //Debug.Write("\nIterating " + req);
@@ -291,134 +238,6 @@ namespace SPTLauncher.Constructors
                 return requirements[id];
             }
             return null;
-        }
-    }
-
-    public class RecipeRequirement
-    {
-        private string? itemID;
-        private int count;
-        private bool returnOnCraft;
-
-        private Module requiredModule;
-        private int requiredModuleLvl = -1;
-        public Recipe parent;
-        private JToken jToken; // little part of Json it's in
-
-        public RecipeRequirement(Recipe recipe, string itemID, JToken token, int count = 1, bool returnOnCraft = false)
-        {
-            parent = recipe;
-            jToken = token;
-            this.itemID = itemID;
-            this.count = count;
-            this.returnOnCraft = returnOnCraft;
-        } 
-        
-        public RecipeRequirement(JToken token, Recipe parent)
-        {
-            this.parent = parent;
-            jToken = token;
-            if (jToken["areaType"] != null)
-            {
-                requiredModule = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
-                requiredModuleLvl = (int)jToken["requiredLevel"];
-            }
-            else
-            {
-                itemID = jToken["templateId"].ToString();
-                if (jToken["count"] == null) count = 1;
-                else count = (int)jToken["count"];
-                bool temp = false;
-                if (jToken["type"] != null && jToken["type"].ToString().Equals("Tool")) temp = true;
-                returnOnCraft = temp;
-            }
-        }
-
-        public string? getID()
-        {
-            return itemID;
-        }
-        public bool IsModule()
-        {
-            return requiredModule != null;
-        }
-        public void setID(string id)
-        {
-            parent.requirements.Remove(itemID);
-            itemID = id;
-            updateRequirements("templateId", id);
-            parent.requirements.Add(id, this);
-        }
-
-        public int getCount()
-        {
-            return count;
-        }
-        public void setCount(int count)
-        {
-            jToken["count"] = count;
-            this.count = count;
-            updateRequirements("count", count);
-        }
-
-        public bool isReturnedOnCraft()
-        {
-            return returnOnCraft;
-        }
-        public void returnedOnCraft(bool returned)
-        {
-            returnOnCraft = returned;
-            //setType to "Tool"
-        }
-
-        public Module getRequiredModule()
-        {
-            return requiredModule;
-        }
-        public void setRequiredModule(Module module)
-        {
-            requiredModule = module;
-            updateRequirements("areaType", module.ToString());
-        }
-        public int getRequiredModuleLvl()
-        {
-            return requiredModuleLvl;
-        }
-        public void setRequiredModuleLvl(int level)
-        {
-            requiredModuleLvl = level;
-            updateRequirements("requiredLevel", level);
-        }
-
-        public void updateRequirements(string name, int updated)
-        {
-            jToken[name] = updated;
-            JToken token = jToken.Parent;
-            parent.jToken["requirements"] = jToken.Parent;
-            //Form1.form.log($"Updated requirement {name} for {parent}");
-        }
-        public void updateRequirements(string name, string updated)
-        {
-            jToken[name] = updated;
-            JToken token = jToken.Parent;
-            parent.jToken["requirements"] = jToken.Parent;
-            Form1.log($"Updated requirement for {parent}");
-        }
-
-        public bool hasRequiredModule()
-        {
-            return requiredModuleLvl != -1;
-        }
-
-        public JToken GetJToken()
-        {
-            return jToken;
-        }
-
-        override
-        public string ToString()
-        {
-            return TarkovCache.GetReadableName(itemID);
         }
     }
 }

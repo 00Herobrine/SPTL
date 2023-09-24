@@ -89,7 +89,7 @@ namespace SPTLauncher
 
         public void LoadMod(ModDownload mod)
         {
-            if(mod == null) return;
+            if (mod == null) return;
             ModName.Text = mod.name;
             Author.Text = $"Author: {mod.author}";
             AkiVersion.Text = $"Version: {mod.AkiVersion}";
@@ -168,7 +168,7 @@ namespace SPTLauncher
         private static List<ModDownload> FilterDownloads(string? input = null)
         {
             if (input == null || input == "") return ModManager.downloadableMods;
-            else return ModManager.downloadableMods.FindAll(o => o.name.ToLowerInvariant().Contains(input.ToLowerInvariant()));
+            else return ModManager.downloadableMods.FindAll(o => o.name.Contains(input, StringComparison.OrdinalIgnoreCase) || o.author.Contains(input, StringComparison.OrdinalIgnoreCase) || o.AkiVersion.Contains(input));
         }
     }
 }

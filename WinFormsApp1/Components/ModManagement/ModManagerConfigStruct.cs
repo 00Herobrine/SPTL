@@ -2,6 +2,10 @@
 {
     public struct ModManagerConfigStruct
     {
-        public List<ModConfig> modConfigs { get; set; }
+        public List<ModConfig> ModConfigs { get; set; }
+        public ModManagerConfigStruct()
+        {
+            ModConfigs = new List<ModConfig>();
+        }
     }
 }

@@ -26,7 +26,7 @@
         {
             string type = IsPlugin() ? "[P]" : "[C]";
             string enabled = isEnabled() ? "" : " [DISABLED]";
-            return $"{name} {type}{enabled}";
+            return $"{type} {name}{enabled}";
         }
 
         public string GetPath()

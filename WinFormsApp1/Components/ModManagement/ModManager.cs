@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
-using System.Web;
-using System;
 using System.Runtime.InteropServices;
-using System.Net.Http;
 using SPTLauncher.Components.RecipeManagement;
+using Newtonsoft.Json;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -33,12 +31,13 @@ namespace SPTLauncher.Components.ModManagement
         public static List<Mod> mods = new();
         const string baseURL = "https://hub.sp-tarkov.com/files/";
         public static int disabledAmount = 0;
+        public static ModManagerConfigStruct config;
 
         public static void Initialize()
         {
+            LoadConfig();
             WebRequestMods();
             WebRequestMods(2);
-            ModManagerConfig.Initialize();
         }
 
         private static string[] ignoredFiles = { "order.json", "spt" };
@@ -92,7 +91,6 @@ namespace SPTLauncher.Components.ModManagement
 
         public static bool IsValidFileType(string input)
         {
-            //foreach (string fileType in allowedFileTypes) Form1.form.log($"[type:{fileType} compared:{input}]");
             return allowedFileTypes.Contains(input);
         }
 
@@ -104,6 +102,43 @@ namespace SPTLauncher.Components.ModManagement
             }
             return null;
         }
+
+
+        #region Config Shit
+        public static void CheckConfig(ModDownload download)
+        {
+            Form1.log("Checking config for " + download.id);
+            if(HasConfig(download))
+            {
+                Form1.log("Got config");
+            } else
+            {
+                GenerateConfig(download);
+                Form1.log($"Generated config for {download.id}");
+                //ModManagerConfig.Save();
+            }
+        }
+        private static void GenerateConfig(ModDownload download)
+        {
+            config.ModConfigs.Add(new()
+            {
+                AkiVersion = download.AkiVersion,
+                ID = download.id,
+                Name = download.name,
+                URL = download.URL
+            });
+            SaveConfig();
+        }
+        public static Dictionary<int, ModConfig> GetModConfigs() => config.ModConfigs.ToDictionary(entry => entry.ID);
+        public static bool HasConfig(ModDownload download) => GetModConfigs().ContainsKey(download.id);
+        public static ModConfig? GetConfig(ModDownload download) => GetModConfigs()[download.id];
+        private static void SaveConfig() => File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(config));
+        public static void LoadConfig()
+        {
+            if (!File.Exists(Paths.modManagerConfigPath)) File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(new ModManagerConfigStruct()));
+            config = JsonConvert.DeserializeObject<ModManagerConfigStruct>(File.ReadAllText(Paths.modManagerConfigPath));
+        }
+        #endregion
 
         private static string GetFilenameFromUrl(string url)
         {
@@ -217,7 +252,7 @@ namespace SPTLauncher.Components.ModManagement
                             }
                             mod.downloadSpeed = 0;
                             Form1.log("File downloaded successfully!");
-                            ModInstaller.Install(new(fullSavePath, mod.name, extension));
+                            ModInstaller.Install(new(fullSavePath, mod.name, extension, mod));
                         }
                         catch (Exception ex)
                         {
@@ -244,7 +279,7 @@ namespace SPTLauncher.Components.ModManagement
                     bool downloaded = FileAlreadyDownloaded(filename);
                     string fullSavePath = Path.Combine(savePath, filename);
                     string extension = filename.Replace("\"", "").Split(".")[^1];
-                    if (downloaded) { Form1.log("already downloaded"); ModInstaller.Install(new(fullSavePath, mod.name, extension)); return; }
+                    if (downloaded) { Form1.log("already downloaded"); ModInstaller.Install(new(fullSavePath, mod.name, extension, mod)); return; }
                     if (!IsValidFileType(extension.TrimEnd())) {
                         Form1.log("No File Found.");
                         if(MessageBox.Show("No file downloaded on attached page. Open in browser?", "No File Found", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -277,7 +312,7 @@ namespace SPTLauncher.Components.ModManagement
 
                     mod.downloadSpeed = 0;
                     Form1.log("File downloaded successfully!");
-                    ModInstaller.Install(new(fullSavePath, mod.name, extension));
+                    ModInstaller.Install(new(fullSavePath, mod.name, extension, mod));
                 }
                 else
                 {
@@ -342,8 +377,14 @@ namespace SPTLauncher.Components.ModManagement
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
             HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//div[starts-with(@class, 'filebaseFileCard')]");
-            foreach (HtmlNode element in elements)
-                downloadableMods.Add(new ModDownload(element));
+/*            var listItems = doc.DocumentNode
+                .Descendants("ol")
+                .FirstOrDefault(ol => ol.GetAttributeValue("class", "") == "filebaseFileList")?
+                .Descendants("li")
+                .ToList();*/
+            //if (listItems == null) return;
+            foreach (HtmlNode listItem in elements)
+                downloadableMods.Add(new ModDownload(listItem));
         }
 
         public static List<ModDownload> GetModDownloads()
@@ -355,111 +396,6 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
-        }
-    }
-
-    public class ModDownload
-    {
-        public ORIGIN Origin;
-        public string? imageURL, imageName;
-        public string URL, name, author, description, AkiVersion, lastUpdated, downloads;
-        public int comments, reviews, ratings;
-        public float stars;
-        public long bytes = 0, totalBytes = 0;
-        public double downloadSpeed = 0;
-
-        public ModDownload(HtmlNode element)
-        {
-            name = DecodeString(element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim());
-            description = DecodeString(element.SelectSingleNode(".//div[@class='containerContent filebaseFileTeaser']").InnerText.Trim());
-            URL = element.SelectSingleNode(".//a[@class='box128']").Attributes["href"].Value;
-            HtmlNode spanNode = element.SelectSingleNode(".//span[@class='filebaseFileIcon']");
-            HtmlNode imageNode = element.SelectSingleNode(".//img");
-            imageURL = imageNode?.GetAttributeValue("src", "");
-            imageName = imageURL?.Split("/")[^1];
-            HtmlNode ratingNode = element.SelectSingleNode(".//li[@class='jsTooltip filebaseFileRating']");
-            HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
-            author = att.SelectSingleNode(".//li").InnerText;
-            AkiVersion = element.SelectSingleNode(".//span [starts-with(@class, 'badge label')]").InnerText;
-            //Debug.WriteLine(element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText);
-            downloads = element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText.Trim();
-            ratings = 0;
-            HtmlNode ratingsNode = element.SelectSingleNode(".//span[@class='filebaseFileNumberOfRatings']");
-            if (ratingsNode != null) ratings = int.Parse(ratingsNode.InnerText.Trim().Replace("(", "").Replace(")", ""));
-            if (ratingNode != null)
-            {
-                string[] v = ratingNode.Attributes["title"].Value.Split("; ");
-                stars = float.Parse(v[0].Split(" ")[0]);
-                reviews = int.Parse(v[1].Split(" ")[0]);
-            }
-            lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
-            Origin = GetOrigin(URL);
-            if(!File.Exists($"{Paths.iconsCachePath}/{imageName}") && Config.GetImageCaching()) CacheImage();
-            ModDownloader.DisplayModDownload(this);
-        }
-
-        public static string DecodeString(string input)
-        {
-            return HttpUtility.HtmlDecode(input);
-        }
-
-        private async void CacheImage()
-        {
-            HttpClient client = new();
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(imageURL);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
-                    File.WriteAllBytes($"{Paths.iconsCachePath}/{imageName}", imageBytes);
-                    Debug.WriteLine("Image downloaded successfully.");
-                }
-                else
-                {
-                    Debug.WriteLine($"Failed to download image. Status code: {response.StatusCode}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error occurred: {ex.Message}");
-            }
-        }
-
-        override
-        public string ToString()
-        {
-            return name;
-        }
-
-        public static ORIGIN GetOrigin(string url)
-        {
-            ORIGIN origin = ORIGIN.INVALID;
-            foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
-                if (url.Contains(Recipe.GetEnumDescription(origins).ToLower())) origin = origins;
-            return origin;
-        }
-
-        public async Task Download()
-        {
-            await Task.Run(async () =>
-            {
-                await ModManager.Download(this);
-            });
-        }
-        public int CalculatePercentageInt()
-        {
-            return (int)(Math.Round(CalculatePercentage()));
-        }
-        public double CalculatePercentage()
-        {
-            if (totalBytes == 0)
-                return 0;
-
-            double percentage = (double)bytes / totalBytes * 100;
-            if (percentage > 100) percentage = 100;
-            return percentage;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using SharpCompress.Archives;
 using SharpCompress.Common;
-using SPTLauncher.Constructors;
 using System.Diagnostics;
 using WinFormsApp1;
 
@@ -36,6 +35,8 @@ namespace SPTLauncher.Components.ModManagement
                     success = MoveFile(toInstall);
                     break;
             }
+            //if (success) ModManager.CheckConfig(toInstall);
+            ModManager.CheckConfig(toInstall.toInstall);
             Form1.log(success ? $"Installed {toInstall.name} Successfully!" : $"Error Installing {toInstall.name}.");
         }
 

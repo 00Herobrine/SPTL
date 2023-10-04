@@ -90,6 +90,8 @@ namespace SPTLauncher.Components.ModManagement
             return origin;
         }
 
+        public VersionStatus VersionComparison => ModManager.VersionComparsion(this);
+
         public async Task Download()
         {
             await Task.Run(async () =>

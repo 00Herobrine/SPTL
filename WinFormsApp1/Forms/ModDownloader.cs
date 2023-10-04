@@ -1,8 +1,7 @@
-﻿using SPTLauncher.Components;
+﻿using Aki.Launch.Models.Aki;
+using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
 using System.Diagnostics;
-using System.Windows.Forms;
-using System.Xml;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
 
@@ -64,6 +63,11 @@ namespace SPTLauncher
             if (form == null) return;
             if (form.SearchBox.Text != "" && form.SearchBox.Text != null) return;
             form.modList.Items.Add(mod);
+            if (!form.AkiVersionsBox.Items.Contains(mod.AkiVersion))
+            {
+                form.AkiVersionsBox.Items.Add(mod.AkiVersion);
+                if (form.AkiVersionsBox.SelectedItem == null) form.AkiVersionsBox.SelectedIndex = 0;
+            }
         }
 
         bool loadingMods = false;
@@ -160,15 +164,50 @@ namespace SPTLauncher
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
             if (modList.SelectedItem != null) selected = (ModDownload)modList.SelectedItem;
-            modList.Items.Clear();
-            modList.Items.AddRange(FilterDownloads(SearchBox.Text).ToArray());
+            UpdateWithFilters();
             if (selected != null) modList.SelectedItem = selected;
         }
 
-        private static List<ModDownload> FilterDownloads(string? input = null)
+        private void UpdateWithFilters()
         {
-            if (input == null || input == "") return ModManager.downloadableMods;
-            else return ModManager.downloadableMods.FindAll(o => o.name.Contains(input, StringComparison.OrdinalIgnoreCase) || o.author.Contains(input, StringComparison.OrdinalIgnoreCase) || o.AkiVersion.Contains(input));
+            modList.Items.Clear();
+            modList.Items.AddRange(FilterDownloads(SearchBox.Text).ToArray());
+        }
+
+        private List<ModDownload> FilterDownloads(string? input = null)
+        {
+            List<ModDownload> filtered = ModManager.downloadableMods;
+            if (FilterVersionCheck.Checked) filtered = filtered.FindAll(o => o.AkiVersion.Equals(AkiVersionsBox.Text, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(input) || (!FilterDescriptionCheck.Checked && !FilterNameCheck.Checked && !FilterAuthorCheck.Checked)) return filtered;
+            else return filtered.FindAll(o =>
+            (o.name.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterNameCheck.Checked)
+            || (o.author.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterAuthorCheck.Checked)
+            || (o.description.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterDescriptionCheck.Checked));
+        }
+
+        private void FilterDescriptionCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateWithFilters();
+        }
+
+        private void FilterVersionCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateWithFilters();
+        }
+
+        private void FilterAuthorCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateWithFilters();
+        }
+
+        private void FilterNameCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateWithFilters();
+        }
+
+        private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateWithFilters();
         }
     }
 }

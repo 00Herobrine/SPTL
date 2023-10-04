@@ -108,15 +108,11 @@ namespace SPTLauncher.Components.ModManagement
         public static void CheckConfig(ModDownload download)
         {
             Form1.log("Checking config for " + download.id);
-            if(HasConfig(download))
+            if (HasConfig(download))
             {
-                Form1.log("Got config");
-            } else
-            {
-                GenerateConfig(download);
-                Form1.log($"Generated config for {download.id}");
-                //ModManagerConfig.Save();
+                
             }
+            else GenerateConfig(download);
         }
         private static void GenerateConfig(ModDownload download)
         {
@@ -129,9 +125,40 @@ namespace SPTLauncher.Components.ModManagement
             });
             SaveConfig();
         }
+        public static VersionStatus VersionComparsion(ModDownload download)
+        {
+            ModConfig? modConfig = GetConfig(download);
+            if(modConfig != null)
+            {
+                string localVersion = modConfig?.AkiVersion.Replace("SPT-AKI", "");
+                string onlineVersion = download.AkiVersion.Replace("SPT-AKI", "");
+                return IsVersionBigger(localVersion, onlineVersion);
+            }
+            return VersionStatus.None;
+        }
+        public static VersionStatus IsVersionBigger(string version1, string version2)
+        {
+            string[] parts1 = version1.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase).Trim().Split('.');
+            string[] parts2 = version2.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase).Trim().Split('.');
+
+            if (parts1.Length != 3 || parts2.Length != 3)
+                throw new ArgumentException("Invalid version format");
+
+            int major1 = int.Parse(parts1[0]);
+            int minor1 = int.Parse(parts1[1]);
+            int patch1 = int.Parse(parts1[2]);
+
+            int major2 = int.Parse(parts2[0]);
+            int minor2 = int.Parse(parts2[1]);
+            int patch2 = int.Parse(parts2[2]);
+
+            if (major1 == major2 && minor1 == minor2 && patch1 == patch2) return VersionStatus.Match;
+            if (major1 > major2 || (major1 == major2 && (minor1 > minor2 || (minor1 == minor2 && patch1 > patch2)))) return VersionStatus.Newer;
+            return VersionStatus.Outdated;
+        }
         public static Dictionary<int, ModConfig> GetModConfigs() => config.ModConfigs.ToDictionary(entry => entry.ID);
         public static bool HasConfig(ModDownload download) => GetModConfigs().ContainsKey(download.id);
-        public static ModConfig? GetConfig(ModDownload download) => GetModConfigs()[download.id];
+        public static ModConfig? GetConfig(ModDownload download) => GetModConfigs().TryGetValue(download.id, out ModConfig modConfig) ? modConfig : null;
         private static void SaveConfig() => File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(config));
         public static void LoadConfig()
         {

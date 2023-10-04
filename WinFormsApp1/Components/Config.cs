@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Constructors.Enums;
 using System.Diagnostics;
 
 namespace SPTLauncher.Components
@@ -13,13 +14,17 @@ namespace SPTLauncher.Components
         {
             LoadFile();
             Debug.WriteLine(JsonConvert.SerializeObject(file));
-            SetApiKey(file.apiKey);
-            string time = file.LastBackup.ToString();
-            if (time == "" || time == null) SetLastBackUpTime(DateTime.Now);
-            else SetLastBackUpTime(file.LastBackup);
+            if (string.IsNullOrWhiteSpace(file.LastBackup.ToString())) SetLastBackUpTime(DateTime.Now);
             int interval = file.BackupInterval;
             if(interval < 0) SetBackupInterval(1440);
             else SetBackupInterval(interval);
+        }
+        public static void SetLang(LANG Lang, bool saveFile = false)
+        {
+            file.Lang = Lang;
+            Paths.localesFile = $"{Paths.databasePath}/locales/global/{Lang}.json";
+            TarkovCache.UpdateNameCache();
+            if (saveFile) save(); 
         }
         public static void LoadFile()
         {

@@ -3,7 +3,6 @@ using Aki.Launcher;
 using Aki.Launcher.Models.Launcher;
 using Aki.Launcher.Helpers;
 using System.Text;
-using Timer = System.Windows.Forms.Timer;
 using Aki.Launcher.Models.Aki;
 using WinFormsApp1.Constructors;
 using Newtonsoft.Json.Linq;
@@ -15,42 +14,38 @@ using SPTLauncher.Constructors.Enums;
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Forms.Reporting;
 using SPTLauncher.Components.BackupManagement;
+using SPTLauncher.Components.Caching;
+using SPTLauncher.Forms;
 
 namespace WinFormsApp1
 {
     public partial class Form1 : Form
     {
-        private bool autoLogin = false;
         private bool debug = true;
         private bool console = true, modsTab = true, backupsTab = true; // scaling shit
         private bool logging = true;
-        private bool enabled = false;
         private bool inUse = false;
-        private Timer _timer = new Timer();
         private int port = 6969;
-        private int processID;
         public static string serverURL;
-        public static LANG language = LANG.EN;
         private static string Prefix = "[Hero's Launcher] ";
         public static Form1? form;
-        public string[] editions;
-        public enum STATE { OFFLINE, STARTING, ONLINE }
+        public bool startup = true;
+        public enum STATE { OFFLINE, BINDING, STARTING, ONLINE }
 
         public delegate void PingServer(out bool returnValue);
 
         #region Launcher Stuff
         private Config config;
         private Character selectedCharacter;
-        private TarkovCache cache;
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
         private int creatingAccount = -1;
-        private Dictionary<int, Profile> cachedProfiles = new Dictionary<int, Profile>();
+        public static Profile? ActiveProfile { get; set; }
         #endregion
 
         private delegate void TextCallBack(string text);
-        private delegate void ProfileCallBack(bool refresh);
+        private delegate void ProfileCallBack();
         private Process? server;
         private Process game;
         private STATE serverState = STATE.OFFLINE;
@@ -60,21 +55,12 @@ namespace WinFormsApp1
         {
             InitializeComponent();
             serverURL = "127.0.0.1:" + port;
-            _timer.Interval = 60 * 1000;
-            _timer.Tick += TimerInterval;
-            _timer.Start();
             form = this;
         }
 
-        public void UpdateLocale(LANG lang)
+        public void StartUp()
         {
-            language = lang;
-            Paths.localesFile = $"{Paths.databasePath}/locales/global/{language}.json";
-        }
-
-        public async void StartUp()
-        {
-            BindToAkiAsync(); // call this to another thread
+            _ = BindToAkiAsync(); // call this to another thread
             Paths.Initialize(debug);
             md = new ModDownloader();
             Config.Load();
@@ -82,9 +68,12 @@ namespace WinFormsApp1
             Traders.Initialize();
             TarkovCache.Initialize();
             ModManager.LoadMods();
+            Cache.Initialize();
+            BackupManager.Initialize();
             DisplayMods();
             UpdateModsButton();
             UpdateSettingsValues();
+            LoadToolTips();
         }
 
         public static void DisplayMods()
@@ -100,40 +89,53 @@ namespace WinFormsApp1
             BackUpInterval.Value = Config.GetBackupInterval();
             minimizeCheck.Checked = Config.file.MinimizeOnLaunch;
             ImageCachingCheck.Checked = Config.file.ImageCaching;
+            LangBox.Items.Clear();
+            foreach (LANG lang in Enum.GetValues(typeof(LANG))) LangBox.Items.Add(lang);
+            LangBox.SelectedItem = Config.file.Lang;
+        }
+
+        private void EnableStartServerButton()
+        {
+            if (startServerButton.InvokeRequired)
+            {
+                startServerButton.BeginInvoke((MethodInvoker)delegate
+                {
+                    startServerButton.Enabled = true;
+                });
+            }
+            else
+            {
+                startServerButton.Enabled = true;
+            }
         }
 
         public async Task BindToAkiAsync()
         {
             log("Attemping to bind to Aki.");
-            await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
-            si = ServerManager.SelectedServer;
+            SetState(STATE.BINDING);
+            startServerButton.Enabled = false;
             Process[] processes = GetServerProcesses();
             if (processes.Length > 0)
             {
-                SetState(STATE.ONLINE);
                 log("Detected active Aki.");
+                killServerButton.Enabled = true;
+                await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
+                si = ServerManager.SelectedServer;
+                if (ServerManager.PingServer()) SetState(STATE.ONLINE);
+                else SetState(STATE.OFFLINE);
             }
             else
             {
                 log("Active Aki not detected.");
                 if (autoStartCheckBox.Checked) LaunchServer();
-                //server = new Process();
+                SetState(STATE.OFFLINE);
             }
             if (ServerManager.SelectedServer != null) StoreEditions();
+            EnableStartServerButton();
         }
-
         public static Process[] GetServerProcesses()
         {
             return Process.GetProcessesByName("Aki.Server");
-        }
-
-        public bool aliveCheck()
-        {
-            if (ServerManager.PingServer())
-            {
-                SetState(STATE.ONLINE);
-            }
-            return serverState == STATE.ONLINE;
         }
 
         public void OpenGameFolderCommand()
@@ -159,25 +161,27 @@ namespace WinFormsApp1
         private void Form1_Load(object sender, EventArgs e)
         {
             StartUp();
-            LoadToolTips();
             activeGroupBox = groupBox3;
             Text += $" - {LauncherSettings.akiData.akiVersion}";
         }
 
+        #region ToolTips
+        ToolTip donationTip = new();
+        ToolTip bugTip = new();
+        ToolTip settingsTip = new();
+        ToolTip folderTip = new();
+        ToolTip imageCachingTip = new();
+        ToolTip serverButtonTip = new();
         public void LoadToolTips()
         {
-            ToolTip donationTip = new();
-            ToolTip bugTip = new();
-            ToolTip settingsTip = new();
-            ToolTip folderTip = new();
-            ToolTip imageCachingTip = new();
             donationTip.SetToolTip(donatePicture, "Donation!");
             bugTip.SetToolTip(BugsFeedbackBox, "Bug Reports & Feedback");
             settingsTip.SetToolTip(SettingsButton, "Settings");
             folderTip.SetToolTip(OpenFolderButton, "Open Game Folder");
             imageCachingTip.SetToolTip(ImageCachingCheck, "Toggles Mod Manager Image Caching");
+            serverButtonTip.SetToolTip(startServerButton, "Start Server");
         }
-
+        #endregion
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (serverState == STATE.ONLINE || serverState == STATE.STARTING)
@@ -234,6 +238,7 @@ namespace WinFormsApp1
             startServerButton.Enabled = true;
             killServerButton.Enabled = false;
             SetState(STATE.OFFLINE);
+            startup = true;
             Debug.Write("Killing Servers");
         }
 
@@ -273,7 +278,8 @@ namespace WinFormsApp1
                 else if (text.Contains(serverURL) && !inUse && serverState != STATE.ONLINE)
                 {
                     SetState(STATE.ONLINE);
-                    LoadProfiles(true);
+                    StoreEditions();
+                    LoadProfiles();
                 }
             }
         }
@@ -295,6 +301,7 @@ namespace WinFormsApp1
 
         public void SetState(STATE state)
         {
+            ToolTip tip = new();
             switch (state)
             {
                 case STATE.OFFLINE:
@@ -306,8 +313,6 @@ namespace WinFormsApp1
                     startServerButton.Enabled = false;
                     killServerButton.Enabled = true;
                     groupBox1.Enabled = true;
-                    StoreEditions();
-                    bypass = false;
                     break;
                 case STATE.STARTING:
                     startServerButton.Enabled = false;
@@ -325,14 +330,8 @@ namespace WinFormsApp1
                 ServerManager.LoadServer(LauncherSettingsProvider.Instance.Server.Url);
             if (!ServerManager.PingServer()) return;
             if (ServerManager.SelectedServer == null) return;
-            editions = ServerManager.SelectedServer.editions;
             editionsBox.Items.Clear();
-            editionsBox.Items.AddRange(editions);
-        }
-
-        public void TimerInterval(object sender, EventArgs e)
-        {
-            BackupCheck();
+            editionsBox.Items.AddRange(ServerManager.SelectedServer.editions);
         }
 
         public static bool Ping()
@@ -369,38 +368,18 @@ namespace WinFormsApp1
             return AccountManager.GetExistingProfiles();
         }
 
-        public void LoadProfiles(bool refresh = true)
+        public void LoadProfiles()
         {
-            if (refresh) profilesList.Items.Clear();
+            profilesList.Items.Clear();
             ServerProfileInfo[] profiles = GetServerProfileInfos();
             if (profilesList.InvokeRequired)
             {
                 ProfileCallBack d = new ProfileCallBack(LoadProfiles);
                 Invoke(d, new object[] { d });
             }
-            else
-            {
-                for (int i = 0; i < profiles.Length; i++)
-                {
-                    ServerProfileInfo profile = profiles[i];
-                    int index = profilesList.Items.Add(profile.username);
-                    if (checkBox1.Checked) cacheProfile(profile.username, index);
-                }
-            }
-            if (profilesList.Items.Count >= 1) profilesList.SelectedIndex = 0;
+            else foreach (var profile in profiles) profilesList.Items.Add(new Profile(profile));
+            if (profilesList.Items.Count > 0) profilesList.SelectedIndex = 0;
             profilesList.Items.Add("New Profile...");
-            bypass = true;
-            StoreEditions();
-            bypass = false;
-        }
-
-        public void cacheProfile(string username, int index)
-        {
-            AccountManager.Login(username, "");
-            if (cachedProfiles.ContainsKey(index)) cachedProfiles.Remove(index);
-            cachedProfiles.Add(index, new Profile(AccountManager.SelectedAccount.id, AccountManager.SelectedProfileInfo, AccountManager.SelectedAccount));
-            AccountManager.Logout();
-            log("Offline cached profile " + username);
         }
 
         public void StartClient(string uid)
@@ -445,7 +424,7 @@ namespace WinFormsApp1
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            LoadProfiles(true);
+            LoadProfiles();
         }
 
         public void NewAccountCreation()
@@ -475,6 +454,7 @@ namespace WinFormsApp1
 
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            Profile? selectedProfile = (Profile)profilesList.SelectedItem;
             if (creatingAccount != -1)
             {
                 // remove the account in creation from the profilesList
@@ -488,29 +468,26 @@ namespace WinFormsApp1
                 NewAccountCreation();
                 return;
             }
-            AccountStatus status = AccountManager.Login(profilesList.SelectedItem.ToString(), "");
-            if (status == AccountStatus.OK)
-            {
-                ProfileInfo info = AccountManager.SelectedProfileInfo;
-                AccountInfo account = AccountManager.SelectedAccount;
-                selectedCharacter = new Character(account.id);
-                comboBox1.Items.Clear();
-                foreach (Skill skill in selectedCharacter.getSkills().Values)
-                {
-                    comboBox1.Items.Add(skill.getName());
-                }
-                if (comboBox1.Items.Count > 0) comboBox1.SelectedIndex = 0;
-                nameLabel.Text = "Name: " + info.Nickname + " (" + info.Side.ToUpper() + ")";
-                IDLabel.Text = "ID: " + account.id;
-                editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
-                expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
-                factionImage.ImageLocation = info.SideImage;
-                backupCheckBox.Checked = Config.BackupState();
-            }
-            else
-            {
-                log("Error viewing account, Aki down?");
-            }
+            if (selectedProfile == null) return;
+            if (selectedProfile.Login() == AccountStatus.OK) LoadProfileInfo();
+        }
+
+        public void LoadProfileInfo()
+        {
+            ProfileInfo info = AccountManager.SelectedProfileInfo;
+            AccountInfo account = AccountManager.SelectedAccount;
+            selectedCharacter = new Character(account.id);
+            nameLabel.Text = "Name: " + info.Nickname + " (" + info.Side.ToUpper() + ")";
+            IDLabel.Text = "ID: " + account.id;
+            editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
+            expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
+            factionImage.ImageLocation = info.SideImage;
+            editionsBox.SelectedItem = account.edition;
+            //skills
+            comboBox1.Items.Clear();
+            foreach (Skill skill in selectedCharacter.getSkills().Values) comboBox1.Items.Add(skill.getName());
+            if (comboBox1.Items.Count > 0) comboBox1.SelectedIndex = 0;
+
         }
 
         public void scrollToBottom()
@@ -523,7 +500,7 @@ namespace WinFormsApp1
         {
             ToggleWipe(AccountManager.SelectedAccount.id);
             //AccountManager.Wipe(AccountManager.SelectedAccount.edition); // stuck with the first selected edition for now
-            LoadProfiles(true);
+            LoadProfiles();
         }
 
         public void ToggleWipe(string id)
@@ -571,6 +548,7 @@ namespace WinFormsApp1
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ActiveProfile = GetSelectedProfile();
             Skill selectedSkill = selectedCharacter.getSkillByID(comboBox1.SelectedItem.ToString());
             skillDescriptionLabel.Text = selectedSkill.getDescription();
             skillProgressTextBox.Text = selectedSkill.getProgress();
@@ -584,11 +562,6 @@ namespace WinFormsApp1
         }
         #endregion
 
-        private void ToolsButton_Click(object sender, EventArgs e)
-        {
-            BackupCheck();
-        }
-
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -598,7 +571,9 @@ namespace WinFormsApp1
         private void button4_Click(object sender, EventArgs e)
         {
             Config.SetApiKey(textBox1.Text);
+            Config.SetLang((LANG)LangBox.SelectedIndex);
             Config.SetBackupInterval((int)BackUpInterval.Value);
+            Config.file.Backups = profileBackupCheckBox.Checked;
             Config.file.MinimizeOnLaunch = minimizeCheck.Checked;
             Config.save();
         }
@@ -617,15 +592,14 @@ namespace WinFormsApp1
 
         private void button13_Click(object sender, EventArgs e)
         {
-            if (GetSelectedProfile() == null) return;
-            GetSelectedProfile().GetEncyclopedia().Show();
+            Profile? profile = GetSelectedProfile();
+            if (profile == null) return;
+            profile.GetEncyclopedia().Show();
         }
 
-        public static Profile GetSelectedProfile()
+        public Profile? GetSelectedProfile()
         {
-            int index = form.profilesList.SelectedIndex;
-            if (index == -1 || index > form.profilesList.Items.Count) return null;
-            return form.cachedProfiles[form.profilesList.SelectedIndex];
+            return (Profile)profilesList.SelectedItem;
         }
 
         private void button14_Click(object sender, EventArgs e)
@@ -754,18 +728,6 @@ namespace WinFormsApp1
         #endregion
 
         #region Backup Manager
-        public void BackupCheck()
-        {
-            Profile selectedProfile = GetSelectedProfile();
-            if (selectedProfile == null || !profileBackupCheckBox.Checked) return;
-            string id = selectedProfile.getAccountInfo().id;
-            DateTime startTime = Config.GetLastBackupTime();
-            DateTime now = DateTime.Now;
-            TimeSpan interval = TimeSpan.FromMinutes((double)BackUpInterval.Value);
-            TimeSpan difference = now - startTime;
-            if (difference >= interval) BackupManager.CreateProfileBackup(id, now, "Auto-Backup Created");
-        }
-
         private void button5_Click(object sender, EventArgs e)
         {
             BackupGroup.Enabled = !BackupGroup.Enabled;
@@ -788,103 +750,85 @@ namespace WinFormsApp1
         private void BackupsList_SelectedIndexChanged(object sender, EventArgs e)
         {
             bool enabled = true;
-            if (BackupProfiles.SelectedIndex == -1 || BackupDatesBox.SelectedIndex == -1 || BackupsList.SelectedIndex == -1) enabled = false;
+            if (BackupProfiles.SelectedIndex == -1 || YearBox.SelectedIndex == -1 || BackupsList.SelectedIndex == -1) enabled = false;
             RestoreBackupButton.Enabled = enabled;
             SaveRestoreButton.Enabled = enabled;
         }
 
         private void BackupProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (BackupProfiles.SelectedIndex != -1) LoadBackupDates();
-            BackupDatesBox.Enabled = BackupProfiles.SelectedIndex != -1;
-            BackupsList.Enabled = BackupProfiles.SelectedIndex != -1 || BackupDatesBox.SelectedIndex != -1;
+            if (BackupProfiles.SelectedIndex != -1) LoadYearValues();
+            YearBox.Enabled = BackupProfiles.SelectedIndex != -1;
+            BackupsList.Enabled = BackupProfiles.SelectedIndex != -1 || YearBox.SelectedIndex != -1;
         }
-
-        private void BackupDatesBox_SelectedIndexChanged(object sender, EventArgs e)
+        public void LoadYearValues()
         {
-            if (BackupDatesBox.SelectedIndex != -1) LoadBackupList();
-            BackupsList.Enabled = BackupDatesBox.SelectedIndex != -1;
+            YearBox.Items.Clear();
+            YearBox.Items.AddRange(BackupManager.GetYearFolders(BackupProfiles.Text).ToArray());
+        }
+        public void LoadMonthValues()
+        {
+            MonthBox.Items.Clear();
+            MonthBox.Items.AddRange(BackupManager.GetMonthFolders(BackupProfiles.Text, int.Parse(YearBox.Text)).ToArray());
+        }
+        public void LoadDayValues()
+        {
+            DayBox.Items.Clear();
+            DayBox.Items.AddRange(BackupManager.GetDayFolders(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text)).ToArray());
         }
 
         private void RestoreBackupButton_Click(object sender, EventArgs e)
         {
-            string id = BackupProfiles.Text;
-            string date = BackupDatesBox.Text;
-            string backup = BackupsList.Text;
-            string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
-            BackupManager.RestoreBackup(id, backupPath);
+            int year = int.Parse(YearBox.SelectedText);
+            int month = int.Parse(MonthBox.SelectedText);
+            int day = int.Parse(DayBox.SelectedText);
+            string[] split = BackupsList.Text.Split(".");
+            int hour = int.Parse(split[0]);
+            int minute = int.Parse(split[1]);
+            int second = int.Parse(split[2]);
+            DateTime backupTime = new(year, month, day, hour, minute, second);
+            BackupManager.RestoreBackup(BackupProfiles.Text, backupTime);
         }
 
         private void SaveRestoreButton_Click(object sender, EventArgs e)
         {
             string id = BackupProfiles.Text;
-            string date = BackupDatesBox.Text;
-            string backup = BackupsList.Text;
-            string backupPath = $"{Paths.backupsPath}/{id}/{date}/{backup}";
+            int year = int.Parse(YearBox.Text);
+            int month = int.Parse(MonthBox.Text);
+            int day = int.Parse(DayBox.Text);
+            string[] split = BackupsList.Text.Split(".");
+            int hour = int.Parse(split[0]);
+            int minute = int.Parse(split[1]);
+            int second = int.Parse(split[2]);
+            DateTime backupTime = new(year, month, day, hour, minute, second);
             BackupManager.CreateProfileBackup(id);
-            BackupManager.RestoreBackup(id, backupPath);
+            BackupManager.RestoreBackup(id, backupTime);
             ReloadBackupIndexes();
         }
 
-        public void ReloadBackupIndexes()
-        {
-            LoadBackupProfiles();
-            bool buttonState = true;
-            if (BackupProfiles.SelectedIndex != -1) LoadBackupDates();
-            else buttonState = false;
-            if (BackupDatesBox.SelectedIndex != -1) LoadBackupList();
-            else buttonState = false;
-            if (BackupsList.SelectedIndex == -1) buttonState = false;
-            SaveRestoreButton.Enabled = buttonState;
-            RestoreBackupButton.Enabled = buttonState;
-        }
-
-        public void LoadBackupProfiles()
-        {
-            int profileIndex = BackupProfiles.SelectedIndex;
-            BackupProfiles.Items.Clear();
-            foreach (string dir in Directory.GetDirectories(Paths.backupsPath)) BackupProfiles.Items.Add(Path.GetFileName(dir));
-            if (BackupProfiles.Items.Count == 1) BackupProfiles.SelectedIndex = 0;
-            else if (BackupProfiles.Items.Count > 0 && BackupProfiles.Items.Count >= profileIndex) BackupProfiles.SelectedIndex = profileIndex;
-        }
-
-        public void LoadBackupDates()
-        {
-            int index = BackupDatesBox.SelectedIndex;
-            BackupDatesBox.Items.Clear();
-            foreach (string dateDir in Directory.GetDirectories($"{Paths.backupsPath}/{BackupProfiles.Text}")) BackupDatesBox.Items.Add(Path.GetFileName(dateDir));
-            if (BackupDatesBox.Items.Count == 1) BackupDatesBox.SelectedIndex = 0;
-            else if (BackupDatesBox.Items.Count > 0 && BackupDatesBox.Items.Count >= index) BackupDatesBox.SelectedIndex = index;
-        }
-
-        public void LoadBackupList()
-        {
-            int index = BackupsList.SelectedIndex;
+        public void ReloadBackupIndexes() {
+            string id = BackupProfiles.Text;
+            int year = int.Parse(YearBox.Text);
+            int month = int.Parse(MonthBox.Text);
+            int day = int.Parse(DayBox.Text);
+            DateTime backupTime = new(year, month, day);
             BackupsList.Items.Clear();
-            foreach (string timeFile in Directory.GetFiles($"{Paths.backupsPath}/{BackupProfiles.Text}/{BackupDatesBox.Text}")) BackupsList.Items.Add(Path.GetFileName(timeFile));
-            if (BackupsList.Items.Count == 1) BackupsList.SelectedIndex = 0;
-            else if (BackupsList.Items.Count > 0 && BackupsList.Items.Count >= index) BackupsList.SelectedIndex = index;
+            BackupsList.Items.AddRange(BackupManager.GetProfileBackups(id, backupTime).ToArray());
         }
+
         #endregion
-
-        private void backupCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            Profile profile = GetSelectedProfile();
-            if (profile == null) return;
-            backupCheckBox.Checked = Config.ToggleBackups();
-        }
-
-        bool bypass = true;
         private void editionsBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Profile profile = GetSelectedProfile();
-            if (bypass || profile == null || editionsBox.SelectedIndex == -1) return;
-            if (!profile.getAccountInfo().wipe) if (MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
+            Profile? profile = GetSelectedProfile();
+            AccountInfo? accountInfo = profile?.accountInfo;
+            if (startup) { startup = false; return; }
+            if (profile == null || accountInfo == null || editionsBox.SelectedIndex == -1) return;
+            if (!accountInfo.wipe) if (MessageBox.Show("Changing Editions will WIPE your profile data! DO NOT change editions if you want to keep your profile data!", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
             string edition = editionsBox.SelectedText;
             AccountManager.SelectedAccount.edition = edition;
             AccountManager.WipeAsync(edition);
             AccountManager.UpdateProfileInfo();
-            log($"Changed {profile.getAccountInfo().nickname} to {edition}");
+            log($"Changed {accountInfo.nickname} to {edition}");
             LoadProfiles();
             // do edition change stuff here
 
@@ -938,9 +882,12 @@ namespace WinFormsApp1
             fb.Show();
         }
 
+        NodeViewer nv;
         private void OpenFolderButton_Click(object sender, EventArgs e)
         {
-            ModManager.CreateSymbolicLink(@$"{Paths.modManagerFolder}/Plugins/AmandsSense/", @$"{Paths.pluginsFolder}/");
+            nv ??= new NodeViewer();
+            nv.Show();
+            //ModManager.CreateSymbolicLink(@$"{Paths.modManagerFolder}/Plugins/AmandsSense/", @$"{Paths.pluginsFolder}/");
             //OpenGameFolderCommand();
         }
 
@@ -952,6 +899,32 @@ namespace WinFormsApp1
         private void ImageCachingCheck_CheckedChanged(object sender, EventArgs e)
         {
             Config.SetImageCache(ImageCachingCheck.Checked);
+        }
+
+        private void BackupDatesBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BackupValidityCheck();
+            if (YearBox.SelectedIndex != 1) LoadMonthValues();
+        }
+
+        private void MonthBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BackupValidityCheck();
+            if (MonthBox.SelectedIndex != 1) LoadDayValues();
+        }
+
+        private void DayBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BackupValidityCheck();
+            if (DayBox.SelectedIndex != -1) ReloadBackupIndexes();
+        }
+
+        public void BackupValidityCheck()
+        {
+            BackupsList.Enabled = DayBox.SelectedIndex != -1;
+            DayBox.Enabled = MonthBox.SelectedIndex != -1;
+            MonthBox.Enabled = YearBox.SelectedIndex != -1;
+            YearBox.Enabled = BackupProfiles.SelectedIndex != -1;
         }
     }
 }

@@ -44,6 +44,12 @@
             downloadProgress = new ProgressBar();
             DownloadLabel = new Label();
             SearchBox = new TextBox();
+            label1 = new Label();
+            AkiVersionsBox = new ComboBox();
+            FilterDescriptionCheck = new CheckBox();
+            FilterVersionCheck = new CheckBox();
+            FilterAuthorCheck = new CheckBox();
+            FilterNameCheck = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -62,7 +68,7 @@
             // Author
             // 
             Author.AutoSize = true;
-            Author.Location = new Point(395, 20);
+            Author.Location = new Point(395, 49);
             Author.Name = "Author";
             Author.Size = new Size(76, 15);
             Author.TabIndex = 1;
@@ -71,7 +77,7 @@
             // AkiVersion
             // 
             AkiVersion.AutoSize = true;
-            AkiVersion.Location = new Point(395, 35);
+            AkiVersion.Location = new Point(395, 64);
             AkiVersion.Name = "AkiVersion";
             AkiVersion.Size = new Size(98, 15);
             AkiVersion.TabIndex = 2;
@@ -79,7 +85,7 @@
             // 
             // DownloadModButton
             // 
-            DownloadModButton.Location = new Point(245, 150);
+            DownloadModButton.Location = new Point(245, 179);
             DownloadModButton.Name = "DownloadModButton";
             DownloadModButton.Size = new Size(75, 23);
             DownloadModButton.TabIndex = 3;
@@ -90,7 +96,7 @@
             // linkLabel1
             // 
             linkLabel1.AutoSize = true;
-            linkLabel1.Location = new Point(680, 5);
+            linkLabel1.Location = new Point(395, 154);
             linkLabel1.Name = "linkLabel1";
             linkLabel1.Size = new Size(49, 15);
             linkLabel1.TabIndex = 4;
@@ -101,7 +107,7 @@
             // 
             // ModImage
             // 
-            ModImage.Location = new Point(245, 1);
+            ModImage.Location = new Point(245, 30);
             ModImage.Name = "ModImage";
             ModImage.Size = new Size(144, 144);
             ModImage.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -111,7 +117,7 @@
             // ModName
             // 
             ModName.AutoSize = true;
-            ModName.Location = new Point(395, 5);
+            ModName.Location = new Point(395, 34);
             ModName.Name = "ModName";
             ModName.Size = new Size(77, 15);
             ModName.TabIndex = 6;
@@ -119,16 +125,16 @@
             // 
             // Description
             // 
-            Description.Location = new Point(245, 206);
+            Description.Location = new Point(245, 235);
             Description.Name = "Description";
-            Description.Size = new Size(484, 213);
+            Description.Size = new Size(484, 181);
             Description.TabIndex = 7;
             Description.Text = "";
             // 
             // lastUpdated
             // 
             lastUpdated.AutoSize = true;
-            lastUpdated.Location = new Point(395, 50);
+            lastUpdated.Location = new Point(395, 79);
             lastUpdated.Name = "lastUpdated";
             lastUpdated.Size = new Size(156, 15);
             lastUpdated.TabIndex = 8;
@@ -137,7 +143,7 @@
             // Downloads
             // 
             Downloads.AutoSize = true;
-            Downloads.Location = new Point(395, 65);
+            Downloads.Location = new Point(395, 94);
             Downloads.Name = "Downloads";
             Downloads.Size = new Size(78, 15);
             Downloads.TabIndex = 9;
@@ -146,7 +152,7 @@
             // Reviews
             // 
             Reviews.AutoSize = true;
-            Reviews.Location = new Point(395, 80);
+            Reviews.Location = new Point(395, 109);
             Reviews.Name = "Reviews";
             Reviews.Size = new Size(61, 15);
             Reviews.TabIndex = 10;
@@ -155,7 +161,7 @@
             // Rating
             // 
             Rating.AutoSize = true;
-            Rating.Location = new Point(395, 95);
+            Rating.Location = new Point(395, 124);
             Rating.Name = "Rating";
             Rating.Size = new Size(81, 15);
             Rating.TabIndex = 11;
@@ -164,7 +170,7 @@
             // Ratings
             // 
             Ratings.AutoSize = true;
-            Ratings.Location = new Point(395, 110);
+            Ratings.Location = new Point(395, 139);
             Ratings.Name = "Ratings";
             Ratings.Size = new Size(58, 15);
             Ratings.TabIndex = 12;
@@ -172,7 +178,7 @@
             // 
             // downloadProgress
             // 
-            downloadProgress.Location = new Point(245, 177);
+            downloadProgress.Location = new Point(245, 206);
             downloadProgress.Name = "downloadProgress";
             downloadProgress.Size = new Size(484, 23);
             downloadProgress.Style = ProgressBarStyle.Continuous;
@@ -181,7 +187,7 @@
             // DownloadLabel
             // 
             DownloadLabel.AutoSize = true;
-            DownloadLabel.Location = new Point(326, 156);
+            DownloadLabel.Location = new Point(326, 185);
             DownloadLabel.Name = "DownloadLabel";
             DownloadLabel.Size = new Size(111, 15);
             DownloadLabel.TabIndex = 15;
@@ -196,11 +202,79 @@
             SearchBox.TabIndex = 16;
             SearchBox.TextChanged += SearchBox_TextChanged;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(372, 4);
+            label1.Name = "label1";
+            label1.Size = new Size(41, 15);
+            label1.TabIndex = 17;
+            label1.Text = "Filters:";
+            // 
+            // AkiVersionsBox
+            // 
+            AkiVersionsBox.FormattingEnabled = true;
+            AkiVersionsBox.Location = new Point(245, 1);
+            AkiVersionsBox.Name = "AkiVersionsBox";
+            AkiVersionsBox.Size = new Size(121, 23);
+            AkiVersionsBox.TabIndex = 18;
+            AkiVersionsBox.SelectedIndexChanged += AkiVersionsBox_SelectedIndexChanged;
+            // 
+            // FilterDescriptionCheck
+            // 
+            FilterDescriptionCheck.AutoSize = true;
+            FilterDescriptionCheck.Location = new Point(419, 4);
+            FilterDescriptionCheck.Name = "FilterDescriptionCheck";
+            FilterDescriptionCheck.Size = new Size(86, 19);
+            FilterDescriptionCheck.TabIndex = 19;
+            FilterDescriptionCheck.Text = "Description";
+            FilterDescriptionCheck.UseVisualStyleBackColor = true;
+            FilterDescriptionCheck.CheckedChanged += FilterDescriptionCheck_CheckedChanged;
+            // 
+            // FilterVersionCheck
+            // 
+            FilterVersionCheck.AutoSize = true;
+            FilterVersionCheck.Location = new Point(511, 4);
+            FilterVersionCheck.Name = "FilterVersionCheck";
+            FilterVersionCheck.Size = new Size(64, 19);
+            FilterVersionCheck.TabIndex = 20;
+            FilterVersionCheck.Text = "Version";
+            FilterVersionCheck.UseVisualStyleBackColor = true;
+            FilterVersionCheck.CheckedChanged += FilterVersionCheck_CheckedChanged;
+            // 
+            // FilterAuthorCheck
+            // 
+            FilterAuthorCheck.AutoSize = true;
+            FilterAuthorCheck.Location = new Point(581, 4);
+            FilterAuthorCheck.Name = "FilterAuthorCheck";
+            FilterAuthorCheck.Size = new Size(63, 19);
+            FilterAuthorCheck.TabIndex = 21;
+            FilterAuthorCheck.Text = "Author";
+            FilterAuthorCheck.UseVisualStyleBackColor = true;
+            FilterAuthorCheck.CheckedChanged += FilterAuthorCheck_CheckedChanged;
+            // 
+            // FilterNameCheck
+            // 
+            FilterNameCheck.AutoSize = true;
+            FilterNameCheck.Location = new Point(650, 4);
+            FilterNameCheck.Name = "FilterNameCheck";
+            FilterNameCheck.Size = new Size(58, 19);
+            FilterNameCheck.TabIndex = 22;
+            FilterNameCheck.Text = "Name";
+            FilterNameCheck.UseVisualStyleBackColor = true;
+            FilterNameCheck.CheckedChanged += FilterNameCheck_CheckedChanged;
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 420);
+            Controls.Add(FilterNameCheck);
+            Controls.Add(FilterAuthorCheck);
+            Controls.Add(FilterVersionCheck);
+            Controls.Add(FilterDescriptionCheck);
+            Controls.Add(AkiVersionsBox);
+            Controls.Add(label1);
             Controls.Add(SearchBox);
             Controls.Add(DownloadLabel);
             Controls.Add(downloadProgress);
@@ -244,5 +318,11 @@
         private ProgressBar downloadProgress;
         private Label DownloadLabel;
         private TextBox SearchBox;
+        private Label label1;
+        private ComboBox AkiVersionsBox;
+        private CheckBox FilterDescriptionCheck;
+        private CheckBox FilterVersionCheck;
+        private CheckBox FilterAuthorCheck;
+        private CheckBox FilterNameCheck;
     }
 }

@@ -42,7 +42,6 @@ namespace SPTLauncher.Components
         public static Dictionary<string, CachedItem> itemCache = new Dictionary<string, CachedItem>(); // itemID, cached item
         public static Dictionary<string, CachedQuest> questCache = new();
         private static JObject nameCache = new JObject();
-        private static JObject names = new JObject();
         #region Filtering
         private static string[] blacklist = { "item", "weapon box", "stash", "equipment", "throwable weapon", "food and drink", "bear", "usec",
             "ammo", "functional mod", "pistolet", "pockets", "default inventory", "inventory", "secure folder", "bsample" };
@@ -75,6 +74,10 @@ namespace SPTLauncher.Components
         {
             Form1.log("Launcher-Cache File Check.");
             bool missing = false;
+            UpdateNameCache();
+            ItemCheck();
+            InitalizeQuestCache();
+            if (string.IsNullOrWhiteSpace(Config.file.apiKey)) return;
             foreach (CacheType cacheType in Enum.GetValues<CacheType>())
             {
                 //Debug.Write("Iterating " + cacheType);
@@ -87,9 +90,6 @@ namespace SPTLauncher.Components
                 else caches[cacheType] = cachePath;
             }
             if (!missing) Form1.log("All files cached.");
-            UpdateNameCache();
-            ItemCheck();
-            InitalizeQuestCache();
         }
 
         private static string ReadQuestsFile()

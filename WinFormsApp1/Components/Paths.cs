@@ -4,7 +4,7 @@ namespace SPTLauncher.Components
 {
     internal class Paths
     {
-        public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath,
+        public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath, itemsPath,
             gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, iconsPath, iconsCachePath, localesFile, databasePath, serverPath, serverConfigsPath;
 
         public static void Initialize(bool debug = false)
@@ -25,11 +25,12 @@ namespace SPTLauncher.Components
             gatoPath = $"{cachePath}/gato";
             backupsPath = $"{cachePath}/backups";
             databasePath = $"{serverPath}/database";
+            itemsPath = $"{databasePath}/templates/items.json";
             downloadingPath = $"{modManagerFolder}/downloading";
             disabledModsPath = $"{modManagerFolder}/disabled";
             serverConfigsPath = $"{serverPath}/configs";
             productionPath = $"{databasePath}/hideout/production.json"; // - aki json file, should exist already nor should I make it
-            localesFile = $"{databasePath}/locales/global/{Form1.language}.json";
+            localesFile = $"{databasePath}/locales/global/{Config.file.Lang}.json";
             PathCheck();
         }
 

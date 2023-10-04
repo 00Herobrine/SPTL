@@ -31,7 +31,6 @@
             groupBox1 = new GroupBox();
             DeleteProfileButton = new Button();
             editionsBox = new ComboBox();
-            backupCheckBox = new CheckBox();
             button13 = new Button();
             IDLabel = new Label();
             button11 = new Button();
@@ -59,6 +58,8 @@
             comboBox1 = new ComboBox();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
+            label11 = new Label();
+            LangBox = new ComboBox();
             ImageCachingCheck = new CheckBox();
             BugsFeedbackBox = new PictureBox();
             donatePicture = new PictureBox();
@@ -98,8 +99,10 @@
             ModConfig = new Button();
             modsListBox = new ListBox();
             BackupGroup = new GroupBox();
+            DayBox = new ComboBox();
+            MonthBox = new ComboBox();
             label9 = new Label();
-            BackupDatesBox = new ComboBox();
+            YearBox = new ComboBox();
             BackupsList = new ListBox();
             SaveRestoreButton = new Button();
             RestoreBackupButton = new Button();
@@ -125,7 +128,6 @@
             // 
             groupBox1.Controls.Add(DeleteProfileButton);
             groupBox1.Controls.Add(editionsBox);
-            groupBox1.Controls.Add(backupCheckBox);
             groupBox1.Controls.Add(button13);
             groupBox1.Controls.Add(IDLabel);
             groupBox1.Controls.Add(button11);
@@ -170,17 +172,6 @@
             editionsBox.Size = new Size(160, 23);
             editionsBox.TabIndex = 29;
             editionsBox.SelectedIndexChanged += editionsBox_SelectedIndexChanged;
-            // 
-            // backupCheckBox
-            // 
-            backupCheckBox.AutoSize = true;
-            backupCheckBox.Location = new Point(57, 18);
-            backupCheckBox.Name = "backupCheckBox";
-            backupCheckBox.Size = new Size(81, 19);
-            backupCheckBox.TabIndex = 28;
-            backupCheckBox.Text = "Auto-Save";
-            backupCheckBox.UseVisualStyleBackColor = true;
-            backupCheckBox.CheckedChanged += backupCheckBox_CheckedChanged;
             // 
             // button13
             // 
@@ -440,6 +431,8 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(label11);
+            settingsGroup.Controls.Add(LangBox);
             settingsGroup.Controls.Add(ImageCachingCheck);
             settingsGroup.Controls.Add(BugsFeedbackBox);
             settingsGroup.Controls.Add(donatePicture);
@@ -462,6 +455,23 @@
             settingsGroup.TabStop = false;
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(185, 165);
+            label11.Name = "label11";
+            label11.Size = new Size(62, 15);
+            label11.TabIndex = 39;
+            label11.Text = "Language:";
+            // 
+            // LangBox
+            // 
+            LangBox.FormattingEnabled = true;
+            LangBox.Location = new Point(186, 183);
+            LangBox.Name = "LangBox";
+            LangBox.Size = new Size(61, 23);
+            LangBox.TabIndex = 31;
             // 
             // ImageCachingCheck
             // 
@@ -809,7 +819,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = SPTLauncher.Properties.Resources.down;
-            pictureBox1.Location = new Point(757, 612);
+            pictureBox1.Location = new Point(745, 613);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(32, 32);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
@@ -871,8 +881,10 @@
             // 
             // BackupGroup
             // 
+            BackupGroup.Controls.Add(DayBox);
+            BackupGroup.Controls.Add(MonthBox);
             BackupGroup.Controls.Add(label9);
-            BackupGroup.Controls.Add(BackupDatesBox);
+            BackupGroup.Controls.Add(YearBox);
             BackupGroup.Controls.Add(BackupsList);
             BackupGroup.Controls.Add(SaveRestoreButton);
             BackupGroup.Controls.Add(RestoreBackupButton);
@@ -886,24 +898,44 @@
             BackupGroup.TabStop = false;
             BackupGroup.Text = "Restore Backup";
             // 
+            // DayBox
+            // 
+            DayBox.Enabled = false;
+            DayBox.FormattingEnabled = true;
+            DayBox.Location = new Point(145, 55);
+            DayBox.Name = "DayBox";
+            DayBox.Size = new Size(56, 23);
+            DayBox.TabIndex = 13;
+            DayBox.SelectedIndexChanged += DayBox_SelectedIndexChanged;
+            // 
+            // MonthBox
+            // 
+            MonthBox.Enabled = false;
+            MonthBox.FormattingEnabled = true;
+            MonthBox.Location = new Point(83, 55);
+            MonthBox.Name = "MonthBox";
+            MonthBox.Size = new Size(56, 23);
+            MonthBox.TabIndex = 12;
+            MonthBox.SelectedIndexChanged += MonthBox_SelectedIndexChanged;
+            // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(6, 54);
+            label9.Location = new Point(6, 40);
             label9.Name = "label9";
             label9.Size = new Size(34, 15);
             label9.TabIndex = 11;
             label9.Text = "Date:";
             // 
-            // BackupDatesBox
+            // YearBox
             // 
-            BackupDatesBox.Enabled = false;
-            BackupDatesBox.FormattingEnabled = true;
-            BackupDatesBox.Location = new Point(56, 51);
-            BackupDatesBox.Name = "BackupDatesBox";
-            BackupDatesBox.Size = new Size(166, 23);
-            BackupDatesBox.TabIndex = 10;
-            BackupDatesBox.SelectedIndexChanged += BackupDatesBox_SelectedIndexChanged;
+            YearBox.Enabled = false;
+            YearBox.FormattingEnabled = true;
+            YearBox.Location = new Point(21, 55);
+            YearBox.Name = "YearBox";
+            YearBox.Size = new Size(56, 23);
+            YearBox.TabIndex = 10;
+            YearBox.SelectedIndexChanged += BackupDatesBox_SelectedIndexChanged;
             // 
             // BackupsList
             // 
@@ -1062,7 +1094,7 @@
         private Button RestoreBackupButton;
         private ListBox BackupsList;
         private Label label9;
-        private ComboBox BackupDatesBox;
+        private ComboBox YearBox;
         private CheckBox backupCheckBox;
         private ComboBox editionsBox;
         private CheckBox minimizeCheck;
@@ -1077,5 +1109,9 @@
         private PictureBox OpenFolderButton;
         private PictureBox SettingsButton;
         private CheckBox ImageCachingCheck;
+        private ComboBox LangBox;
+        private Label label11;
+        private ComboBox DayBox;
+        private ComboBox MonthBox;
     }
 }

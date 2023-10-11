@@ -4,9 +4,7 @@ using Aki.Launcher.Models.Launcher;
 using Aki.Launcher.Helpers;
 using System.Text;
 using Aki.Launcher.Models.Aki;
-using WinFormsApp1.Constructors;
 using Newtonsoft.Json.Linq;
-using SPTLauncher.Constructors;
 using SPTLauncher;
 using System.Text.RegularExpressions;
 using SPTLauncher.Components;
@@ -16,6 +14,8 @@ using SPTLauncher.Forms.Reporting;
 using SPTLauncher.Components.BackupManagement;
 using SPTLauncher.Components.Caching;
 using SPTLauncher.Forms;
+using SPTLauncher.Constructors.Profiles;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WinFormsApp1
 {
@@ -36,12 +36,11 @@ namespace WinFormsApp1
 
         #region Launcher Stuff
         private Config config;
-        private Character selectedCharacter;
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
         private int creatingAccount = -1;
-        public static Profile? ActiveProfile { get; set; }
+        public static Profile ActiveProfile { get; set; }
         #endregion
 
         private delegate void TextCallBack(string text);
@@ -70,16 +69,10 @@ namespace WinFormsApp1
             ModManager.LoadMods();
             Cache.Initialize();
             BackupManager.Initialize();
-            DisplayMods();
+            RenderMods();
             UpdateModsButton();
             UpdateSettingsValues();
             LoadToolTips();
-        }
-
-        public static void DisplayMods()
-        {
-            if (form == null) return;
-            foreach (Mod mod in ModManager.mods) form.modsListBox.Items.Add(mod);
         }
 
         public void UpdateSettingsValues()
@@ -223,7 +216,7 @@ namespace WinFormsApp1
                 server.EnableRaisingEvents = true;
                 server.Exited += Terminated;
                 server.Start();
-                log("Starting Aki...");
+                log($"Starting Aki... [ProcessID: {server.Id}]");
                 SetState(STATE.STARTING);
                 startServerButton.Enabled = false;
                 killServerButton.Enabled = true;
@@ -301,7 +294,6 @@ namespace WinFormsApp1
 
         public void SetState(STATE state)
         {
-            ToolTip tip = new();
             switch (state)
             {
                 case STATE.OFFLINE:
@@ -454,8 +446,8 @@ namespace WinFormsApp1
 
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Profile? selectedProfile = (Profile)profilesList.SelectedItem;
-            if (creatingAccount != -1)
+            ActiveProfile = (Profile?)profilesList.SelectedItem;
+            if (creatingAccount != -1) // -1 means no selectedProfile Index
             {
                 // remove the account in creation from the profilesList
                 profilesList.Items.RemoveAt(creatingAccount);
@@ -468,26 +460,30 @@ namespace WinFormsApp1
                 NewAccountCreation();
                 return;
             }
-            if (selectedProfile == null) return;
-            if (selectedProfile.Login() == AccountStatus.OK) LoadProfileInfo();
+            if (ActiveProfile == null) return;
+            if (ActiveProfile.Login() == AccountStatus.OK) LoadProfileInfo();
         }
 
-        public void LoadProfileInfo()
+        private void LoadProfileInfo(Profile? profile = null)
         {
-            ProfileInfo info = AccountManager.SelectedProfileInfo;
-            AccountInfo account = AccountManager.SelectedAccount;
-            selectedCharacter = new Character(account.id);
+            profile ??= ActiveProfile;
+            ProfileInfo info = profile.profileInfo;
+            AccountInfo account = profile.accountInfo;
             nameLabel.Text = "Name: " + info.Nickname + " (" + info.Side.ToUpper() + ")";
             IDLabel.Text = "ID: " + account.id;
             editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
             expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
             factionImage.ImageLocation = info.SideImage;
             editionsBox.SelectedItem = account.edition;
-            //skills
-            comboBox1.Items.Clear();
-            foreach (Skill skill in selectedCharacter.getSkills().Values) comboBox1.Items.Add(skill.getName());
-            if (comboBox1.Items.Count > 0) comboBox1.SelectedIndex = 0;
+            LoadProfileSkills();
 
+        }
+        private void LoadProfileSkills()
+        {
+            comboBox1.Items.Clear();
+            List<Skill> profileSkills = ActiveProfile.GetSkills != null ? ActiveProfile.GetSkills.Values.ToList() : new();
+            foreach (Skill skill in profileSkills) comboBox1.Items.Add(skill);
+            if (comboBox1.Items.Count > 0) comboBox1.SelectedIndex = 0;
         }
 
         public void scrollToBottom()
@@ -514,10 +510,6 @@ namespace WinFormsApp1
             File.WriteAllText(infoPath, newStats.ToString());
         }
 
-        public JToken getInfo(string id)
-        {
-            return getParsedJson(Paths.profilesFolder + "/" + id + ".json")["info"];
-        }
         public JObject getParsedJson(string file)
         {
             return JObject.Parse(File.ReadAllText(file));
@@ -541,24 +533,24 @@ namespace WinFormsApp1
             }
         }
 
-        private void settingsButton_Click(object sender, EventArgs e)
-        {
-        }
-
-
+        Dictionary<string, Skill> updatedSkills = new();
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ActiveProfile = GetSelectedProfile();
-            Skill selectedSkill = selectedCharacter.getSkillByID(comboBox1.SelectedItem.ToString());
-            skillDescriptionLabel.Text = selectedSkill.getDescription();
-            skillProgressTextBox.Text = selectedSkill.getProgress();
+            if (comboBox1.SelectedItem == null) return;
+            Skill selectedSkill = (Skill)comboBox1.SelectedItem;
+            skillProgressBox.Value = (decimal)selectedSkill.progress;
+        }
+        private void skillProgressBox_ValueChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem == null) return;
+            Skill selectedSkill = (Skill)comboBox1.SelectedItem;
+            updatedSkills[selectedSkill.name] = selectedSkill;
         }
 
         private void saveSkillsButton_Click(object sender, EventArgs e)
         {
-            Skill selectedSkill = selectedCharacter.getSkillByID(comboBox1.SelectedItem.ToString());
-            selectedSkill.setProgress(skillProgressTextBox.Text);
-            selectedCharacter.update(selectedSkill);
+            foreach (Skill skill in updatedSkills.Values) { log("Updated " + skill); ActiveProfile.GetSkills[skill.name] = skill; };
+            updatedSkills = new();
         }
         #endregion
 
@@ -686,9 +678,9 @@ namespace WinFormsApp1
         {
             Mod mod = GetSelectedMod();
             if (mod == null) return;
-            if (mod.HasConfig()) ModConfig.Enabled = true;
+            if (mod.HasConfig) ModConfig.Enabled = true;
             else ModConfig.Enabled = false;
-            if (mod.isEnabled()) button16.Text = "Disable";
+            if (mod.IsEnabled) button16.Text = "Disable";
             else button16.Text = "Enable";
             UpdateModsButton();
         }
@@ -709,20 +701,14 @@ namespace WinFormsApp1
             selectedMod = GetSelectedMod();
             GetSelectedMod().Toggle();
             RenderMods();
-            /*List<Mod> items = modsListBox.Items.Cast<Mod>().ToList();
-            List<Mod> sortedItems = items.OrderBy(item => item.GetName())
-                                       .ThenByDescending(item => item.IsPlugin())
-                                       .ToList();
-            modsListBox.Items.Clear();
-            foreach (Mod mod in sortedItems) modsListBox.Items.Add(mod);*/
             if (selectedMod != null) modsListBox.SelectedItem = selectedMod;
         }
 
         private void RenderMods(bool reorganize = true)
         {
             if (reorganize) ModManager.LoadMods();
-            modsListBox.Items.Clear();
-            foreach (Mod mod in ModManager.mods) modsListBox.Items.Add(mod);
+            ModsListCheckBox.Items.Clear();
+            foreach (Mod mod in ModManager.mods) ModsListCheckBox.Items.Add(mod, mod.IsEnabled);
         }
 
         #endregion
@@ -735,16 +721,6 @@ namespace WinFormsApp1
             {
                 LoadBackupsValues();
             }
-        }
-
-        public void LoadBackupsValues()
-        {
-            BackupProfiles.Items.Clear();
-            foreach (string dir in Directory.GetDirectories(Paths.backupsPath))
-            {
-                BackupProfiles.Items.Add(Path.GetFileName(dir));
-            }
-            if (BackupProfiles.Items.Count > 0) BackupProfiles.SelectedIndex = 0;
         }
 
         private void BackupsList_SelectedIndexChanged(object sender, EventArgs e)
@@ -765,6 +741,7 @@ namespace WinFormsApp1
         {
             YearBox.Items.Clear();
             YearBox.Items.AddRange(BackupManager.GetYearFolders(BackupProfiles.Text).ToArray());
+            if (YearBox.Items.Count == 1) YearBox.SelectedIndex = 0;
         }
         public void LoadMonthValues()
         {
@@ -775,6 +752,12 @@ namespace WinFormsApp1
         {
             DayBox.Items.Clear();
             DayBox.Items.AddRange(BackupManager.GetDayFolders(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text)).ToArray());
+        }
+        public void LoadBackupsValues()
+        {
+            BackupProfiles.Items.Clear();
+            BackupProfiles.Items.AddRange(BackupManager.GetProfileBackups(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text), int.Parse(DayBox.Text)).ToArray());
+            if (BackupProfiles.Items.Count > 0) BackupProfiles.SelectedIndex = 0;
         }
 
         private void RestoreBackupButton_Click(object sender, EventArgs e)
@@ -806,7 +789,8 @@ namespace WinFormsApp1
             ReloadBackupIndexes();
         }
 
-        public void ReloadBackupIndexes() {
+        public void ReloadBackupIndexes()
+        {
             string id = BackupProfiles.Text;
             int year = int.Parse(YearBox.Text);
             int month = int.Parse(MonthBox.Text);
@@ -830,8 +814,6 @@ namespace WinFormsApp1
             AccountManager.UpdateProfileInfo();
             log($"Changed {accountInfo.nickname} to {edition}");
             LoadProfiles();
-            // do edition change stuff here
-
         }
 
         private void button11_Click(object sender, EventArgs e)
@@ -843,7 +825,7 @@ namespace WinFormsApp1
         private void ModConfig_Click(object sender, EventArgs e)
         {
             Mod mod = GetSelectedMod();
-            string? path = mod.GetConfigPath();
+            string? path = mod.ConfigPath;
             if (mod == null || path == null) return;
             Process.Start("explorer.exe", path.Replace("/", "\\"));
         }
@@ -885,9 +867,9 @@ namespace WinFormsApp1
         NodeViewer nv;
         private void OpenFolderButton_Click(object sender, EventArgs e)
         {
-            nv ??= new NodeViewer();
-            nv.Show();
-            //ModManager.CreateSymbolicLink(@$"{Paths.modManagerFolder}/Plugins/AmandsSense/", @$"{Paths.pluginsFolder}/");
+            /*nv ??= new NodeViewer();
+            nv.Show();*/
+            log(ModManager.CreateJunction(@$"{Paths.downloadingPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
             //OpenGameFolderCommand();
         }
 

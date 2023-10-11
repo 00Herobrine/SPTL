@@ -7,6 +7,7 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Runtime.InteropServices;
 using SPTLauncher.Components.RecipeManagement;
 using Newtonsoft.Json;
+using Microsoft.Win32.SafeHandles;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -69,7 +70,7 @@ namespace SPTLauncher.Components.ModManagement
                 else
                 {
                     Mod mod = new(file);
-                    if (!mod.isEnabled()) disabledAmount++;
+                    if (!mod.IsEnabled) disabledAmount++;
                     mods.Add(mod);
                 }
             }
@@ -202,7 +203,7 @@ namespace SPTLauncher.Components.ModManagement
         }
 
         public static string[] allowedFileTypes =
-{
+        {
             "rar",
             "7z",
             "zip",
@@ -352,7 +353,6 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
-
         private static bool FileAlreadyDownloaded(string name)
         {
             return File.Exists($"{Paths.downloadingPath}/{name}");
@@ -366,33 +366,6 @@ namespace SPTLauncher.Components.ModManagement
                 URL = modDownload.URL,
                 AutoUpdate = false,
             };
-        }
-
-        public static void CreateSymbolicLink(string sourceDirName, string destDirName)
-        {
-                Form1.log("Creating Symlink of " + sourceDirName + " to " + destDirName);
-                bool linkCreated = CreateSymbolicLink(sourceDirName, destDirName, SymbolicLinkTarget.Directory);
-
-            if (linkCreated)
-            {
-                Form1.log("CreateSymbolicLink succeeded.");
-            }
-            else
-            {
-                int errorCode = Marshal.GetLastWin32Error();
-                Form1.log("CreateSymbolicLink failed with error code: " + errorCode);
-            }
-        }
-
-        // P/Invoke method to create a symbolic link
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLinkTarget dwFlags);
-
-        // Enum for symbolic link flags
-        private enum SymbolicLinkTarget
-        {
-            File = 0,
-            Directory = 1
         }
 
         public async static void WebRequestMods(int page = 1)
@@ -423,6 +396,44 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
+        }
+
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode)]
+        static extern bool CreateHardLink(string @lpFileName, string @lpExistingFileName, IntPtr lpSecurityAttributes); // references files
+        public static string CreateHardLink(string sourcePath, string targetPath)
+        {
+            Form1.log($"Paths: {sourcePath} -> {targetPath}");
+            bool success = CreateHardLink(Path.Combine(targetPath, Path.GetFileName(sourcePath)), sourcePath, IntPtr.Zero);
+            if (success) return "Hard link created successfully.";
+            return $"Error creating hard link: {Marshal.GetLastWin32Error()}";
+        }
+        public static string CreateJunction(string sourcePath, string targetPath) // symlink without the admin privileges
+        {
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.RedirectStandardInput = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                StreamWriter sw = process.StandardInput;
+                if (sw.BaseStream.CanWrite)
+                {
+                    sw.WriteLine($"mklink /J \"{Path.Combine(targetPath, Path.GetFileName(sourcePath))}\" \"{sourcePath}\"");
+                    sw.WriteLine("exit");
+                }
+
+                process.WaitForExit();
+                process.Close();
+
+                return "Junction created successfully!";
+            }
+            catch (Exception ex)
+            {
+                return $"Failed to create junction. Error: {ex.Message}";
+            }
         }
     }
 }

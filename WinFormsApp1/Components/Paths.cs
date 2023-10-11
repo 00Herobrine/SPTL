@@ -1,6 +1,4 @@
-﻿using WinFormsApp1;
-
-namespace SPTLauncher.Components
+﻿ namespace SPTLauncher.Components
 {
     internal class Paths
     {
@@ -9,13 +7,13 @@ namespace SPTLauncher.Components
 
         public static void Initialize(bool debug = false)
         {
-            gameFolder = debug ? "F:/SPT" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+            gameFolder = debug ? "F:/SPT" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
             modManagerFolder = $"{cachePath}/ModManager";
             modManagerConfigPath = $"{modManagerFolder}/config.json";
             modsFolder = $"{gameFolder}/user/mods";
-            pluginsFolder = $"{gameFolder}/bepinex/plugins";
+            pluginsFolder = $"{gameFolder}/BepInEx/plugins";
             akiData = $"{gameFolder}/Aki_Data";
             serverPath = $"{akiData}/Server";
             configPath = $"{cachePath}/config.json";

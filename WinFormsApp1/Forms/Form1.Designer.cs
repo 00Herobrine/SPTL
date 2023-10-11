@@ -38,7 +38,6 @@
             HealthButton = new Button();
             button9 = new Button();
             InspectsButton = new Button();
-            button7 = new Button();
             button6 = new Button();
             WipeButton = new Button();
             label1 = new Label();
@@ -50,8 +49,7 @@
             nameLabel = new Label();
             profilesList = new ComboBox();
             groupBox3 = new GroupBox();
-            skillProgressTextBox = new NumericUpDown();
-            skillDescriptionLabel = new Label();
+            skillProgressBox = new NumericUpDown();
             label3 = new Label();
             saveSkillsButton = new Button();
             label2 = new Label();
@@ -95,6 +93,7 @@
             pictureBox1 = new PictureBox();
             serverConsole = new RichTextBox();
             groupBox4 = new GroupBox();
+            ModsListCheckBox = new CheckedListBox();
             button16 = new Button();
             ModConfig = new Button();
             modsListBox = new ListBox();
@@ -110,7 +109,7 @@
             BackupProfiles = new ComboBox();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)skillProgressBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).BeginInit();
@@ -135,7 +134,6 @@
             groupBox1.Controls.Add(HealthButton);
             groupBox1.Controls.Add(button9);
             groupBox1.Controls.Add(InspectsButton);
-            groupBox1.Controls.Add(button7);
             groupBox1.Controls.Add(button6);
             groupBox1.Controls.Add(WipeButton);
             groupBox1.Controls.Add(label1);
@@ -215,7 +213,7 @@
             // 
             // HealthButton
             // 
-            HealthButton.Location = new Point(488, 88);
+            HealthButton.Location = new Point(488, 58);
             HealthButton.Name = "HealthButton";
             HealthButton.Size = new Size(75, 23);
             HealthButton.TabIndex = 22;
@@ -239,15 +237,6 @@
             InspectsButton.TabIndex = 20;
             InspectsButton.Text = "Inspects";
             InspectsButton.UseVisualStyleBackColor = true;
-            // 
-            // button7
-            // 
-            button7.Location = new Point(488, 59);
-            button7.Name = "button7";
-            button7.Size = new Size(75, 23);
-            button7.TabIndex = 19;
-            button7.Text = "New";
-            button7.UseVisualStyleBackColor = true;
             // 
             // button6
             // 
@@ -353,8 +342,7 @@
             // 
             // groupBox3
             // 
-            groupBox3.Controls.Add(skillProgressTextBox);
-            groupBox3.Controls.Add(skillDescriptionLabel);
+            groupBox3.Controls.Add(skillProgressBox);
             groupBox3.Controls.Add(label3);
             groupBox3.Controls.Add(saveSkillsButton);
             groupBox3.Controls.Add(label2);
@@ -367,26 +355,19 @@
             groupBox3.Text = "Skills Functions";
             groupBox3.Visible = false;
             // 
-            // skillProgressTextBox
+            // skillProgressBox
             // 
-            skillProgressTextBox.Location = new Point(12, 99);
-            skillProgressTextBox.Name = "skillProgressTextBox";
-            skillProgressTextBox.Size = new Size(76, 23);
-            skillProgressTextBox.TabIndex = 6;
-            // 
-            // skillDescriptionLabel
-            // 
-            skillDescriptionLabel.AutoSize = true;
-            skillDescriptionLabel.Location = new Point(6, 178);
-            skillDescriptionLabel.Name = "skillDescriptionLabel";
-            skillDescriptionLabel.Size = new Size(70, 15);
-            skillDescriptionLabel.TabIndex = 5;
-            skillDescriptionLabel.Text = "Description:";
+            skillProgressBox.Location = new Point(171, 17);
+            skillProgressBox.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
+            skillProgressBox.Name = "skillProgressBox";
+            skillProgressBox.Size = new Size(76, 23);
+            skillProgressBox.TabIndex = 6;
+            skillProgressBox.ValueChanged += skillProgressBox_ValueChanged;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(12, 81);
+            label3.Location = new Point(110, 20);
             label3.Name = "label3";
             label3.Size = new Size(55, 15);
             label3.TabIndex = 4;
@@ -448,7 +429,7 @@
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
             settingsGroup.Controls.Add(textBox1);
-            settingsGroup.Location = new Point(227, 4);
+            settingsGroup.Location = new Point(163, 410);
             settingsGroup.Name = "settingsGroup";
             settingsGroup.Size = new Size(253, 285);
             settingsGroup.TabIndex = 6;
@@ -839,6 +820,7 @@
             // 
             // groupBox4
             // 
+            groupBox4.Controls.Add(ModsListCheckBox);
             groupBox4.Controls.Add(button16);
             groupBox4.Controls.Add(ModConfig);
             groupBox4.Controls.Add(modsListBox);
@@ -847,6 +829,14 @@
             groupBox4.Size = new Size(228, 302);
             groupBox4.TabIndex = 8;
             groupBox4.TabStop = false;
+            // 
+            // ModsListCheckBox
+            // 
+            ModsListCheckBox.FormattingEnabled = true;
+            ModsListCheckBox.Location = new Point(0, 9);
+            ModsListCheckBox.Name = "ModsListCheckBox";
+            ModsListCheckBox.Size = new Size(228, 256);
+            ModsListCheckBox.TabIndex = 33;
             // 
             // button16
             // 
@@ -902,7 +892,7 @@
             // 
             DayBox.Enabled = false;
             DayBox.FormattingEnabled = true;
-            DayBox.Location = new Point(145, 55);
+            DayBox.Location = new Point(148, 55);
             DayBox.Name = "DayBox";
             DayBox.Size = new Size(56, 23);
             DayBox.TabIndex = 13;
@@ -912,7 +902,7 @@
             // 
             MonthBox.Enabled = false;
             MonthBox.FormattingEnabled = true;
-            MonthBox.Location = new Point(83, 55);
+            MonthBox.Location = new Point(86, 55);
             MonthBox.Name = "MonthBox";
             MonthBox.Size = new Size(56, 23);
             MonthBox.TabIndex = 12;
@@ -931,7 +921,7 @@
             // 
             YearBox.Enabled = false;
             YearBox.FormattingEnabled = true;
-            YearBox.Location = new Point(21, 55);
+            YearBox.Location = new Point(24, 55);
             YearBox.Name = "YearBox";
             YearBox.Size = new Size(56, 23);
             YearBox.TabIndex = 10;
@@ -1012,7 +1002,7 @@
             groupBox1.PerformLayout();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)skillProgressTextBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)skillProgressBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
@@ -1055,7 +1045,6 @@
         private Button WipeButton;
         private Label label1;
         private Button button6;
-        private Button button7;
         private Button InspectsButton;
         private Button button9;
         private Button HealthButton;
@@ -1066,9 +1055,8 @@
         private Label label2;
         private ComboBox comboBox1;
         private Label label3;
-        private Label skillDescriptionLabel;
         private GroupBox settingsGroup;
-        private NumericUpDown skillProgressTextBox;
+        private NumericUpDown skillProgressBox;
         private LinkLabel linkLabel3;
         private TextBox textBox1;
         private Label IDLabel;
@@ -1113,5 +1101,6 @@
         private Label label11;
         private ComboBox DayBox;
         private ComboBox MonthBox;
+        private CheckedListBox ModsListCheckBox;
     }
 }

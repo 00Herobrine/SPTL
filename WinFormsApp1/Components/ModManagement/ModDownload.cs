@@ -10,6 +10,7 @@ namespace SPTLauncher.Components.ModManagement
         public ORIGIN Origin;
         public string? imageURL, imageName;
         public string URL, name, author, description, AkiVersion, lastUpdated, downloads;
+        public Image? image;
         public int comments, reviews, ratings, id;
         public float stars;
         public long bytes = 0, totalBytes = 0;
@@ -62,8 +63,10 @@ namespace SPTLauncher.Components.ModManagement
                 if (response.IsSuccessStatusCode)
                 {
                     byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
-                    File.WriteAllBytes($"{Paths.iconsCachePath}/{imageName}", imageBytes);
+                    string filePath = $"{Paths.iconsCachePath}/{imageName}";
+                    File.WriteAllBytes(filePath, imageBytes);
                     Debug.WriteLine("Image downloaded successfully.");
+                    image = Image.FromFile(filePath);
                 }
                 else
                 {

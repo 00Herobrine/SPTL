@@ -92,15 +92,15 @@ namespace SPTLauncher.Components
 
         public static void DisableMod(Mod mod)
         {
-            Directory.Move($"{mod.GetPath()}", $"{Paths.disabledModsPath}/{mod.GetName()}");
-            file.DisabledMods.Add(mod.GetName(), mod.GetOriginalPath());
+            Directory.Move($"{mod.Path}", $"{Paths.disabledModsPath}/{mod.Name}");
+            file.DisabledMods.Add(mod.Name, mod.OriginalPath);
             save();
         }
 
         public static void EnableMod(Mod mod)
         {
-            Directory.Move($"{mod.GetPath()}", $"{mod.GetOriginalPath()}");
-            file.DisabledMods.Remove(mod.GetName());
+            Directory.Move($"{mod.Path}", $"{mod.OriginalPath}");
+            file.DisabledMods.Remove(mod.Name);
             save();
         }
 

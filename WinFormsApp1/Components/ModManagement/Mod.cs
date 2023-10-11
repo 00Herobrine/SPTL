@@ -24,54 +24,21 @@
 
         public override string ToString()
         {
-            string type = IsPlugin() ? "[P]" : "[C]";
-            string enabled = isEnabled() ? "" : " [DISABLED]";
+            string type = IsPlugin ? "[P]" : "[C]";
+            string enabled = IsEnabled ? "" : " [DISABLED]";
             return $"{type} {name}{enabled}";
         }
 
-        public string GetPath()
-        {
-            return path;
-        }
-
-        public string GetOriginalPath()
-        {
-            return originalPath;
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-
-        public bool IsPlugin()
-        {
-            return modType == ModType.PLUGIN || plugin;
-        }
-
-        public bool IsClient()
-        {
-            return modType == ModType.CLIENT || client;
-        }
-        public bool IsBoth()
-        {
-            return IsPlugin() && IsClient();
-        }
-
-        public ModType GetModType()
-        {
-            return modType;
-        }
-
-        public bool isEnabled()
-        {
-            return enabled;
-        }
-
-        public bool HasConfig()
-        {
-            return configPath != null;
-        }
+        public string Path => path;
+        public string OriginalPath => originalPath;
+        public string Name => name;
+        public bool IsPlugin => modType == ModType.PLUGIN || plugin;
+        public bool IsClient => modType == ModType.CLIENT || client;
+        public bool IsBoth => IsPlugin && IsClient;
+        public ModType Type => modType;
+        public bool IsEnabled => enabled;
+        public bool HasConfig => configPath != null;
+        public string? ConfigPath => configPath;
 
         public void Toggle()
         {
@@ -95,9 +62,5 @@
             this.path = path;
         }
 
-        public string? GetConfigPath()
-        {
-            return configPath;
-        }
     }
 }

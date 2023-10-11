@@ -2,6 +2,7 @@
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Constructors;
 using SPTLauncher.Constructors.Enums;
+using SPTLauncher.Constructors.Profiles;
 
 namespace SPTLauncher.Components
 {

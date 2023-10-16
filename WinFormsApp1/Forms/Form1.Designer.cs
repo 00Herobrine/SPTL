@@ -107,6 +107,7 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
+            button2 = new Button();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressBox).BeginInit();
@@ -125,6 +126,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(button2);
             groupBox1.Controls.Add(DeleteProfileButton);
             groupBox1.Controls.Add(editionsBox);
             groupBox1.Controls.Add(button13);
@@ -429,7 +431,7 @@
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
             settingsGroup.Controls.Add(textBox1);
-            settingsGroup.Location = new Point(163, 410);
+            settingsGroup.Location = new Point(227, 4);
             settingsGroup.Name = "settingsGroup";
             settingsGroup.Size = new Size(253, 285);
             settingsGroup.TabIndex = 6;
@@ -979,6 +981,15 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
+            // button2
+            // 
+            button2.Location = new Point(488, 88);
+            button2.Name = "button2";
+            button2.Size = new Size(75, 23);
+            button2.TabIndex = 31;
+            button2.Text = "Responses";
+            button2.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1102,5 +1113,6 @@
         private ComboBox DayBox;
         private ComboBox MonthBox;
         private CheckedListBox ModsListCheckBox;
+        private Button button2;
     }
 }

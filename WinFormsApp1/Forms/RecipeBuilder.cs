@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using SPTLauncher.Components;
+using SPTLauncher.Components.Caching;
 using SPTLauncher.Components.RecipeManagement;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using WinFormsApp1;
 
 namespace SPTLauncher
@@ -38,48 +38,70 @@ namespace SPTLauncher
 
         public void LoadRecipes()
         {
-            //activeCheckBox = ItemCheckBox;
             ItemCheckBox.Checked = true;
+            listBox1.Items.Clear();
+            ModuleComboBox.Items.Clear();
             foreach (Module module in acceptableModules) ModuleComboBox.Items.Add(Recipe.GetEnumDescription(module));
-            foreach (JToken recipe in production) if (recipe["requirements"] != null) listBox1.Items.Add(new Recipe(recipe));
+            foreach (RecipeStruct recipe in RecipeManager.recipes.Values) listBox1.Items.Add(recipe);
+        }
+
+        public void ResetRequirementType()
+        {
+            ItemCheckBox.Checked = true;
+            ResourceCheckBox.Checked = false;
+            ToolCheckBox.Checked = false;
         }
 
         private void RecipeBuilder_Load(object sender, EventArgs e)
         {
             LoadRecipes();
+            StoreValidItems();
             foreach (CachedItem item in TarkovCache.itemCache.Values) requirementID.Items.Add(item);
+        }
+
+        private void StoreValidItems()
+        {
+            productBox.Items.Clear();
+            productBox.Items.AddRange(Cache.tarkovCache.Values.ToArray());
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string id = getSelectedRecipe().getID();
-            Recipe recipe = getSelectedRecipe();
+            if (listBox1.SelectedItem == null) return;
+            RecipeStruct recipe = (RecipeStruct)listBox1.SelectedItem;
+            string id = recipe.id;
             //Recipe recipe = _recipes[id];
             LoadShit(recipe);
             if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
         }
 
-        public void LoadShit(Recipe recipe)
+        public void LoadRecipeInfo(RecipeStruct recipe)
         {
-            string name = recipe.getName();
-            if (name.Equals("")) name = TarkovCache.GetReadableName(recipe.getEndProduct());
+            nameTextBox.Text = recipe.name;
+            if (recipe.HasRequiredModule()) requiredModuleBox.SelectedItem = recipe.GetModule();
+            else requiredModuleBox.SelectedIndex = -1;
+            //productBox.SelectedItem = 
+        }
+
+        public void LoadShit(RecipeStruct recipe)
+        {
+            string name = recipe.name ?? TarkovCache.GetReadableName(recipe.endProduct);
             nameTextBox.Text = name;
-            ModuleComboBox.Text = Recipe.GetEnumDescription(recipe.getModule());
-            endProductBox.Text = recipe.getEndProduct();
-            CraftAmount.Value = recipe.getCount();
-            PowerRequirement.Checked = recipe.isPowerNeeded();
+            ModuleComboBox.Text = recipe.HasRequiredModule() ? Recipe.GetEnumDescription(recipe.GetModule()) : "";
+            endProductBox.Text = recipe.endProduct;
+            CraftAmount.Value = recipe.count;
+            PowerRequirement.Checked = recipe.isPowerNeeded;
             requirementList.Items.Clear();
-            productionTime.Value = recipe.getProductionTime();
-            foreach (RecipeRequirement requirement in recipe.GetRecipeRequirements().Values)
-                requirementList.Items.Add(requirement);
+            productionTime.Value = recipe.productionTime;
+            if(recipe.HasRequirements()) foreach (RequirementStruct requirement in recipe.requirements.Where(o => !o.isArea)) requirementList.Items.Add(requirement);
             if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
-            if (recipe.hasRequiredModule())
+            if (recipe.HasRequiredModule())
             {
-                Module requiredModule = recipe.getRequiredModule();
+                Module requiredModule = recipe.GetModule();
                 requiredModuleBox.Text = Recipe.GetEnumDescription(requiredModule);
                 requiredModuleLvl.Minimum = int.Parse(Recipe.GetEnumMinMax(requiredModule)[0]);
                 requiredModuleLvl.Maximum = int.Parse(Recipe.GetEnumMinMax(requiredModule)[1]);
-                requiredModuleLvl.Value = recipe.getRequiredModuleLevel();
+                requiredModuleLvl.Value = recipe.RequiredModuleLevel();
             }
             else
             {
@@ -105,8 +127,27 @@ namespace SPTLauncher
 
         private void requirementList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            setRequirement(requirementList.SelectedIndex);
-            //LoadRequirement(requirement);
+            //setRequirement(requirementList.SelectedIndex);
+            LoadRequirementInfo((RequirementStruct)requirementList.SelectedItem);
+        }
+
+        public void LoadRequirementInfo(RequirementStruct requirement)
+        {
+            ToolCheckBox.Checked = false;
+            switch (requirement.GetType())
+            {
+                case RequirementType.Item:
+                    ItemStruct item = (ItemStruct)requirement;
+                    RequiredAmount.Value = item.count;
+                    break;
+                case RequirementType.Tool:
+                    ToolCheckBox.Checked = true;
+                    break;
+                default:
+                    break;
+            }
+            requirementID.Text = requirement.ToString();
+
         }
 
         public void setRequirement(int index = 0)
@@ -150,7 +191,7 @@ namespace SPTLauncher
             recipe.setProductionTime((int)productionTime.Value);
             recipe.getModuleRequirement().setRequiredModuleLvl((int)requiredModuleLvl.Value);
             RecipeRequirement selectedItem = (RecipeRequirement)requirementList.SelectedItem;
-            if(selectedItem.getID() != null) recipe.GetRecipeRequirement(selectedItem.getID()).setCount((int)RequiredAmount.Value);
+            if (selectedItem.getID() != null) recipe.GetRecipeRequirement(selectedItem.getID()).setCount((int)RequiredAmount.Value);
             string id = listBox1.SelectedItem.ToString();
             //_recipes[id] = recipe;
             recipe.updateSettings();
@@ -259,6 +300,29 @@ namespace SPTLauncher
         {
             this.Hide();
             e.Cancel = true;
+        }
+
+        private void productBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private CacheItem[] Filter(string input)
+        {
+            if (input == "") return Cache.tarkovCache.Values.ToArray();
+            return Cache.tarkovCache.Values.Where(o => o.ID.Contains(input, StringComparison.OrdinalIgnoreCase)
+            || (o.Name != null && o.Name.Contains(input, StringComparison.OrdinalIgnoreCase))
+            || (o.ShortName != null && o.ShortName.Contains(input, StringComparison.OrdinalIgnoreCase))).ToArray();
+        }
+
+        private void productBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                productBox.Items.Clear();
+                productBox.Items.AddRange(Filter(productBox.Text));
+            }
         }
     }
 }

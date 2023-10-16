@@ -1,9 +1,10 @@
 ﻿namespace SPTLauncher.Components.RecipeManagement
 {
-    internal enum RequirementType
+    public enum RequirementType
     {
         Area,
         Item,
+        Resource,
         Tool
     }
 }

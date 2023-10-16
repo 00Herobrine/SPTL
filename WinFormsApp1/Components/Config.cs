@@ -18,6 +18,7 @@ namespace SPTLauncher.Components
             int interval = file.BackupInterval;
             if(interval < 0) SetBackupInterval(1440);
             else SetBackupInterval(interval);
+            SetLang(file.Lang);
         }
         public static void SetLang(LANG Lang, bool saveFile = false)
         {

@@ -16,6 +16,7 @@ using SPTLauncher.Components.Caching;
 using SPTLauncher.Forms;
 using SPTLauncher.Constructors.Profiles;
 using System.Security.Cryptography.X509Certificates;
+using SPTLauncher.Components.RecipeManagement;
 
 namespace WinFormsApp1
 {
@@ -69,6 +70,7 @@ namespace WinFormsApp1
             ModManager.LoadMods();
             Cache.Initialize();
             BackupManager.Initialize();
+            RecipeManager.Initialize();
             RenderMods();
             UpdateModsButton();
             UpdateSettingsValues();

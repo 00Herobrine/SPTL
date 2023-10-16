@@ -1,5 +1,4 @@
 ﻿using SPTLauncher.Components.Caching;
-using System.Diagnostics.Eventing.Reader;
 using System.Text;
 using WinFormsApp1;
 

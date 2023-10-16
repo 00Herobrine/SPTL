@@ -31,6 +31,7 @@
             listBox1 = new ListBox();
             NewRecipeButton = new Button();
             groupBox1 = new GroupBox();
+            productBox = new ComboBox();
             DeleteRecipeButton = new Button();
             LockedBox = new CheckBox();
             SaveRecipeButton = new Button();
@@ -93,6 +94,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(productBox);
             groupBox1.Controls.Add(DeleteRecipeButton);
             groupBox1.Controls.Add(LockedBox);
             groupBox1.Controls.Add(SaveRecipeButton);
@@ -115,6 +117,17 @@
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Selected Recipe";
+            // 
+            // productBox
+            // 
+            productBox.FormattingEnabled = true;
+            productBox.Location = new Point(272, 82);
+            productBox.Name = "productBox";
+            productBox.RightToLeft = RightToLeft.No;
+            productBox.Size = new Size(179, 23);
+            productBox.TabIndex = 18;
+            productBox.SelectedIndexChanged += productBox_SelectedIndexChanged;
+            productBox.KeyDown += productBox_KeyDown;
             // 
             // DeleteRecipeButton
             // 
@@ -480,5 +493,6 @@
         private CheckBox ItemCheckBox;
         private CheckBox ResourceCheckBox;
         private Button DeleteRecipeButton;
+        private ComboBox productBox;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SPTLauncher.Components.Caching;
 using SPTLauncher.Constructors;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -180,6 +181,7 @@ namespace SPTLauncher.Components
 
         public static string GetReadableName(string id, bool Short = false)
         {
+            return Cache.GetReadableNameFromID(id, Short);
             string name = id;
             string lookup = id + (Short ? " ShortName" : " Name");
             if (nameCache[lookup] != null) name = nameCache[lookup].ToString();

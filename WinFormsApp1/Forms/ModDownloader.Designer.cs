@@ -50,6 +50,7 @@
             FilterVersionCheck = new CheckBox();
             FilterAuthorCheck = new CheckBox();
             FilterNameCheck = new CheckBox();
+            listView1 = new ListView();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -264,11 +265,21 @@
             FilterNameCheck.UseVisualStyleBackColor = true;
             FilterNameCheck.CheckedChanged += FilterNameCheck_CheckedChanged;
             // 
+            // listView1
+            // 
+            listView1.Location = new Point(557, 34);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(121, 97);
+            listView1.TabIndex = 23;
+            listView1.UseCompatibleStateImageBehavior = false;
+            listView1.View = View.SmallIcon;
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 420);
+            Controls.Add(listView1);
             Controls.Add(FilterNameCheck);
             Controls.Add(FilterAuthorCheck);
             Controls.Add(FilterVersionCheck);
@@ -324,5 +335,6 @@
         private CheckBox FilterVersionCheck;
         private CheckBox FilterAuthorCheck;
         private CheckBox FilterNameCheck;
+        private ListView listView1;
     }
 }

@@ -17,12 +17,13 @@ namespace SPTLauncher.Forms
         public void StoreImages()
         {
             listView1.SmallImageList = new ImageList();
-            listView1.SmallImageList.Images.AddRange(ModManager.GetModDownloads().Where(o=> o.image != null).Select(o => o.image).ToArray()) ;
+            listView1.SmallImageList.Images.AddRange(ModManager.GetModDownloads().Where(o => o.image != null).Select(o => o.image).ToArray());
         }
 
         private void AltDownload_Load(object sender, EventArgs e)
         {
-            foreach(ModDownload download in ModManager.GetModDownloads()) {
+            foreach (ModDownload download in ModManager.GetModDownloads())
+            {
                 listView1.Items.Add(download.name, $"{download.id}.jpg");
             }
         }

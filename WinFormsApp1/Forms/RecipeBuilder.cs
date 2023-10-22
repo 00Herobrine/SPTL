@@ -147,7 +147,6 @@ namespace SPTLauncher
                     break;
             }
             requirementID.Text = requirement.ToString();
-
         }
 
         public void setRequirement(int index = 0)

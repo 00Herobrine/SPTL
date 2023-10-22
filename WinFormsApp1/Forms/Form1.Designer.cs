@@ -54,6 +54,7 @@
             saveSkillsButton = new Button();
             label2 = new Label();
             comboBox1 = new ComboBox();
+            ResponsesButton = new Button();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
             label11 = new Label();
@@ -107,7 +108,6 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
-            button2 = new Button();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressBox).BeginInit();
@@ -126,7 +126,6 @@
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(button2);
             groupBox1.Controls.Add(DeleteProfileButton);
             groupBox1.Controls.Add(editionsBox);
             groupBox1.Controls.Add(button13);
@@ -403,6 +402,16 @@
             comboBox1.TabIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
+            // ResponsesButton
+            // 
+            ResponsesButton.Location = new Point(0, 204);
+            ResponsesButton.Name = "ResponsesButton";
+            ResponsesButton.Size = new Size(75, 23);
+            ResponsesButton.TabIndex = 31;
+            ResponsesButton.Text = "Responses";
+            ResponsesButton.UseVisualStyleBackColor = true;
+            ResponsesButton.Click += ResponsesButton_Click;
+            // 
             // factionImage
             // 
             factionImage.Location = new Point(37, 158);
@@ -650,7 +659,7 @@
             startServerButton.TabIndex = 3;
             startServerButton.Text = "Start";
             startServerButton.UseVisualStyleBackColor = true;
-            startServerButton.Click += button2_Click;
+            startServerButton.Click += StartServerButton_Click;
             // 
             // label6
             // 
@@ -672,6 +681,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(ResponsesButton);
             groupBox2.Controls.Add(SettingsButton);
             groupBox2.Controls.Add(OpenFolderButton);
             groupBox2.Controls.Add(QuestButton);
@@ -981,15 +991,6 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
-            // button2
-            // 
-            button2.Location = new Point(488, 88);
-            button2.Name = "button2";
-            button2.Size = new Size(75, 23);
-            button2.TabIndex = 31;
-            button2.Text = "Responses";
-            button2.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1113,6 +1114,6 @@
         private ComboBox DayBox;
         private ComboBox MonthBox;
         private CheckedListBox ModsListCheckBox;
-        private Button button2;
+        private Button ResponsesButton;
     }
 }

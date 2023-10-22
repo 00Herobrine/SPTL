@@ -28,19 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            ListViewGroup listViewGroup1 = new ListViewGroup("ListViewGroup", HorizontalAlignment.Left);
-            ListViewItem listViewItem1 = new ListViewItem(new string[] { "Item" }, -1, Color.Empty, SystemColors.HotTrack, null);
+            ListViewGroup listViewGroup2 = new ListViewGroup("ListViewGroup", HorizontalAlignment.Left);
+            ListViewItem listViewItem2 = new ListViewItem(new string[] { "Item" }, -1, Color.Empty, SystemColors.HotTrack, null);
             panel1 = new Panel();
             listView1 = new ListView();
             columnHeader1 = new ColumnHeader();
             panel2 = new Panel();
             button1 = new Button();
+            listView2 = new ListView();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
+            panel1.Controls.Add(listView2);
             panel1.Controls.Add(listView1);
             panel1.Controls.Add(panel2);
             panel1.Dock = DockStyle.Left;
@@ -53,12 +55,12 @@
             // 
             listView1.Columns.AddRange(new ColumnHeader[] { columnHeader1 });
             listView1.Dock = DockStyle.Fill;
-            listViewGroup1.Header = "ListViewGroup";
-            listViewGroup1.Name = "listViewGroup1";
-            listView1.Groups.AddRange(new ListViewGroup[] { listViewGroup1 });
-            listViewItem1.Group = listViewGroup1;
-            listViewItem1.IndentCount = 20;
-            listView1.Items.AddRange(new ListViewItem[] { listViewItem1 });
+            listViewGroup2.Header = "ListViewGroup";
+            listViewGroup2.Name = "listViewGroup1";
+            listView1.Groups.AddRange(new ListViewGroup[] { listViewGroup2 });
+            listViewItem2.Group = listViewGroup2;
+            listViewItem2.IndentCount = 20;
+            listView1.Items.AddRange(new ListViewItem[] { listViewItem2 });
             listView1.Location = new Point(0, 80);
             listView1.Name = "listView1";
             listView1.Size = new Size(200, 370);
@@ -90,6 +92,15 @@
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
+            // listView2
+            // 
+            listView2.Location = new Point(12, 139);
+            listView2.Name = "listView2";
+            listView2.Size = new Size(121, 97);
+            listView2.TabIndex = 1;
+            listView2.UseCompatibleStateImageBehavior = false;
+            listView2.View = View.SmallIcon;
+            // 
             // AltDownload
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -111,5 +122,6 @@
         private Button button1;
         private ListView listView1;
         private ColumnHeader columnHeader1;
+        private ListView listView2;
     }
 }

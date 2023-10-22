@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-using System.Diagnostics;
 using WinFormsApp1;
 
 namespace SPTLauncher.Components.Caching
@@ -17,7 +16,7 @@ namespace SPTLauncher.Components.Caching
             StoreLocaleNames();
             string jsonData = File.ReadAllText(Paths.itemsPath);
             Dictionary<string, CacheEntry>? entries = JsonConvert.DeserializeObject<Dictionary<string, CacheEntry>>(jsonData);
-            if (entries == null) { Debug.WriteLine("Null for items"); return; }
+            if (entries == null) return;
             ItemDictionary = entries.Values.Where(o => !o.Type.Equals("node", StringComparison.OrdinalIgnoreCase)).ToDictionary(item => item.ID, item => item);
             ReferenceNodes = entries.Values.Where(o => o.Type.Equals("node", StringComparison.OrdinalIgnoreCase)).ToDictionary(item => item.ID, item => item);
             Form1.log($"Cached {ReferenceNodes.Count} reference nodes and {ItemDictionary.Count} items.");

@@ -7,7 +7,7 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Runtime.InteropServices;
 using SPTLauncher.Components.RecipeManagement;
 using Newtonsoft.Json;
-using Microsoft.Win32.SafeHandles;
+using System.ComponentModel.DataAnnotations;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -353,6 +353,19 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
+        public static List<Image> GetImageCache()
+        {
+            //Directory.GetFiles(Paths.iconsCachePath).Where(fileName => ModDownloader.allowedImageTypes.Contains(fileName.Split(".")[1])).Select(Image.FromFile).ToList();
+            List<Image> images = new List<Image>();
+            foreach(string fileName in Directory.GetFiles(Paths.iconsCachePath))
+            {
+                Debug.WriteLine(fileName);
+                if (!ModDownloader.allowedImageTypes.Contains(fileName.Split(".")[1])) continue;
+                Debug.WriteLine($"adding {fileName.Split("/")[..1]}");
+                images.Add(Image.FromFile(fileName));
+            }
+            return images;
+        }
         private static bool FileAlreadyDownloaded(string name)
         {
             return File.Exists($"{Paths.downloadingPath}/{name}");

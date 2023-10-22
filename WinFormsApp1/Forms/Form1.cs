@@ -15,8 +15,8 @@ using SPTLauncher.Components.BackupManagement;
 using SPTLauncher.Components.Caching;
 using SPTLauncher.Forms;
 using SPTLauncher.Constructors.Profiles;
-using System.Security.Cryptography.X509Certificates;
 using SPTLauncher.Components.RecipeManagement;
+using SPTLauncher.Components.Responses;
 
 namespace WinFormsApp1
 {
@@ -190,7 +190,7 @@ namespace WinFormsApp1
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void StartServerButton_Click(object sender, EventArgs e)
         {
             LaunchServer();
         }
@@ -909,6 +909,12 @@ namespace WinFormsApp1
             DayBox.Enabled = MonthBox.SelectedIndex != -1;
             MonthBox.Enabled = YearBox.SelectedIndex != -1;
             YearBox.Enabled = BackupProfiles.SelectedIndex != -1;
+        }
+
+        private void ResponsesButton_Click(object sender, EventArgs e)
+        {
+            ResponseEditor re = new ResponseEditor();
+            re.Show();
         }
     }
 }

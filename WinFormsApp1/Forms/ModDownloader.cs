@@ -50,6 +50,8 @@ namespace SPTLauncher
         private void ModDownloader_Load(object sender, EventArgs e)
         {
             Check();
+            Form1.log($"{ModManager.GetImageCache().Count} images loaded");
+            //listView1.SmallImageList.Images.AddRange(ModManager.GetImageCache().ToArray());
         }
 
         public static void Check()
@@ -106,7 +108,7 @@ namespace SPTLauncher
             Reviews.Text = $"Reviews: {mod.reviews}";
         }
 
-        private readonly string[] allowedImageTypes = ["png", "jpg", "gif"];
+        public static readonly string[] allowedImageTypes = ["png", "jpg", "jpeg", "gif"];
         private void LoadImage(ModDownload mod)
         {
             bool allowed = mod.imageURL != null && allowedImageTypes.Contains(mod.imageURL.Split(".")[^1].ToString());

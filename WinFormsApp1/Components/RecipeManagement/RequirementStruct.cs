@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-
-namespace SPTLauncher.Components.RecipeManagement
+﻿namespace SPTLauncher.Components.RecipeManagement
 {
     public interface RequirementStruct
     {

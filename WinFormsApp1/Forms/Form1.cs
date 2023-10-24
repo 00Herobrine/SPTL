@@ -721,7 +721,7 @@ namespace WinFormsApp1
             BackupGroup.Enabled = !BackupGroup.Enabled;
             if (BackupGroup.Enabled)
             {
-                LoadBackupsValues();
+                LoadProfileValues();
             }
         }
 
@@ -743,23 +743,31 @@ namespace WinFormsApp1
         {
             YearBox.Items.Clear();
             YearBox.Items.AddRange(BackupManager.GetYearFolders(BackupProfiles.Text).ToArray());
-            if (YearBox.Items.Count == 1) YearBox.SelectedIndex = 0;
+            if (YearBox.Items.Count > 0) YearBox.SelectedIndex = 0;
         }
         public void LoadMonthValues()
         {
             MonthBox.Items.Clear();
             MonthBox.Items.AddRange(BackupManager.GetMonthFolders(BackupProfiles.Text, int.Parse(YearBox.Text)).ToArray());
+            if(MonthBox.Items.Count > 0) MonthBox.SelectedIndex = 0;
         }
         public void LoadDayValues()
         {
             DayBox.Items.Clear();
             DayBox.Items.AddRange(BackupManager.GetDayFolders(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text)).ToArray());
+            if(DayBox.Items.Count > 0) DayBox.SelectedIndex = 0;
+        }
+        public void LoadProfileValues()
+        {
+            BackupProfiles.Items.Clear();
+            BackupProfiles.Items.AddRange(BackupManager.GetProfileBackups().ToArray());
+            if (BackupProfiles.Items.Count > 0) BackupProfiles.SelectedIndex = 0;
         }
         public void LoadBackupsValues()
         {
-            BackupProfiles.Items.Clear();
-            BackupProfiles.Items.AddRange(BackupManager.GetProfileBackups(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text), int.Parse(DayBox.Text)).ToArray());
-            if (BackupProfiles.Items.Count > 0) BackupProfiles.SelectedIndex = 0;
+            BackupsList.Items.Clear();
+            BackupsList.Items.AddRange(BackupManager.GetProfileBackups(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text), int.Parse(DayBox.Text)).ToArray());
+            if (BackupsList.Items.Count > 0) BackupsList.SelectedIndex = 0;
         }
 
         private void RestoreBackupButton_Click(object sender, EventArgs e)

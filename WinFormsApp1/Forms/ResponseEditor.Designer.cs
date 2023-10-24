@@ -60,7 +60,8 @@
             // 
             // DeleteResponseButton
             // 
-            DeleteResponseButton.Location = new Point(215, 418);
+            DeleteResponseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            DeleteResponseButton.Location = new Point(1, 442);
             DeleteResponseButton.Name = "DeleteResponseButton";
             DeleteResponseButton.Size = new Size(59, 23);
             DeleteResponseButton.TabIndex = 5;
@@ -110,7 +111,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(503, 421);
+            label1.Location = new Point(506, 443);
             label1.Name = "label1";
             label1.Size = new Size(62, 15);
             label1.TabIndex = 11;
@@ -119,7 +120,7 @@
             // LangBox
             // 
             LangBox.FormattingEnabled = true;
-            LangBox.Location = new Point(566, 418);
+            LangBox.Location = new Point(569, 440);
             LangBox.Name = "LangBox";
             LangBox.Size = new Size(46, 23);
             LangBox.TabIndex = 10;
@@ -186,7 +187,8 @@
             // 
             // ImportPresetButton
             // 
-            ImportPresetButton.Location = new Point(422, 418);
+            ImportPresetButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            ImportPresetButton.Location = new Point(133, 442);
             ImportPresetButton.Name = "ImportPresetButton";
             ImportPresetButton.Size = new Size(75, 23);
             ImportPresetButton.TabIndex = 18;
@@ -196,7 +198,8 @@
             // 
             // ExportConfigButton
             // 
-            ExportConfigButton.Location = new Point(341, 418);
+            ExportConfigButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            ExportConfigButton.Location = new Point(59, 442);
             ExportConfigButton.Name = "ExportConfigButton";
             ExportConfigButton.Size = new Size(75, 23);
             ExportConfigButton.TabIndex = 19;
@@ -206,10 +209,11 @@
             // 
             // ResponseCheckList
             // 
+            ResponseCheckList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             ResponseCheckList.FormattingEnabled = true;
             ResponseCheckList.Location = new Point(1, 23);
             ResponseCheckList.Name = "ResponseCheckList";
-            ResponseCheckList.Size = new Size(207, 436);
+            ResponseCheckList.Size = new Size(207, 418);
             ResponseCheckList.TabIndex = 20;
             ResponseCheckList.ItemCheck += ResponseCheckList_ItemCheck;
             ResponseCheckList.SelectedIndexChanged += ResponseCheckList_SelectedIndexChanged;
@@ -228,7 +232,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(617, 459);
+            ClientSize = new Size(617, 466);
             Controls.Add(SelectAllResponses);
             Controls.Add(ResponseCheckList);
             Controls.Add(ExportConfigButton);

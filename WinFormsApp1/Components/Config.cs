@@ -89,7 +89,7 @@ namespace SPTLauncher.Components
 
         public static void save()
         {
-            File.WriteAllText(Paths.configPath, JsonConvert.SerializeObject(file));
+            File.WriteAllText(Paths.configPath, JsonConvert.SerializeObject(file, Formatting.Indented));
         }
 
         public static void DisableMod(Mod mod)

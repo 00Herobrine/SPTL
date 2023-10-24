@@ -93,7 +93,7 @@ namespace SPTLauncher
             PowerRequirement.Checked = recipe.isPowerNeeded;
             requirementList.Items.Clear();
             productionTime.Value = recipe.productionTime;
-            if(recipe.HasRequirements()) foreach (RequirementStruct requirement in recipe.requirements.Where(o => !o.isArea)) requirementList.Items.Add(requirement);
+            if (recipe.HasRequirements()) foreach (RequirementStruct requirement in recipe.requirements.Where(o => !o.isArea)) requirementList.Items.Add(requirement);
             if (requirementList.Items.Count > 0) requirementList.SelectedIndex = 0;
             if (recipe.HasRequiredModule())
             {

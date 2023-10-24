@@ -25,6 +25,7 @@ namespace SPTLauncher.Components
             file.Lang = Lang;
             Paths.localesFile = $"{Paths.databasePath}/locales/global/{Lang}.json";
             TarkovCache.UpdateNameCache();
+            LauncherSettings.language = Lang;
             if (saveFile) save(); 
         }
         public static void LoadFile()

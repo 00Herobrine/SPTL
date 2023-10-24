@@ -440,6 +440,7 @@
             ClientSize = new Size(800, 450);
             Controls.Add(groupBox1);
             Controls.Add(listBox1);
+            MaximizeBox = false;
             Name = "RecipeBuilder";
             Text = "RecipeBuilder";
             FormClosing += RecipeBuilder_FormClosing;

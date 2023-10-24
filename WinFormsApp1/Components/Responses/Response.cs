@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Runtime.CompilerServices;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SPTLauncher.Components.Responses
 {
@@ -11,6 +11,7 @@ namespace SPTLauncher.Components.Responses
         public ResponseType type;
         public string message;
 
+        [JsonConstructor]
         public Response(int id, ResponseType type, string message = "")
         {
             this.id = id;
@@ -50,10 +51,10 @@ namespace SPTLauncher.Components.Responses
         public static readonly ResponseType[] positiveResponses = [ResponseType.Killer_Positive, ResponseType.Victim_Positive];
         public static readonly ResponseType[] negativeResponses = [ResponseType.Killer_Negative, ResponseType.Victim_Negative];
         public static readonly ResponseType[] pleadingResponses = [ResponseType.Killer_Plead, ResponseType.Victim_Plead];
-        public bool IsPositive => positiveResponses.Contains(type);
-        public bool IsNegative => negativeResponses.Contains(type);
-        public bool IsPlead => pleadingResponses.Contains(type);
-        public bool IsSuffix => type == ResponseType.Suffix;
+        public bool IsPositive() => positiveResponses.Contains(type);
+        public bool IsNegative() => negativeResponses.Contains(type);
+        public bool IsPlead() => pleadingResponses.Contains(type);
+        public bool IsSuffix() => type == ResponseType.Suffix;
         public string RawName => $"pmcresponse-{ToString().ToLower()}";
     }
 }

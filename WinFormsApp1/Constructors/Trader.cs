@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using WinFormsApp1;
 
 namespace SPTLauncher.Constructors
 {

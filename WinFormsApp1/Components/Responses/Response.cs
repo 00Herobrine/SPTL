@@ -55,6 +55,7 @@ namespace SPTLauncher.Components.Responses
         public bool IsNegative() => negativeResponses.Contains(type);
         public bool IsPlead() => pleadingResponses.Contains(type);
         public bool IsSuffix() => type == ResponseType.Suffix;
+        [JsonIgnore]
         public string RawName => $"pmcresponse-{ToString().ToLower()}";
     }
 }

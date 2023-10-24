@@ -13,7 +13,6 @@ namespace SPTLauncher.Components
         public static void Load()
         {
             LoadFile();
-            Debug.WriteLine(JsonConvert.SerializeObject(file));
             if (string.IsNullOrWhiteSpace(file.LastBackup.ToString())) SetLastBackUpTime(DateTime.Now);
             int interval = file.BackupInterval;
             if(interval < 0) SetBackupInterval(1440);
@@ -34,7 +33,7 @@ namespace SPTLauncher.Components
             {
                 if (!File.Exists(Paths.configPath)) {
                     ConfigStruct defaultStruct = new();
-                    string json = JsonConvert.SerializeObject(defaultStruct);
+                    string json = JsonConvert.SerializeObject(defaultStruct, Formatting.Indented);
                     File.WriteAllText(Paths.configPath, json);
                     file = defaultStruct;
                 return;
@@ -47,7 +46,7 @@ namespace SPTLauncher.Components
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading config: {ex.Message}");
+                Debug.WriteLine($"Error loading config: {ex.Message}");
             }
         }
 

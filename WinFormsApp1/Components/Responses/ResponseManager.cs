@@ -50,6 +50,19 @@ namespace SPTLauncher.Components.Responses
             else jsonObject.Add(response.RawName, response.message);
             WriteToLocaleFile(lang, jsonObject.ToString());
         }
+        public static void ImportResponse(string lang, Response response, bool replace = false)
+        {
+            JObject jsonObject = JObject.Parse(ReadLocaleFile(lang));
+            if (jsonObject.ContainsKey(response.RawName))
+                if (!replace)
+                {
+                    response.SetID(GenerateReponseID(response.type));
+                    jsonObject.Add(response.RawName, response.message);
+                }
+                else jsonObject[response.RawName] = response.message;
+            else jsonObject.Add(response.RawName, response.message);
+            WriteToLocaleFile(lang, jsonObject.ToString());
+        }
         private static void WriteToLocaleFile(string lang, string updatedFile) => File.WriteAllText($"{Paths.databasePath}/locales/server/{lang}.json", updatedFile);
         private static string ReadLocaleFile(string lang) => File.ReadAllText($"{Paths.databasePath}/locales/server/{lang}.json");
     }

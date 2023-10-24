@@ -404,7 +404,7 @@
             // 
             // ResponsesButton
             // 
-            ResponsesButton.Location = new Point(0, 204);
+            ResponsesButton.Location = new Point(490, 237);
             ResponsesButton.Name = "ResponsesButton";
             ResponsesButton.Size = new Size(75, 23);
             ResponsesButton.TabIndex = 31;
@@ -681,7 +681,6 @@
             // 
             // groupBox2
             // 
-            groupBox2.Controls.Add(ResponsesButton);
             groupBox2.Controls.Add(SettingsButton);
             groupBox2.Controls.Add(OpenFolderButton);
             groupBox2.Controls.Add(QuestButton);
@@ -996,6 +995,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 649);
+            Controls.Add(ResponsesButton);
             Controls.Add(pictureBox1);
             Controls.Add(settingsGroup);
             Controls.Add(factionImage);

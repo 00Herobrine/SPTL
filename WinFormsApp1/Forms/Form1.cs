@@ -16,7 +16,6 @@ using SPTLauncher.Components.Caching;
 using SPTLauncher.Forms;
 using SPTLauncher.Constructors.Profiles;
 using SPTLauncher.Components.RecipeManagement;
-using SPTLauncher.Components.Responses;
 
 namespace WinFormsApp1
 {
@@ -616,20 +615,14 @@ namespace WinFormsApp1
             if (input.Length > 50) input = "";
             string last3 = input.ToLower().Substring(input.Length - 3);
             string last4 = (input.Length >= 4) ? input.ToLower().Substring(input.Length - 4) : "";
-            if (last3.Contains("cat") || last4.Contains("gato"))
-            {
-                catToggle();
-            }
+            if (last3.Contains("cat") || last4.Contains("gato")) catToggle();
         }
         private bool gato = false;
         public void catToggle()
         {
             input = "";
             gato = !gato;
-            if (gato)
-            {
-                factionImage.Image = Image.FromFile(chooseGato());
-            }
+            if (gato) factionImage.Image = Image.FromFile(chooseGato());
             else factionImage.Image = null;
         }
         private string chooseGato()
@@ -637,7 +630,6 @@ namespace WinFormsApp1
             string[] gatos = Directory.GetFiles(Paths.gatoPath);
             Random random = new();
             int randomReturn = random.Next(gatos.Length);
-            //log(randomReturn + " returned path " + gatos[randomReturn]);
             return gatos[randomReturn];
         }
         #endregion
@@ -749,13 +741,13 @@ namespace WinFormsApp1
         {
             MonthBox.Items.Clear();
             MonthBox.Items.AddRange(BackupManager.GetMonthFolders(BackupProfiles.Text, int.Parse(YearBox.Text)).ToArray());
-            if(MonthBox.Items.Count > 0) MonthBox.SelectedIndex = 0;
+            if (MonthBox.Items.Count > 0) MonthBox.SelectedIndex = 0;
         }
         public void LoadDayValues()
         {
             DayBox.Items.Clear();
             DayBox.Items.AddRange(BackupManager.GetDayFolders(BackupProfiles.Text, int.Parse(YearBox.Text), int.Parse(MonthBox.Text)).ToArray());
-            if(DayBox.Items.Count > 0) DayBox.SelectedIndex = 0;
+            if (DayBox.Items.Count > 0) DayBox.SelectedIndex = 0;
         }
         public void LoadProfileValues()
         {

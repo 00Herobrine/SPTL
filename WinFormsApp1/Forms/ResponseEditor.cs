@@ -119,7 +119,6 @@ namespace SPTLauncher.Forms
             if (type == null) return;
             Response response = ResponseManager.CreateResponse(GetLang(), (ResponseType)type);
             ResponseCheckList.SelectedIndex = ResponseCheckList.Items.Add(response);
-            ResponseCheckList.SelectedIndex = ResponseCheckList.Items.Add(response);
         }
 
         private void DeleteResponseButton_Click(object sender, EventArgs e)
@@ -182,11 +181,10 @@ namespace SPTLauncher.Forms
             foreach (Response response in preset.Responses)
             {
                 if (responses.Contains(response.RawName) && !replace) continue;
-                ResponseManager.TryUpdateResponse(GetLang(), response);
+                ResponseManager.ImportResponse(GetLang(), response, replace);
             }
             LoadResponses();
         }
-
         private void ImportPresetButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog presetDialog = new OpenFileDialog

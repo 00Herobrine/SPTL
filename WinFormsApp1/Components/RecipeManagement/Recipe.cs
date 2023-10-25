@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Components.Caching;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -197,7 +198,7 @@ namespace SPTLauncher.Components.RecipeManagement
         override
         public string ToString()
         {
-            return name.Equals("") ? TarkovCache.GetReadableName(endProduct) : getName(true);
+            return name.Equals("") ? TarkovCache.GetReadableNameFromID(endProduct) : getName(true);
             //return getName(true);
         }
 

@@ -1,10 +1,10 @@
 ﻿using SPTLauncher.Components;
 using SPTLauncher.Components.Responses;
 using SPTLauncher.Constructors.Enums;
-using SPTLauncher.Constructors.Presets;
 using SPTLauncher.UIElements;
 using WinFormsApp1;
 using Newtonsoft.Json;
+using SPTLauncher.Components.Presets;
 
 namespace SPTLauncher.Forms
 {
@@ -174,17 +174,6 @@ namespace SPTLauncher.Forms
             for (int i = 0; i < ResponseCheckList.Items.Count; i++) ResponseCheckList.SetItemCheckState(i, SelectAllResponses.CheckState);
         }
 
-        private void ImportPreset(ResponsesPreset preset)
-        {
-            List<string> responses = ResponseManager.GetResponses(GetLang()).Select(o => o.RawName).ToList(); // instead of replacing where the key is, maybe just add the value to a new key I have all the needed info
-            bool replace = preset.Info.Replace;
-            foreach (Response response in preset.Responses)
-            {
-                if (responses.Contains(response.RawName) && !replace) continue;
-                ResponseManager.ImportResponse(GetLang(), response, replace);
-            }
-            LoadResponses();
-        }
         private void ImportPresetButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog presetDialog = new OpenFileDialog
@@ -197,7 +186,8 @@ namespace SPTLauncher.Forms
             if (presetDialog.ShowDialog() == DialogResult.OK)
             {
                 if (!File.Exists(presetDialog.FileName)) return;
-                ImportPreset(JsonConvert.DeserializeObject<ResponsesPreset>(File.ReadAllText(presetDialog.FileName)));
+                PresetHandler.InstallPreset(GetLang(), JsonConvert.DeserializeObject<ResponsesPreset>(File.ReadAllText(presetDialog.FileName)));
+                LoadResponses();
             }
         }
     }

@@ -3,13 +3,14 @@
     internal class Paths
     {
         public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath, itemsPath,
-            gatoPath, backupsPath, modsFolder, pluginsFolder, downloadingPath, disabledModsPath, iconsPath, iconsCachePath, localesFile, databasePath, serverPath, serverConfigsPath;
+            gatoPath, backupsPath, modsFolder, pluginsFolder, temp, downloadedPath, installedPath, disabledModsPath, iconsPath, iconsCachePath, localesFile, databasePath, serverPath, serverConfigsPath;
 
         public static void Initialize(bool debug = false)
         {
             gameFolder = debug ? "F:/SPT" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
+            temp = $"{cachePath}/temp";
             modManagerFolder = $"{cachePath}/ModManager";
             modManagerConfigPath = $"{modManagerFolder}/config.json";
             modsFolder = $"{gameFolder}/user/mods";
@@ -24,8 +25,9 @@
             backupsPath = $"{cachePath}/backups";
             databasePath = $"{serverPath}/database";
             itemsPath = $"{databasePath}/templates/items.json";
-            downloadingPath = $"{modManagerFolder}/downloading";
-            disabledModsPath = $"{modManagerFolder}/disabled";
+            downloadedPath = $"{modManagerFolder}/downloaded"; // maybe move this to %appdata% or %temp% as a shared cache
+            installedPath = $"{modManagerFolder}/installed"; // unzipped mods for symlinking which will save space if multiple SPTs are installed
+            disabledModsPath = $"{modManagerFolder}/disabled"; // won't be needed once symlinking is setup (if all mods are compatible)
             serverConfigsPath = $"{serverPath}/configs";
             productionPath = $"{databasePath}/hideout/production.json"; // - aki json file, should exist already nor should I make it
             localesFile = $"{databasePath}/locales/global/{Config.file.Lang}.json";
@@ -37,16 +39,16 @@
             List<string> paths = new List<string>
             {
                 Paths.cachePath,
-                Paths.itemCache,
-                Paths.akiData,
+                //Paths.itemCache,
+                //Paths.akiData,
                 Paths.gatoPath,
                 Paths.backupsPath,
-                Paths.modsFolder,
+                //Paths.modsFolder,
                 Paths.modManagerFolder,
-                Paths.downloadingPath,
+                Paths.downloadedPath,
                 Paths.disabledModsPath,
                 Paths.iconsCachePath,
-                Paths.pluginsFolder
+                //Paths.pluginsFolder
             };
             foreach (var path in paths)
             {

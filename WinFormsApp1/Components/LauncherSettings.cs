@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Components.Profiles;
 using SPTLauncher.Constructors;
 using SPTLauncher.Constructors.Enums;
-using SPTLauncher.Constructors.Profiles;
+using System.Reflection;
 
 namespace SPTLauncher.Components
 {
@@ -10,9 +10,8 @@ namespace SPTLauncher.Components
     {
         public static LANG language;
         public static Config config = new();
-        public static AkiData akiData;
+        public static AkiData akiData { get; set; }
         private static List<Profile> cachedProfiles = new();
-        private static List<Mod> cachedMods = new();
 
         public static void Load()
         {
@@ -20,20 +19,9 @@ namespace SPTLauncher.Components
             akiData = JsonConvert.DeserializeObject<AkiData>(Config.ReadCoreFile());
         }
 
-        public static List<Profile> GetProfiles()
-        {
-            return cachedProfiles;
-        }
-
-        public static List<Mod> GetMods()
-        {
-            return cachedMods;
-        }
-
-        public static AkiData GetAkiData()
-        {
-            return akiData;
-        }
+        public static List<Profile> GetProfiles() => cachedProfiles;
+        public static string AkiVersion => akiData.akiVersion;
+        public static Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
     }
 }

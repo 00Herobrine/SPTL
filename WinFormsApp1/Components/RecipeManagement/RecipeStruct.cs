@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SPTLauncher.Components.Caching;
 using System.Text.Json;
 
 namespace SPTLauncher.Components.RecipeManagement
@@ -19,7 +20,7 @@ namespace SPTLauncher.Components.RecipeManagement
         public int productionLimitCount { get; set; }
         public int productionTime { get; set; }
         public List<RequirementStruct> requirements { get; set; }
-        public override string ToString() => name ?? TarkovCache.GetReadableName(id);
+        public override string ToString() => name ?? TarkovCache.GetReadableNameFromID(id);
         public AreaStruct GetAreaStruct() => (AreaStruct) requirements.Where(o => o.isArea).First();
         public Module GetModule() => (Module) GetAreaStruct().areaType;
         public int RequiredModuleLevel() => HasRequiredModule() ? GetAreaStruct().requiredLevel : 0;

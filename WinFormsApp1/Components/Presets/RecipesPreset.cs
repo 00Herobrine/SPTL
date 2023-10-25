@@ -1,15 +1,15 @@
 ﻿using SPTLauncher.Components.RecipeManagement;
 
-namespace SPTLauncher.Constructors.Presets
+namespace SPTLauncher.Components.Presets
 {
-    internal struct RecipesPreset
+    internal struct RecipesPreset : Preset
     {
-        public PresetInfo Info { get; set; }
+        public readonly string type => "Recipe";
+        public bool replace { get; set; }
         public List<Recipe> Recipes { get; set; }
 
         public RecipesPreset(List<Recipe> recipes)
         {
-            Info = new();
             Recipes = recipes;
         }
     }

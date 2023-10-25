@@ -1,5 +1,5 @@
 ﻿using Aki.Launcher;
-using SPTLauncher.Constructors.Profiles;
+using SPTLauncher.Components.Profiles;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
 

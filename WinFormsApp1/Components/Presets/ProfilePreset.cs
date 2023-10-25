@@ -1,5 +1,4 @@
-﻿
-namespace SPTLauncher.Constructors.Presets
+﻿namespace SPTLauncher.Components.Presets
 {
     internal struct ProfilePreset
     {

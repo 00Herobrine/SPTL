@@ -6,7 +6,7 @@ using SPTLauncher.Components;
 using SPTLauncher.Components.BackupManagement;
 using WinFormsApp1;
 
-namespace SPTLauncher.Constructors.Profiles
+namespace SPTLauncher.Components.Profiles
 {
     public class Profile(ServerProfileInfo serverProfileInfo)
     {
@@ -23,7 +23,7 @@ namespace SPTLauncher.Constructors.Profiles
         public ProfileStruct GetFile(bool store = false)
         {
             if (file == null || store) file = JsonConvert.DeserializeObject<ProfileStruct>(ReadProfileFile);
-            return (ProfileStruct) file;
+            return (ProfileStruct)file;
         }
         public string ReadProfileFile => id != null ? File.ReadAllText($"{Paths.profilesFolder}/{id}.json") : "";
         public AccountStatus Login()

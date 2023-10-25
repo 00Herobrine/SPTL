@@ -1,4 +1,4 @@
-﻿namespace SPTLauncher.Constructors.Profiles
+﻿namespace SPTLauncher.Components.Profiles
 {
     internal struct ProfileAkiInfo
     {

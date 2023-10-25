@@ -1,0 +1,8 @@
+﻿namespace SPTLauncher.Components.Caching
+{
+    public enum CacheType
+    {
+        ARMOR, BACKPACKS, CLOTHING, HEADPHONES, HELMETS, RIGS, FIREARMS, AMMO, MAGAZINES, GRENADES,
+        FOOD, CONTAINERS, ITEMS, KNIVES, KEYS, MAPS, MEDICALS, MODS, MONEY
+    }
+}

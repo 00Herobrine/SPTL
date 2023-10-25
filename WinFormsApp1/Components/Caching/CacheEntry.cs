@@ -17,7 +17,7 @@ namespace SPTLauncher.Components.Caching
 
         public override string ToString() => $"{Name}{Suffix}";
         public string GetParent() => Parent;
-        public CacheEntry? GetParentEntry() => Cache.GetReferenceFromID(Parent);
+        public CacheEntry? GetParentEntry() => TarkovCache.GetReferenceFromID(Parent);
         public string? GetPropsValue(string key) => Props?.GetValueOrDefault(key)?.ToString();
         public string? ShortName
         {
@@ -30,6 +30,6 @@ namespace SPTLauncher.Components.Caching
                 return null;
             }
         }
-        private string Suffix => !string.IsNullOrWhiteSpace(Parent) ? $" | {Cache.GetReferenceNameFromID(Parent)}" : "";
+        private string Suffix => !string.IsNullOrWhiteSpace(Parent) ? $" | {TarkovCache.GetReferenceNameFromID(Parent)}" : "";
     }
 }

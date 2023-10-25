@@ -1,6 +1,6 @@
 ﻿namespace SPTLauncher.Components.ModManagement
 {
-    internal class DownloadedMod
+    public class DownloadedMod
     {
         public string name, extension, path, akiVersion = "";
         public bool client = false, plugin = false, subrooted = false;

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Components.Presets;
 
 namespace SPTLauncher.Components.Responses
 {
@@ -65,5 +66,10 @@ namespace SPTLauncher.Components.Responses
         }
         private static void WriteToLocaleFile(string lang, string updatedFile) => File.WriteAllText($"{Paths.databasePath}/locales/server/{lang}.json", updatedFile);
         private static string ReadLocaleFile(string lang) => File.ReadAllText($"{Paths.databasePath}/locales/server/{lang}.json");
+        internal static void ImportPreset(string lang, Preset preset) => ImportPreset(lang, (ResponsesPreset)preset);
+        internal static void ImportPreset(string lang, ResponsesPreset preset)
+        {
+            foreach(Response response in preset.Responses) ImportResponse(lang, response, preset.replace); //
+        }
     }
 }

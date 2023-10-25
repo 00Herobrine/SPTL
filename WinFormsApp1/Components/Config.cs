@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SPTLauncher.Components.Caching;
 using SPTLauncher.Components.ModManagement;
 using SPTLauncher.Constructors.Enums;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace SPTLauncher.Components
         {
             file.Lang = Lang;
             Paths.localesFile = $"{Paths.databasePath}/locales/global/{Lang}.json";
-            TarkovCache.UpdateNameCache();
+            TarkovCache.StoreLocaleNames();
             LauncherSettings.language = Lang;
             if (saveFile) save(); 
         }

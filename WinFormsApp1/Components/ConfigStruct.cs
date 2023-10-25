@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SPTLauncher.Components.Presets;
 using SPTLauncher.Constructors.Enums;
 
 namespace SPTLauncher.Components
@@ -20,11 +21,16 @@ namespace SPTLauncher.Components
         public bool MinimizeOnLaunch { get; set; }
         [JsonProperty("ImageCaching")]
         public bool ImageCaching { get; set; }
+        [JsonProperty("AutoUpdate")]
         public bool AutoUpdate { get; set; }
+        [JsonProperty("AutoScrollConsole")]
+        public bool AutoScroll { get; set; }
         [JsonProperty("Lang")]
         public LANG Lang { get; set; }
         [JsonProperty("DisabledMods")]
         public Dictionary<string, string> DisabledMods { get; set; }
+
+
         public ConfigStruct()
         {
             // Initialize properties with default values.
@@ -32,6 +38,7 @@ namespace SPTLauncher.Components
             LastBackup = DateTime.MinValue;
             DisabledMods = new Dictionary<string, string>();
             BackupInterval = 60;
+            AutoScroll = true;
             Backups = false;
             Lang = LANG.EN;
             MinimizeOnLaunch = false;

@@ -1,17 +1,18 @@
 ﻿using SPTLauncher.Components.Responses;
 
-namespace SPTLauncher.Constructors.Presets
+namespace SPTLauncher.Components.Presets
 {
     [Serializable]
-    internal struct ResponsesPreset
+    internal struct ResponsesPreset : Preset
     {
-        public PresetInfo Info { get; set; }
+        public readonly string type => "Response";
+        public bool replace { get; set; }
         public List<Response> Responses { get; set; }
 
         public ResponsesPreset(List<Response> responses)
         {
-            Info = new PresetInfo();
             Responses = responses;
         }
+
     }
 }

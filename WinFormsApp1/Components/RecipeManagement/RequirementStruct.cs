@@ -1,4 +1,8 @@
-﻿namespace SPTLauncher.Components.RecipeManagement
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SPTLauncher.Components.Caching;
+
+namespace SPTLauncher.Components.RecipeManagement
 {
     public interface RequirementStruct
     {
@@ -27,7 +31,7 @@
         [JsonProperty("templateId")]
         public string templateId { get; set; }
         public readonly string type => "Item";
-        public override readonly string ToString() => TarkovCache.GetReadableName(templateId).ToString();
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
     }
 
     public struct ResourceStruct : RequirementStruct
@@ -35,13 +39,13 @@
         public int resource { get; set; }
         public string templateId { get; set; }
         public readonly string type => "Resource";
-        public override readonly string ToString() => TarkovCache.GetReadableName(templateId).ToString();
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
     }
     public struct ToolStruct : RequirementStruct
     {
         public string templateId { get; set; }
         public readonly string type => "Tool";
-        public override readonly string ToString() => TarkovCache.GetReadableName(templateId).ToString();
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
     }
     public struct QuestStruct : RequirementStruct
     {

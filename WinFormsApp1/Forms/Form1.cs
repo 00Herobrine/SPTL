@@ -14,8 +14,10 @@ using SPTLauncher.Forms.Reporting;
 using SPTLauncher.Components.BackupManagement;
 using SPTLauncher.Components.Caching;
 using SPTLauncher.Forms;
-using SPTLauncher.Constructors.Profiles;
 using SPTLauncher.Components.RecipeManagement;
+using SPTLauncher.Components.Presets;
+using SPTLauncher.Components.Profiles;
+using SPTLauncher.Components.Updater;
 
 namespace WinFormsApp1
 {
@@ -60,20 +62,22 @@ namespace WinFormsApp1
         public void StartUp()
         {
             _ = BindToAkiAsync(); // call this to another thread
+            //_ = AutoUpdater.UpdateCheck();
             Paths.Initialize(debug);
             md = new ModDownloader();
             Config.Load();
             LauncherSettings.Load();
             Traders.Initialize();
-            TarkovCache.Initialize();
+            //TarkovCache.Initialize();
             ModManager.LoadMods();
-            Cache.Initialize();
+            TarkovCache.Initialize();
             BackupManager.Initialize();
             RecipeManager.Initialize();
             RenderMods();
             UpdateModsButton();
             UpdateSettingsValues();
             LoadToolTips();
+            MessageBox.Show("Welcome");
         }
 
         public void UpdateSettingsValues()
@@ -841,7 +845,10 @@ namespace WinFormsApp1
 
         private void SavePresetButton_Click(object sender, EventArgs e)
         {
-
+            Preset preset = PresetHandler.GetLauncherPreset();
+            string? fileName = PresetHandler.ExportPreset(preset);
+            if(fileName == null) return;
+            preset.export(fileName);
         }
 
         private void donatePicture_Click(object sender, EventArgs e)
@@ -871,7 +878,7 @@ namespace WinFormsApp1
         {
             /*nv ??= new NodeViewer();
             nv.Show();*/
-            log(ModManager.CreateJunction(@$"{Paths.downloadingPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
+            log(ModManager.CreateJunction(@$"{Paths.downloadedPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
             //OpenGameFolderCommand();
         }
 

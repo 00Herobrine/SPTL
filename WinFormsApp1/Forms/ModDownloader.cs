@@ -1,5 +1,4 @@
-﻿using Aki.Launch.Models.Aki;
-using SPTLauncher.Components;
+﻿using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
 using System.Diagnostics;
 using WinFormsApp1;
@@ -14,6 +13,8 @@ namespace SPTLauncher
 
         private int page = 1;
         public Timer Timer;
+
+        public ModDownload GetSelectedModDownload() => (ModDownload)modList.SelectedItem;
         public ModDownloader()
         {
             InitializeComponent();
@@ -50,7 +51,6 @@ namespace SPTLauncher
         private void ModDownloader_Load(object sender, EventArgs e)
         {
             Check();
-            Form1.log($"{ModManager.GetImageCache().Count} images loaded");
             //listView1.SmallImageList.Images.AddRange(ModManager.GetImageCache().ToArray());
         }
 
@@ -88,9 +88,24 @@ namespace SPTLauncher
             LoadMod(GetSelectedModDownload());
         }
 
-        public ModDownload GetSelectedModDownload()
+        public void modList_Scrolled(object sender, MouseEventArgs e) => ScrollCheck(e.Delta > 0);
+        private readonly int threshold = 5;
+        public void ScrollCheck(bool upwards)
         {
-            return (ModDownload)modList.SelectedItem;
+            int visibleItems = modList.ClientSize.Height / modList.ItemHeight;
+            int totalItems = modList.Items.Count;
+            int lastIndexVisible = modList.TopIndex + visibleItems - 1;
+            ModDownload download = (ModDownload)modList.Items[lastIndexVisible];
+            Debug.WriteLine($"User scrolled up {upwards} with the mouse wheel?. Bottom: " + download.ToString());
+            if (lastIndexVisible >= 0 && lastIndexVisible < modList.Items.Count && !upwards)
+            {
+                object lastVisibleItem = modList.Items[lastIndexVisible];
+                Debug.WriteLine("Last visible item in the ListBox: " + lastVisibleItem.ToString());
+                if (lastIndexVisible >= totalItems - threshold)
+                {
+                    Debug.WriteLine("Reached Threshold");
+                }
+            }
         }
 
         public void LoadMod(ModDownload mod)
@@ -140,11 +155,7 @@ namespace SPTLauncher
 
         public void UpdateProgressBar(int currentDownloadAmount, long downloadSize)
         {
-            if (downloadSize == 0)
-            {
-                // Avoid division by zero error
-                downloadProgress.Value = 0;
-            }
+            if (downloadSize == 0) downloadProgress.Value = 0;
             else
             {
                 int progressPercentage = (int)((double)currentDownloadAmount / downloadSize * 100);
@@ -175,7 +186,6 @@ namespace SPTLauncher
             modList.Items.Clear();
             modList.Items.AddRange(FilterDownloads(SearchBox.Text).ToArray());
         }
-
         private List<ModDownload> FilterDownloads(string? input = null)
         {
             List<ModDownload> filtered = ModManager.downloadableMods;
@@ -186,30 +196,10 @@ namespace SPTLauncher
             || (o.author.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterAuthorCheck.Checked)
             || (o.description.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterDescriptionCheck.Checked));
         }
-
-        private void FilterDescriptionCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateWithFilters();
-        }
-
-        private void FilterVersionCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateWithFilters();
-        }
-
-        private void FilterAuthorCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateWithFilters();
-        }
-
-        private void FilterNameCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateWithFilters();
-        }
-
-        private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateWithFilters();
-        }
+        private void FilterDescriptionCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
+        private void FilterVersionCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
+        private void FilterAuthorCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
+        private void FilterNameCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
+        private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e) => UpdateWithFilters();
     }
 }

@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using SPTLauncher.Components;
+using SPTLauncher.Components.Caching;
 using SPTLauncher.Dictionary;
-using System.Runtime.InteropServices;
-using WinFormsApp1;
 
 namespace SPTLauncher
 {

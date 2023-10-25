@@ -1,6 +1,7 @@
 ﻿using Aki.Launcher;
 using Newtonsoft.Json.Linq;
 using SPTLauncher.Components;
+using SPTLauncher.Components.Caching;
 
 namespace WinFormsApp1
 {
@@ -50,7 +51,7 @@ namespace WinFormsApp1
         {
             id = token.Name;
             inspected = (bool)token.Value;
-            Name = TarkovCache.GetReadableName(id);
+            Name = TarkovCache.GetReadableNameFromID(id);
         }
         public override string ToString()
         {

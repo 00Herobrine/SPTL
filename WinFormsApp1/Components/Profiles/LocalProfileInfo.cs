@@ -1,4 +1,4 @@
-﻿namespace SPTLauncher.Constructors.Profiles
+﻿namespace SPTLauncher.Components.Profiles
 {
     public struct LocalProfileInfo // Eventually will replace the AkiLauncher ProfileInfo I hope
     {

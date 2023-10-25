@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using SPTLauncher.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SPTLauncher.Components.Caching;
 
 namespace SPTLauncher.Dictionary
 {
@@ -40,7 +35,7 @@ namespace SPTLauncher.Dictionary
         override
         public string ToString()
         {
-            return TarkovCache.GetReadableName(id);
+            return TarkovCache.GetReadableNameFromID(id);
         }
 
         public string GetName()

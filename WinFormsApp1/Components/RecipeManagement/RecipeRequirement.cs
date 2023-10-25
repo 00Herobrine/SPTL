@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SPTLauncher.Components.Caching;
 using WinFormsApp1;
 
 namespace SPTLauncher.Components.RecipeManagement
@@ -127,7 +128,7 @@ namespace SPTLauncher.Components.RecipeManagement
         override
         public string ToString()
         {
-            return TarkovCache.GetReadableName(itemID);
+            return TarkovCache.GetReadableNameFromID(itemID);
         }
     }
 }

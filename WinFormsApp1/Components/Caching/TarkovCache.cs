@@ -4,8 +4,30 @@ using WinFormsApp1;
 
 namespace SPTLauncher.Components.Caching
 {
-    public class Cache
+    public class TarkovCache
     {
+        public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>
+        {
+        { CacheType.ARMOR, CacheTab.ARMOR },
+        { CacheType.BACKPACKS, CacheTab.WEARABLES },
+        { CacheType.CLOTHING, CacheTab.WEARABLES },
+        { CacheType.HEADPHONES, CacheTab.WEARABLES },
+        { CacheType.HELMETS, CacheTab.WEARABLES },
+        { CacheType.RIGS, CacheTab.WEARABLES },
+        { CacheType.FIREARMS, CacheTab.WEAPONS },
+        { CacheType.AMMO, CacheTab.WEAPONS },
+        { CacheType.MAGAZINES, CacheTab.WEAPONS },
+        { CacheType.GRENADES, CacheTab.WEAPONS },
+        { CacheType.FOOD, CacheTab.CONSUMABLES },
+        { CacheType.CONTAINERS, CacheTab.MISC },
+        { CacheType.ITEMS, CacheTab.MISC },
+        { CacheType.KNIVES, CacheTab.WEAPONS },
+        { CacheType.KEYS, CacheTab.KEYS },
+        { CacheType.MAPS, CacheTab.MISC },
+        { CacheType.MEDICALS, CacheTab.CONSUMABLES },
+        { CacheType.MODS, CacheTab.MISC },
+        { CacheType.MONEY, CacheTab.MISC }
+        };
         public Dictionary<string, string> TypeReference = new();
         public static Dictionary<string, CacheEntry> ReferenceNodes = new(); // id, ReferenceType
         public static Dictionary<string, CacheEntry> ItemDictionary = new();
@@ -79,6 +101,6 @@ namespace SPTLauncher.Components.Caching
             this.ID = ID;
         }
 
-        public override string ToString() => Name ?? ID;
+        public override string ToString() => Name ?? TarkovCache.GetReadableNameFromID(ID);
     }
 }

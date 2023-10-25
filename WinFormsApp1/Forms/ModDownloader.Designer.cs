@@ -1,4 +1,6 @@
-﻿namespace SPTLauncher
+﻿using SPTLauncher.UIElements;
+
+namespace SPTLauncher
 {
     partial class ModDownloader
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            modList = new ListBox();
+            modList = new Scroll();
             Author = new Label();
             AkiVersion = new Label();
             DownloadModButton = new Button();
@@ -50,7 +52,6 @@
             FilterVersionCheck = new CheckBox();
             FilterAuthorCheck = new CheckBox();
             FilterNameCheck = new CheckBox();
-            listView1 = new ListView();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -65,6 +66,7 @@
             modList.TabIndex = 0;
             modList.DrawItem += modList_DrawItem;
             modList.SelectedIndexChanged += modList_SelectedIndexChanged;
+            modList.MouseWheel += modList_Scrolled;
             // 
             // Author
             // 
@@ -265,21 +267,11 @@
             FilterNameCheck.UseVisualStyleBackColor = true;
             FilterNameCheck.CheckedChanged += FilterNameCheck_CheckedChanged;
             // 
-            // listView1
-            // 
-            listView1.Location = new Point(557, 34);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(121, 97);
-            listView1.TabIndex = 23;
-            listView1.UseCompatibleStateImageBehavior = false;
-            listView1.View = View.SmallIcon;
-            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 420);
-            Controls.Add(listView1);
             Controls.Add(FilterNameCheck);
             Controls.Add(FilterAuthorCheck);
             Controls.Add(FilterVersionCheck);
@@ -335,6 +327,5 @@
         private CheckBox FilterVersionCheck;
         private CheckBox FilterAuthorCheck;
         private CheckBox FilterNameCheck;
-        private ListView listView1;
     }
 }

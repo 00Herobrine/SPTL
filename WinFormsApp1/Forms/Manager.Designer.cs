@@ -139,6 +139,7 @@
             Controls.Add(tableLayoutPanel1);
             Name = "Manager";
             Text = "Manager";
+            Load += Manager_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             ResumeLayout(false);

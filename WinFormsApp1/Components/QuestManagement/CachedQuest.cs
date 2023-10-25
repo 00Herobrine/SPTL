@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace SPTLauncher.Constructors
+namespace SPTLauncher.Components.QuestManagement
 {
     internal enum RequirementType
     {
@@ -20,7 +19,6 @@ namespace SPTLauncher.Constructors
         public int value { get; set; }
         public string compareMethod { get; set; }
         //public JArray visibilityConditions { get; set; }
-
     }
     internal struct Rewards
     {
@@ -32,12 +30,12 @@ namespace SPTLauncher.Constructors
         [JsonProperty("value")]
         public string Amount { get; set; }
         public string id { get; set; }
-        public string type { get; set; }
+        public string type { get; set; } // Experience, Item, TraderStanding
         public string? target { get; set; }
         [JsonProperty("findInRaid")]
         public bool foundInRaid { get; set; }
     }
-        internal struct Condition
+    internal struct Condition
     {
         [JsonProperty("AvailableForStart")]
         public List<ConditionProps> StartRequirements { get; set; }
@@ -64,6 +62,12 @@ namespace SPTLauncher.Constructors
         public string ChangeQuestMessageText { get; set; }
         [JsonProperty("completePlayerMessage")]
         public string CompletePlayerMessage { get; set; }
+        [JsonProperty("startedMessageText")]
+        public string StartMessageID { get; set; }
+        [JsonProperty("successMessageText")]
+        public string SuccessMessageID { get; set; }
+        [JsonProperty("failMessageText")]
+        public string FailMessageID { get; set; }
         [JsonProperty("conditions")]
         public Condition Conditions { get; set; }
         public Rewards rewards { get; set; }

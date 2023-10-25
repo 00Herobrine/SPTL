@@ -13,7 +13,7 @@ namespace SPTLauncher.Forms
 
         private void NodeViewer_Load(object sender, EventArgs e)
         {
-            LoadListboxes(Cache.ReferenceNodes.Values.ToArray());
+            LoadListboxes(TarkovCache.ReferenceNodes.Values.ToArray());
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -98,8 +98,8 @@ namespace SPTLauncher.Forms
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            if (checkBox1.Checked) listBox1.Items.AddRange(Cache.ItemDictionary.Values.ToArray());
-            else listBox1.Items.AddRange(Cache.ReferenceNodes.Values.ToArray());
+            if (checkBox1.Checked) listBox1.Items.AddRange(TarkovCache.ItemDictionary.Values.ToArray());
+            else listBox1.Items.AddRange(TarkovCache.ReferenceNodes.Values.ToArray());
         }
 
         private void LoadListboxes(CacheEntry[] entries)
@@ -113,8 +113,8 @@ namespace SPTLauncher.Forms
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             listBox2.Items.Clear();
-            if (checkBox2.Checked) listBox2.Items.AddRange(Cache.ItemDictionary.Values.ToArray());
-            else listBox2.Items.AddRange(Cache.ReferenceNodes.Values.ToArray());
+            if (checkBox2.Checked) listBox2.Items.AddRange(TarkovCache.ItemDictionary.Values.ToArray());
+            else listBox2.Items.AddRange(TarkovCache.ReferenceNodes.Values.ToArray());
         }
     }
 

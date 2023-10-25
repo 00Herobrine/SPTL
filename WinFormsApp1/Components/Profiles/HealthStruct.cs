@@ -1,4 +1,4 @@
-﻿namespace SPTLauncher.Constructors.Profiles
+﻿namespace SPTLauncher.Components.Profiles
 {
     public class HealthStruct
     {
@@ -13,7 +13,7 @@
     {
         public CurrentMaxStruct Health { get; set; }
     }
-    public struct CurrentMaxStruct 
+    public struct CurrentMaxStruct
     {
         public float Current { get; set; }
         public float Maximum { get; set; }

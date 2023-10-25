@@ -56,13 +56,13 @@ namespace SPTLauncher
         {
             LoadRecipes();
             StoreValidItems();
-            foreach (CachedItem item in TarkovCache.itemCache.Values) requirementID.Items.Add(item);
+            foreach (CacheItem item in TarkovCache.tarkovCache.Values) requirementID.Items.Add(item);
         }
 
         private void StoreValidItems()
         {
             productBox.Items.Clear();
-            productBox.Items.AddRange(Cache.tarkovCache.Values.ToArray());
+            productBox.Items.AddRange(TarkovCache.tarkovCache.Values.ToArray());
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -85,7 +85,7 @@ namespace SPTLauncher
 
         public void LoadShit(RecipeStruct recipe)
         {
-            string name = recipe.name ?? TarkovCache.GetReadableName(recipe.endProduct);
+            string name = recipe.name ?? TarkovCache.GetReadableNameFromID(recipe.endProduct);
             nameTextBox.Text = name;
             ModuleComboBox.Text = recipe.HasRequiredModule() ? Recipe.GetEnumDescription(recipe.GetModule()) : "";
             endProductBox.Text = recipe.endProduct;
@@ -168,7 +168,7 @@ namespace SPTLauncher
         {
             if (requirement != null)
             {
-                requirementID.Text = TarkovCache.GetReadableName(requirement.getID());
+                requirementID.Text = TarkovCache.GetReadableNameFromID(requirement.getID());
                 RequiredAmount.Value = requirement.getCount();
                 ToolCheckBox.Checked = requirement.isReturnedOnCraft();
             }
@@ -284,7 +284,7 @@ namespace SPTLauncher
         private void requirementID_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (requirementID.SelectedIndex == -1) return;
-            CachedItem item = (CachedItem)requirementID.SelectedItem;
+            CacheItem item = (CacheItem)requirementID.SelectedItem;
             //Debug.WriteLine("ID: " + item.ID);
             requirementID.Text = item.ID;
         }
@@ -308,8 +308,8 @@ namespace SPTLauncher
 
         private CacheItem[] Filter(string input)
         {
-            if (input == "") return Cache.tarkovCache.Values.ToArray();
-            return Cache.tarkovCache.Values.Where(o => o.ID.Contains(input, StringComparison.OrdinalIgnoreCase)
+            if (input == "") return TarkovCache.tarkovCache.Values.ToArray();
+            return TarkovCache.tarkovCache.Values.Where(o => o.ID.Contains(input, StringComparison.OrdinalIgnoreCase)
             || (o.Name != null && o.Name.Contains(input, StringComparison.OrdinalIgnoreCase))
             || (o.ShortName != null && o.ShortName.Contains(input, StringComparison.OrdinalIgnoreCase))).ToArray();
         }

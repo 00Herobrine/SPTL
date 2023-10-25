@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using SPTLauncher.Components.RecipeManagement;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using SPTLauncher.Forms;
 
 namespace SPTLauncher.Components.ModManagement
 {
@@ -241,7 +242,7 @@ namespace SPTLauncher.Components.ModManagement
                 new KeyValuePair<string, string>("t", t)
             });
             //string jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payloadData);
-            string savePath = Paths.downloadingPath;
+            string savePath = Paths.downloadedPath;
             response = await downloadClient.PostAsync(licenseURL, content);
             if (response.IsSuccessStatusCode)
             {
@@ -340,7 +341,9 @@ namespace SPTLauncher.Components.ModManagement
 
                     mod.downloadSpeed = 0;
                     Form1.log("File downloaded successfully!");
-                    ModInstaller.Install(new(fullSavePath, mod.name, extension, mod));
+                    DownloadedMod downloadedMod = new(fullSavePath, mod.name, extension, mod);
+                    Manager.AddDownloadedMod(downloadedMod); 
+                    ModInstaller.Install(downloadedMod);
                 }
                 else
                 {
@@ -361,14 +364,14 @@ namespace SPTLauncher.Components.ModManagement
             {
                 Debug.WriteLine(fileName);
                 if (!ModDownloader.allowedImageTypes.Contains(fileName.Split(".")[1])) continue;
-                Debug.WriteLine($"adding {fileName.Split("/")[..1]}");
+                Debug.WriteLine($"adding {fileName.Split("\\")[1]}");
                 images.Add(Image.FromFile(fileName));
             }
             return images;
         }
         private static bool FileAlreadyDownloaded(string name)
         {
-            return File.Exists($"{Paths.downloadingPath}/{name}");
+            return File.Exists($"{Paths.downloadedPath}/{name}");
         }
         private static void CreateConfigSection(ModDownload modDownload)
         {

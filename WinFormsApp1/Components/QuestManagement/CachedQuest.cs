@@ -2,15 +2,11 @@
 
 namespace SPTLauncher.Components.QuestManagement
 {
-    internal enum RequirementType
-    {
-        LEVEL, QUEST
-    }
-    internal enum Location
+    public enum Location
     {
         woods, bigmap, interchange, tarkovstreets, shoreline, rezervbase, lighthouse, laboratory, factory4_day, factory4_night, any
     }
-    internal struct ConditionProps
+    public struct ConditionProps
     {
         public string id { get; set; }
         public int index { get; set; }
@@ -20,12 +16,12 @@ namespace SPTLauncher.Components.QuestManagement
         public string compareMethod { get; set; }
         //public JArray visibilityConditions { get; set; }
     }
-    internal struct Rewards
+    public struct Rewards
     {
         [JsonProperty("Success")]
         public List<RewardItem> Success { get; set; }
     }
-    internal struct RewardItem
+    public struct RewardItem
     {
         [JsonProperty("value")]
         public string Amount { get; set; }
@@ -35,14 +31,14 @@ namespace SPTLauncher.Components.QuestManagement
         [JsonProperty("findInRaid")]
         public bool foundInRaid { get; set; }
     }
-    internal struct Condition
+    public struct Condition
     {
         [JsonProperty("AvailableForStart")]
         public List<ConditionProps> StartRequirements { get; set; }
         [JsonProperty("AvailableForFinish")]
         public List<ConditionProps> FinishRequirements { get; set; }
     }
-    internal struct CachedQuest
+    public struct CachedQuest
     {
         [JsonProperty("QuestName")]
         public string Name { get; set; }

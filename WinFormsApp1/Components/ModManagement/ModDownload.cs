@@ -1,5 +1,7 @@
 ﻿using HtmlAgilityPack;
+using SPTLauncher.Components.ModManagement.Downloader;
 using SPTLauncher.Components.RecipeManagement;
+using SPTLauncher.Utils;
 using System.Diagnostics;
 using System.Web;
 
@@ -88,7 +90,7 @@ namespace SPTLauncher.Components.ModManagement
         {
             ORIGIN origin = ORIGIN.INVALID;
             foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
-                if (url.Contains(Recipe.GetEnumDescription(origins).ToLower())) origin = origins;
+                if (url.Contains(origin.GetDescription())) origin = origins;
             return origin;
         }
 

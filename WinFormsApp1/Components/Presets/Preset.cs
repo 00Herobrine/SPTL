@@ -6,7 +6,6 @@ namespace SPTLauncher.Components.Presets
     {
         public string type { get; }
         public bool replace { get; }
-
         public void export(string fileName)
         {
             File.WriteAllText(fileName, JsonConvert.SerializeObject(this, Formatting.Indented));

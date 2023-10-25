@@ -15,7 +15,7 @@ namespace SPTLauncher.Components.Caching
         [JsonProperty("_type")]
         public string Type { get; set; } // should be the entry type but BSG is stupid so a loot spawn is an "Item" in their eyes
 
-        public override string ToString() => $"{Name}{Suffix}";
+        public override string ToString() => $"{TarkovCache.GetReadableNameFromID(ID)}";
         public string GetParent() => Parent;
         public CacheEntry? GetParentEntry() => TarkovCache.GetReferenceFromID(Parent);
         public string? GetPropsValue(string key) => Props?.GetValueOrDefault(key)?.ToString();

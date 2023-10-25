@@ -7,25 +7,14 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Runtime.InteropServices;
 using SPTLauncher.Components.RecipeManagement;
 using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 using SPTLauncher.Forms;
+using SPTLauncher.Components.ModManagement.Downloader;
+using SPTLauncher.Utils;
 
 namespace SPTLauncher.Components.ModManagement
 {
     public enum ModType { CLIENT, PLUGIN }
-    public enum ORIGIN
-    {
-        [Description("github.com")]
-        GITHUB,
-        [Description("drive.google.com")]
-        GOOGLE,
-        [Description("dropbox.com")]
-        DROPBOX,
-        [Description("sp-tarkov.com")]
-        SPT,
-        DIRECT,
-        INVALID
-    }
+
     internal class ModManager
     {
         public ModDownload? curDownload = null;
@@ -199,7 +188,7 @@ namespace SPTLauncher.Components.ModManagement
         {
             ORIGIN origin = ORIGIN.INVALID;
             foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
-                if (url.Contains(Recipe.GetEnumDescription(origins).ToLower())) origin = origins;
+                if (url.Contains(origins.GetDescription(), StringComparison.OrdinalIgnoreCase)) origin = origins;
             return origin;
         }
 
@@ -247,11 +236,10 @@ namespace SPTLauncher.Components.ModManagement
             if (response.IsSuccessStatusCode)
             {
                 string? filename = GetFilenameFromResponse(response);
-                Form1.log("filename thing");
                 if (filename != null)
                 {
                     filename = filename.Replace("\"", "");
-                    Form1.log($"File Included FN: {filename}");
+                    //Form1.log($"File Included FN: {filename}");
                     string extension = filename.Replace("\"", "").Split(".")[^1];
                     if (!IsValidFileType(extension.TrimEnd())) { Form1.log("No File Found."); return; }
                     Form1.log($"Downloading file.");

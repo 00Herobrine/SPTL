@@ -44,11 +44,12 @@
             endProductBox = new TextBox();
             nameTextBox = new TextBox();
             groupBox2 = new GroupBox();
+            QuestRequirementID = new ComboBox();
             groupBox3 = new GroupBox();
+            QuestCheckBox = new CheckBox();
             ItemCheckBox = new CheckBox();
             ResourceCheckBox = new CheckBox();
             ToolCheckBox = new CheckBox();
-            linkLabel1 = new LinkLabel();
             requiredModuleLvl = new NumericUpDown();
             label8 = new Label();
             RequiredAmount = new NumericUpDown();
@@ -230,8 +231,8 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(QuestRequirementID);
             groupBox2.Controls.Add(groupBox3);
-            groupBox2.Controls.Add(linkLabel1);
             groupBox2.Controls.Add(requiredModuleLvl);
             groupBox2.Controls.Add(label8);
             groupBox2.Controls.Add(RequiredAmount);
@@ -250,17 +251,38 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Requirements:";
             // 
+            // QuestRequirementID
+            // 
+            QuestRequirementID.FormattingEnabled = true;
+            QuestRequirementID.Location = new Point(187, 37);
+            QuestRequirementID.Name = "QuestRequirementID";
+            QuestRequirementID.Size = new Size(178, 23);
+            QuestRequirementID.TabIndex = 18;
+            QuestRequirementID.Visible = false;
+            // 
             // groupBox3
             // 
+            groupBox3.Controls.Add(QuestCheckBox);
             groupBox3.Controls.Add(ItemCheckBox);
             groupBox3.Controls.Add(ResourceCheckBox);
             groupBox3.Controls.Add(ToolCheckBox);
             groupBox3.Location = new Point(178, 131);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(222, 45);
+            groupBox3.Size = new Size(274, 45);
             groupBox3.TabIndex = 17;
             groupBox3.TabStop = false;
             groupBox3.Text = "Requirement Type";
+            // 
+            // QuestCheckBox
+            // 
+            QuestCheckBox.AutoSize = true;
+            QuestCheckBox.Location = new Point(206, 20);
+            QuestCheckBox.Name = "QuestCheckBox";
+            QuestCheckBox.Size = new Size(57, 19);
+            QuestCheckBox.TabIndex = 9;
+            QuestCheckBox.Text = "Quest";
+            QuestCheckBox.UseVisualStyleBackColor = true;
+            QuestCheckBox.CheckedChanged += QuestCheckBox_CheckedChanged;
             // 
             // ItemCheckBox
             // 
@@ -295,23 +317,13 @@
             ToolCheckBox.UseVisualStyleBackColor = true;
             ToolCheckBox.CheckedChanged += ToolCheckBox_CheckedChanged;
             // 
-            // linkLabel1
-            // 
-            linkLabel1.AutoSize = true;
-            linkLabel1.Location = new Point(303, 19);
-            linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new Size(25, 15);
-            linkLabel1.TabIndex = 16;
-            linkLabel1.TabStop = true;
-            linkLabel1.Text = "List";
-            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
-            // 
             // requiredModuleLvl
             // 
             requiredModuleLvl.Location = new Point(519, 38);
             requiredModuleLvl.Name = "requiredModuleLvl";
             requiredModuleLvl.Size = new Size(41, 23);
             requiredModuleLvl.TabIndex = 15;
+            requiredModuleLvl.ValueChanged += requiredModuleLvl_ValueChanged;
             // 
             // label8
             // 
@@ -489,11 +501,12 @@
         private NumericUpDown requiredModuleLvl;
         private Button SaveRecipeButton;
         private CheckBox LockedBox;
-        private LinkLabel linkLabel1;
         private GroupBox groupBox3;
         private CheckBox ItemCheckBox;
         private CheckBox ResourceCheckBox;
         private Button DeleteRecipeButton;
         private ComboBox productBox;
+        private CheckBox QuestCheckBox;
+        private ComboBox QuestRequirementID;
     }
 }

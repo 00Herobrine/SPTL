@@ -17,7 +17,6 @@ using SPTLauncher.Forms;
 using SPTLauncher.Components.RecipeManagement;
 using SPTLauncher.Components.Presets;
 using SPTLauncher.Components.Profiles;
-using SPTLauncher.Components.Updater;
 
 namespace WinFormsApp1
 {
@@ -77,7 +76,6 @@ namespace WinFormsApp1
             UpdateModsButton();
             UpdateSettingsValues();
             LoadToolTips();
-            MessageBox.Show("Welcome");
         }
 
         public void UpdateSettingsValues()

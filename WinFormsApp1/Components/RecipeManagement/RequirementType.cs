@@ -5,6 +5,7 @@
         Area,
         Item,
         Resource,
-        Tool
+        Tool,
+        QuestComplete
     }
 }

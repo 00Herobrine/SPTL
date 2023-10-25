@@ -1,134 +1,87 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SPTLauncher.Components.Caching;
-using WinFormsApp1;
 
 namespace SPTLauncher.Components.RecipeManagement
 {
-    public class RecipeRequirement
+    public interface RecipeRequirement
     {
-        private string? itemID;
-        private int count;
-        private bool returnOnCraft;
+        [JsonProperty("type")]
+        string type { get; }
+        public bool isArea => type == "Area";
+        public bool isItem => type == "Item";
+        public bool isTool => type == "Tool";
+        public bool isResource => type == "Resource";
+        public bool isQuest => type == "QuestComplete";
+        public RequirementType GetType() => (RequirementType)Enum.Parse(typeof(RequirementType), type);
+    }
 
-        private Module requiredModule;
-        private int requiredModuleLvl = -1;
-        public Recipe parent;
-        private JToken jToken; // little part of Json it's in
+    public struct AreaRequirement : RecipeRequirement
+    {
+        public int areaType { get; set; }
+        public int requiredLevel { get; set; }
+        public readonly string type => "Area";
+       
+        public override readonly string ToString() => ((Module) areaType).ToString();
+    }
 
-        public RecipeRequirement(Recipe recipe, string itemID, JToken token, int count = 1, bool returnOnCraft = false)
+    public struct ItemRequirement : RecipeRequirement
+    {
+        public int count { get; set; }
+        public bool isEncoded { get; set; }
+        public bool isFunctional { get; set; }
+        [JsonProperty("templateId")]
+        public string templateId { get; set; }
+        public readonly string type => "Item";
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
+
+        public ItemRequirement()
         {
-            parent = recipe;
-            jToken = token;
-            this.itemID = itemID;
-            this.count = count;
-            this.returnOnCraft = returnOnCraft;
+            templateId = TarkovCache.GetRandomItemID();
+            count = 1;
         }
+    }
 
-        public RecipeRequirement(JToken token, Recipe parent)
+    public struct ResourceRequirement : RecipeRequirement
+    {
+        public int resource { get; set; }
+        public string templateId { get; set; }
+        public readonly string type => "Resource";
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
+    }
+    public struct ToolRequirement : RecipeRequirement
+    {
+        public string templateId { get; set; }
+        public readonly string type => "Tool";
+        public override readonly string ToString() => TarkovCache.GetReadableNameFromID(templateId).ToString();
+    }
+    public struct QuestRequirement : RecipeRequirement
+    {
+        public string questId { get; set; }
+        public readonly string type => "QuestComplete";
+        public override readonly string ToString() => TarkovCache.GetReadableQuestName(questId);
+    }
+
+    public class RequirementStructConverter : JsonConverter<RecipeRequirement>
+    {
+        public override RecipeRequirement? ReadJson(JsonReader reader, Type objectType, RecipeRequirement? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            this.parent = parent;
-            jToken = token;
-            if (jToken["areaType"] != null)
+            var jObject = JObject.Load(reader);
+            var type = jObject["type"]?.Value<string>();
+            return type switch
             {
-                requiredModule = RecipeBuilder.GetModuleByID((int)jToken["areaType"]);
-                requiredModuleLvl = (int)jToken["requiredLevel"];
-            }
-            else
-            {
-                itemID = jToken["templateId"].ToString();
-                if (jToken["count"] == null) count = 1;
-                else count = (int)jToken["count"];
-                bool temp = false;
-                if (jToken["type"] != null && jToken["type"].ToString().Equals("Tool")) temp = true;
-                returnOnCraft = temp;
-            }
+                "Area" => jObject.ToObject<AreaRequirement>(),
+                "Item" => jObject.ToObject<ItemRequirement>(),
+                "Resource" => jObject.ToObject<ResourceRequirement>(),
+                "Tool" => jObject.ToObject<ToolRequirement>(),
+                "QuestComplete" => jObject.ToObject<QuestRequirement>(),
+                _ => throw new InvalidOperationException($"Unknown RequirementStruct type: {type}"),
+            };
         }
 
-        public string? getID()
+        public override void WriteJson(JsonWriter writer, RecipeRequirement? value, JsonSerializer serializer)
         {
-            return itemID;
-        }
-        public bool IsModule()
-        {
-            return requiredModule != null;
-        }
-        public void setID(string id)
-        {
-            parent.requirements.Remove(itemID);
-            itemID = id;
-            updateRequirements("templateId", id);
-            parent.requirements.Add(id, this);
-        }
-
-        public int getCount()
-        {
-            return count;
-        }
-        public void setCount(int count)
-        {
-            jToken["count"] = count;
-            this.count = count;
-            updateRequirements("count", count);
-        }
-
-        public bool isReturnedOnCraft()
-        {
-            return returnOnCraft;
-        }
-        public void returnedOnCraft(bool returned)
-        {
-            returnOnCraft = returned;
-            //setType to "Tool"
-        }
-
-        public Module getRequiredModule()
-        {
-            return requiredModule;
-        }
-        public void setRequiredModule(Module module)
-        {
-            requiredModule = module;
-            updateRequirements("areaType", module.ToString());
-        }
-        public int getRequiredModuleLvl()
-        {
-            return requiredModuleLvl;
-        }
-        public void setRequiredModuleLvl(int level)
-        {
-            requiredModuleLvl = level;
-            updateRequirements("requiredLevel", level);
-        }
-
-        public void updateRequirements(string name, int updated)
-        {
-            jToken[name] = updated;
-            JToken token = jToken.Parent;
-            parent.jToken["requirements"] = jToken.Parent;
-            //Form1.form.log($"Updated requirement {name} for {parent}");
-        }
-        public void updateRequirements(string name, string updated)
-        {
-            jToken[name] = updated;
-            JToken token = jToken.Parent;
-            parent.jToken["requirements"] = jToken.Parent;
-            Form1.log($"Updated requirement for {parent}");
-        }
-
-        public bool hasRequiredModule()
-        {
-            return requiredModuleLvl != -1;
-        }
-
-        public JToken GetJToken()
-        {
-            return jToken;
-        }
-
-        override
-        public string ToString()
-        {
-            return TarkovCache.GetReadableNameFromID(itemID);
+            //throw new NotImplementedException();
         }
     }
 }

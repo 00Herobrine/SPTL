@@ -1,10 +1,10 @@
 ﻿using SPTLauncher.Components;
 using SPTLauncher.Components.Responses;
-using SPTLauncher.Constructors.Enums;
 using SPTLauncher.UIElements;
 using WinFormsApp1;
 using Newtonsoft.Json;
 using SPTLauncher.Components.Presets;
+using SPTLauncher.Utils;
 
 namespace SPTLauncher.Forms
 {

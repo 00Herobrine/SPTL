@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace SPTLauncher.Components.RecipeManagement
+namespace SPTLauncher.Components
 {
     public enum Module
     {
@@ -37,8 +37,8 @@ namespace SPTLauncher.Components.RecipeManagement
         SCAVBOX = 14,
         [Description("Illumination"), Range(1, 3)]
         LIGHTING = 15,
-        /*        [Description("Place of Fame"), Range(1, 1)]
-                FAME = 16,*/
+        [Description("Place of Fame"), Range(1, 1)]
+        FAME = 16,
         [Description("Air Filtering Unit"), Range(1, 1)]
         AIRFILTER = 17,
         [Description("Solar Power"), Range(1, 1)]

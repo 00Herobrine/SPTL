@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SPTLauncher.Components.Presets;
 using SPTLauncher.Constructors.Enums;
 
 namespace SPTLauncher.Components

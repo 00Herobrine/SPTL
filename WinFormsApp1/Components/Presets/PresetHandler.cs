@@ -17,9 +17,10 @@ namespace SPTLauncher.Components.Presets
             }
         }
 
-        private static void InstallLauncherPreset(Preset preset)
+        private static void InstallLauncherPreset(Preset LPreset)
         {
-            LauncherPreset launcherPreset = (LauncherPreset)preset;
+            LauncherPreset launcherPreset = (LauncherPreset)LPreset;
+            foreach (Preset preset in launcherPreset.Presets) InstallPreset(LauncherSettings.language.ToString(), preset);
         }
 
         public static string? ExportPreset(Preset preset)

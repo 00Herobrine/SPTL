@@ -17,6 +17,7 @@ using SPTLauncher.Forms;
 using SPTLauncher.Components.RecipeManagement;
 using SPTLauncher.Components.Presets;
 using SPTLauncher.Components.Profiles;
+using SPTLauncher.Components.Updater;
 
 namespace WinFormsApp1
 {
@@ -61,7 +62,7 @@ namespace WinFormsApp1
         public void StartUp()
         {
             _ = BindToAkiAsync(); // call this to another thread
-            //_ = AutoUpdater.UpdateCheck();
+            _ = AutoUpdater.UpdateCheck();
             Paths.Initialize(debug);
             md = new ModDownloader();
             Config.Load();

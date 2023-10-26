@@ -14,21 +14,17 @@ namespace SPTLauncher.Components.Updater
         {
             using (var httpClient = new HttpClient())
             {
-                // Set a common User-Agent for all requests
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36");
 
-                string latestReleaseTag = await GetLatestReleaseTagAsync(httpClient);
+                string[]? responses = await GetLatestReleaseTagAsync(httpClient);
+                if (responses == null) { Form1.log("No Versions Uploaded"); return; }
+                string latestReleaseTag = responses[0];
                 if (latestReleaseTag != null && latestReleaseTag != currentVersion)
                 {
-                    //Form1.log("A new version is available.");
-
-                    // Close the current application
-                    if (MessageBox.Show("A new version is availabe, Download & Install now?", "New Version!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        Process.Start(Paths.gameFolder + "\\SPTL-Updater.exe");
-                        Environment.Exit(0);
-                        // Start the updated application
-                    }
+                    if (MessageBox.Show($"A new version is availabe, open the download link?\n{responses[1]}\n",
+                        //$"                       Yours:                 Latest:\n                       {LauncherSettings.Version}     =>     {latestReleaseTag}",
+                        "New Version!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        Process.Start(new ProcessStartInfo(responses[1]) { UseShellExecute = true });
                 }
                 else
                 {
@@ -37,7 +33,7 @@ namespace SPTLauncher.Components.Updater
             }
         }
 
-        static async Task<string?> GetLatestReleaseTagAsync(HttpClient httpClient)
+        static async Task<string[]?> GetLatestReleaseTagAsync(HttpClient httpClient)
         {
             string apiUrl = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/releases/latest";
 
@@ -45,7 +41,7 @@ namespace SPTLauncher.Components.Updater
             {
                 string json = await httpClient.GetStringAsync(apiUrl);
                 var release = JObject.Parse(json);
-                return release["tag_name"]?.ToString();
+                return [release["tag_name"]?.ToString(), release["html_url"]?.ToString()];
             }
             catch (Exception ex)
             {

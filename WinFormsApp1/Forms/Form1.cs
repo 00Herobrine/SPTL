@@ -23,7 +23,7 @@ namespace WinFormsApp1
 {
     public partial class Form1 : Form
     {
-        private bool debug = true;
+        private bool debug = false;
         private bool console = true, modsTab = true, backupsTab = true; // scaling shit
         private bool logging = true;
         private bool inUse = false;
@@ -59,8 +59,10 @@ namespace WinFormsApp1
             form = this;
         }
 
+
         public void StartUp()
         {
+            debug = Debugger.IsAttached;
             _ = BindToAkiAsync(); // call this to another thread
             _ = AutoUpdater.UpdateCheck();
             Paths.Initialize(debug);

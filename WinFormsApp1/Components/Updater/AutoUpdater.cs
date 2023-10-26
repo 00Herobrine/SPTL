@@ -8,7 +8,7 @@ namespace SPTLauncher.Components.Updater
     {
         static string repositoryOwner = "00Herobrine";
         static string repositoryName = "SPTL";
-        static string currentVersion = LauncherSettings.Version.ToString(); // Current version of your app
+        static string currentVersion = LauncherSettings.Version.ToString(); // Current version of your H.O.L.E
 
         public static async Task UpdateCheck()
         {
@@ -21,14 +21,15 @@ namespace SPTLauncher.Components.Updater
                 string latestReleaseTag = responses[0];
                 if (latestReleaseTag != null && latestReleaseTag != currentVersion)
                 {
-                    if (MessageBox.Show($"A new version is availabe, open the download link?\n{responses[1]}\n",
-                        //$"                       Yours:                 Latest:\n                       {LauncherSettings.Version}     =>     {latestReleaseTag}",
-                        "New Version!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        Process.Start(new ProcessStartInfo(responses[1]) { UseShellExecute = true });
+                    if (MessageBox.Show($"A new version is availabe, Downlad and Install?\n{responses[1]}\n", "New Version!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        Process.Start(Paths.gameFolder + "\\SPTL-Updater.exe");
+                        Environment.Exit(0);
+                    }
                 }
                 else
                 {
-                    Form1.log($"Your application is up-to-date. {currentVersion}");
+                    Form1.log($"Your H.O.L.E is up-to-date. {currentVersion}");
                 }
             }
         }

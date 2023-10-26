@@ -76,7 +76,7 @@ namespace SPTLauncher
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
             ModDownload mod = (ModDownload)modList.SelectedItem;
-            ModImage.Image = Image.FromFile($"{Paths.iconsPath}/roller144.gif");
+            ModImage.Image = Properties.Resources.roller144;
             if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
                 RequestMods();
@@ -121,9 +121,10 @@ namespace SPTLauncher
         private void LoadImage(ModDownload mod)
         {
             bool allowed = mod.imageURL != null && allowedImageTypes.Contains(mod.imageURL.Split(".")[^1].ToString());
-            if (!allowed) { ModImage.ImageLocation = $"{Paths.cachePath}/icons/NotFound.png"; return; }
+            if (!allowed) { ModImage.Image = Properties.Resources.NotFound; return; }
             string imagePath = $"{Paths.iconsCachePath}/{mod.imageName}";
             if (File.Exists(imagePath)) ModImage.ImageLocation = imagePath;
+            else if (string.IsNullOrWhiteSpace(mod.imageURL)) ModImage.Image = Properties.Resources.NotFound;
             else ModImage.ImageLocation = mod.imageURL;
         }
 
@@ -142,9 +143,14 @@ namespace SPTLauncher
         private void DownloadModButton_Click(object sender, EventArgs e)
         {
             ModDownload mod = GetSelectedModDownload();
+            
             if (mod == null) return;
             Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
+        }
+        public bool WarnIncompatability(string version)
+        {
+            return true;
         }
 
         public void UpdateProgressBar(int currentDownloadAmount, long downloadSize)

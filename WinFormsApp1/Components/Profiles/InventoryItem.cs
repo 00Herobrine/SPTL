@@ -14,7 +14,7 @@
     public struct Location
     {
         public bool isSearched { get; set; }
-        public int r { get; set; }
+        public string r { get; set; } // rotation
         public int x { get; set; }
         public int y { get; set; }
     }

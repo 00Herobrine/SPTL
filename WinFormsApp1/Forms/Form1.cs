@@ -848,7 +848,7 @@ namespace WinFormsApp1
         {
             Preset preset = PresetHandler.GetLauncherPreset();
             string? fileName = PresetHandler.ExportPreset(preset);
-            if(fileName == null) return;
+            if (fileName == null) return;
             preset.export(fileName);
         }
 

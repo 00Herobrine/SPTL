@@ -11,7 +11,7 @@ namespace SPTLauncher
         public static ModDownloader? form;
         private ModDownload? selected;
 
-        private int page = 1;
+        private static int page = 1;
         public Timer Timer;
 
         public ModDownload GetSelectedModDownload() => (ModDownload)modList.SelectedItem;
@@ -72,40 +72,35 @@ namespace SPTLauncher
             }
         }
 
-        bool loadingMods = false;
+        static bool loadingMods = false;
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
             ModDownload mod = (ModDownload)modList.SelectedItem;
             ModImage.Image = Image.FromFile($"{Paths.iconsPath}/roller144.gif");
             if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
             {
-                page++;
-                loadingMods = true;
-                ModManager.WebRequestMods(page);
-                loadingMods = false;
+                RequestMods();
             }
             updateVars(mod);
             LoadMod(GetSelectedModDownload());
         }
+        public static void RequestMods()
+        {
+            page++;
+            loadingMods = true;
+            ModManager.WebRequestMods(page);
+            loadingMods = false;
+        }
 
         public void modList_Scrolled(object sender, MouseEventArgs e) => ScrollCheck(e.Delta > 0);
-        private readonly int threshold = 5;
+        private readonly int threshold = 15;
         public void ScrollCheck(bool upwards)
         {
             int visibleItems = modList.ClientSize.Height / modList.ItemHeight;
             int totalItems = modList.Items.Count;
             int lastIndexVisible = modList.TopIndex + visibleItems - 1;
-            ModDownload download = (ModDownload)modList.Items[lastIndexVisible];
-            Debug.WriteLine($"User scrolled up {upwards} with the mouse wheel?. Bottom: " + download.ToString());
             if (lastIndexVisible >= 0 && lastIndexVisible < modList.Items.Count && !upwards)
-            {
-                object lastVisibleItem = modList.Items[lastIndexVisible];
-                Debug.WriteLine("Last visible item in the ListBox: " + lastVisibleItem.ToString());
-                if (lastIndexVisible >= totalItems - threshold)
-                {
-                    Debug.WriteLine("Reached Threshold");
-                }
-            }
+                if (lastIndexVisible >= totalItems - threshold) RequestMods();
         }
 
         public void LoadMod(ModDownload mod)
@@ -118,9 +113,8 @@ namespace SPTLauncher
             Description.Text = mod.description;
             lastUpdated.Text = $"Updated: {mod.lastUpdated}";
             Downloads.Text = $"Downloads: {mod.downloads.Split(" ")[0]}";
-            Rating.Text = $"Rating: {mod.stars}/5";
-            Ratings.Text = $"Ratings: {mod.ratings}";
-            Reviews.Text = $"Reviews: {mod.reviews}";
+            Ratings.Text = $"Ratings: {mod.reactions}";
+            Comments.Text = $"Comments: {mod.comments}";
         }
 
         public static readonly string[] allowedImageTypes = ["png", "jpg", "jpeg", "gif"];

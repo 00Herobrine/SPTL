@@ -3,6 +3,7 @@ using SPTLauncher.Components.ModManagement.Downloader;
 using SPTLauncher.Components.RecipeManagement;
 using SPTLauncher.Utils;
 using System.Diagnostics;
+using System.Text;
 using System.Web;
 
 namespace SPTLauncher.Components.ModManagement
@@ -11,9 +12,9 @@ namespace SPTLauncher.Components.ModManagement
     {
         public ORIGIN Origin;
         public string? imageURL, imageName;
-        public string URL, name, author, description, AkiVersion, lastUpdated, downloads;
+        public string URL, name, author, description, AkiVersion, lastUpdated, downloads, comments, reactions;
         public Image? image;
-        public int comments, reviews, ratings, id;
+        public int id;
         public float stars;
         public long bytes = 0, totalBytes = 0;
         public double downloadSpeed = 0;
@@ -25,31 +26,26 @@ namespace SPTLauncher.Components.ModManagement
             description = DecodeString(element.SelectSingleNode(".//div[@class='containerContent filebaseFileTeaser']").InnerText.Trim());
             URL = element.SelectSingleNode(".//a[@class='box128']").Attributes["href"].Value;
             id = int.Parse(URL.Split("file/")[1].Split("-")[0]);
-            HtmlNode spanNode = element.SelectSingleNode(".//span[@class='filebaseFileIcon']");
             HtmlNode imageNode = element.SelectSingleNode(".//img");
             imageURL = imageNode?.GetAttributeValue("src", "");
             imageName = imageURL?.Split("/")[^1];
-            HtmlNode ratingNode = element.SelectSingleNode(".//li[@class='jsTooltip filebaseFileRating']");
             HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
             author = att.SelectSingleNode(".//li").InnerText;
             AkiVersion = element.SelectSingleNode(".//span [starts-with(@class, 'badge label')]").InnerText;
             //Debug.WriteLine(element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText);
-            downloads = element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText.Trim();
-            ratings = 0;
-            HtmlNode ratingsNode = element.SelectSingleNode(".//span[@class='filebaseFileNumberOfRatings']");
-            if (ratingsNode != null) ratings = int.Parse(ratingsNode.InnerText.Trim().Replace("(", "").Replace(")", ""));
-            if (ratingNode != null)
-            {
-                string[] v = ratingNode.Attributes["title"].Value.Split("; ");
-                stars = float.Parse(v[0].Split(" ")[0]);
-                reviews = int.Parse(v[1].Split(" ")[0]);
-            }
+            HtmlNodeCollection fileStatNodes = element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectNodes(".//li");
+            downloads = fileStatNodes[0].InnerText.Trim();
+            StringBuilder sb = new();
+            for (int i = 0; i < fileStatNodes.Count; i++) sb.Append(fileStatNodes[i].InnerText.TrimStart().TrimEnd().Split(" ")[0] + " | ");
+            Debug.WriteLine("Nodes: " + sb);
+            comments = fileStatNodes.Count >= 2 ? fileStatNodes[1].InnerText.TrimStart().TrimEnd().Split(" ")[0] : "0";
+            HtmlNode? reactionsNode = element.SelectSingleNode(".//span [@class='reactionCount']");
+            reactions = reactionsNode == null ? "0" : reactionsNode.InnerText.Trim();
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
             Origin = GetOrigin(URL);
             if (!File.Exists($"{Paths.iconsCachePath}/{imageName}") && Config.GetImageCaching()) CacheImage();
             ModDownloader.DisplayModDownload(this);
         }
-
         public static string DecodeString(string input)
         {
             return HttpUtility.HtmlDecode(input);

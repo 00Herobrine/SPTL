@@ -1,11 +1,9 @@
 ﻿using HtmlAgilityPack;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Runtime.InteropServices;
-using SPTLauncher.Components.RecipeManagement;
 using Newtonsoft.Json;
 using SPTLauncher.Forms;
 using SPTLauncher.Components.ModManagement.Downloader;
@@ -121,7 +119,7 @@ namespace SPTLauncher.Components.ModManagement
             ModConfig? modConfig = GetConfig(download);
             if(modConfig != null)
             {
-                string localVersion = modConfig?.AkiVersion.Replace("SPT-AKI", "");
+                string localVersion = modConfig?.AkiVersion.Replace("SPT-AKI", "") ?? "0.0.0.0";
                 string onlineVersion = download.AkiVersion.Replace("SPT-AKI", "");
                 return IsVersionBigger(localVersion, onlineVersion);
             }
@@ -150,10 +148,10 @@ namespace SPTLauncher.Components.ModManagement
         public static Dictionary<int, ModConfig> GetModConfigs() => config.ModConfigs.ToDictionary(entry => entry.ID);
         public static bool HasConfig(ModDownload download) => GetModConfigs().ContainsKey(download.id);
         public static ModConfig? GetConfig(ModDownload download) => GetModConfigs().TryGetValue(download.id, out ModConfig modConfig) ? modConfig : null;
-        private static void SaveConfig() => File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(config));
+        private static void SaveConfig() => File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(config, Formatting.Indented));
         public static void LoadConfig()
         {
-            if (!File.Exists(Paths.modManagerConfigPath)) File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(new ModManagerConfigStruct()));
+            if (!File.Exists(Paths.modManagerConfigPath)) File.WriteAllText(Paths.modManagerConfigPath, JsonConvert.SerializeObject(new ModManagerConfigStruct(), Formatting.Indented));
             config = JsonConvert.DeserializeObject<ModManagerConfigStruct>(File.ReadAllText(Paths.modManagerConfigPath));
         }
         #endregion
@@ -201,6 +199,7 @@ namespace SPTLauncher.Components.ModManagement
         };
         public static async Task Download(ModDownload mod)
         {
+            if (!mod.URL.StartsWith(baseURL)) { Form1.log($"Not an SPT Mod! URL:\n{mod.URL}"); return; }
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(mod.URL);
             string html = await response.Content.ReadAsStringAsync();
@@ -361,16 +360,6 @@ namespace SPTLauncher.Components.ModManagement
         {
             return File.Exists($"{Paths.downloadedPath}/{name}");
         }
-        private static void CreateConfigSection(ModDownload modDownload)
-        {
-            ModConfig conf = new()
-            {
-                AkiVersion = modDownload.AkiVersion,
-                Name = modDownload.name,
-                URL = modDownload.URL,
-                AutoUpdate = false,
-            };
-        }
 
         public async static void WebRequestMods(int page = 1)
         {
@@ -400,44 +389,6 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
-        }
-
-        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode)]
-        static extern bool CreateHardLink(string @lpFileName, string @lpExistingFileName, IntPtr lpSecurityAttributes); // references files
-        public static string CreateHardLink(string sourcePath, string targetPath)
-        {
-            Form1.log($"Paths: {sourcePath} -> {targetPath}");
-            bool success = CreateHardLink(Path.Combine(targetPath, Path.GetFileName(sourcePath)), sourcePath, IntPtr.Zero);
-            if (success) return "Hard link created successfully.";
-            return $"Error creating hard link: {Marshal.GetLastWin32Error()}";
-        }
-        public static string CreateJunction(string sourcePath, string targetPath) // symlink without the admin privileges
-        {
-            try
-            {
-                Process process = new Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.Start();
-
-                StreamWriter sw = process.StandardInput;
-                if (sw.BaseStream.CanWrite)
-                {
-                    sw.WriteLine($"mklink /J \"{Path.Combine(targetPath, Path.GetFileName(sourcePath))}\" \"{sourcePath}\"");
-                    sw.WriteLine("exit");
-                }
-
-                process.WaitForExit();
-                process.Close();
-
-                return "Junction created successfully!";
-            }
-            catch (Exception ex)
-            {
-                return $"Failed to create junction. Error: {ex.Message}";
-            }
-        }
+        } 
     }
 }

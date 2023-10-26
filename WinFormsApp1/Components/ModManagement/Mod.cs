@@ -1,4 +1,6 @@
-﻿namespace SPTLauncher.Components.ModManagement
+﻿using WinFormsApp1;
+
+namespace SPTLauncher.Components.ModManagement
 {
     public class Mod
     {
@@ -12,7 +14,7 @@
         public Mod(string path)
         {
             this.path = path;
-            name = path.Split("\\")[1];
+            name = Path.GetFileName(path);
             string configPath = path + "/config/config.json";
             if (File.Exists(configPath)) this.configPath = configPath;
             enabled = !path.Contains(Paths.disabledModsPath);
@@ -29,7 +31,7 @@
             return $"{type} {name}{enabled}";
         }
 
-        public string Path => path;
+        public string FilePath => path;
         public string OriginalPath => originalPath;
         public string Name => name;
         public bool IsPlugin => modType == ModType.PLUGIN || plugin;

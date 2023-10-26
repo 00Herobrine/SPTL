@@ -18,6 +18,7 @@ using SPTLauncher.Components.RecipeManagement;
 using SPTLauncher.Components.Presets;
 using SPTLauncher.Components.Profiles;
 using SPTLauncher.Components.Updater;
+using SPTLauncher.Utils;
 
 namespace WinFormsApp1
 {
@@ -48,7 +49,7 @@ namespace WinFormsApp1
         private delegate void TextCallBack(string text);
         private delegate void ProfileCallBack();
         private Process? server;
-        private Process game;
+        private Process? game;
         private STATE serverState = STATE.OFFLINE;
         private static ServerInfo si;
 
@@ -452,7 +453,8 @@ namespace WinFormsApp1
 
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ActiveProfile = (Profile?)profilesList.SelectedItem;
+            if (profilesList.SelectedItem == null) return;
+            ActiveProfile = (Profile)profilesList.SelectedItem;
             if (creatingAccount != -1) // -1 means no selectedProfile Index
             {
                 // remove the account in creation from the profilesList
@@ -482,7 +484,6 @@ namespace WinFormsApp1
             factionImage.ImageLocation = info.SideImage;
             editionsBox.SelectedItem = account.edition;
             LoadProfileSkills();
-
         }
         private void LoadProfileSkills()
         {
@@ -559,7 +560,6 @@ namespace WinFormsApp1
             updatedSkills = new();
         }
         #endregion
-
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -879,7 +879,7 @@ namespace WinFormsApp1
         {
             /*nv ??= new NodeViewer();
             nv.Show();*/
-            log(ModManager.CreateJunction(@$"{Paths.downloadedPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
+            log(FileManagement.CreateJunction(@$"{Paths.downloadedPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
             //OpenGameFolderCommand();
         }
 

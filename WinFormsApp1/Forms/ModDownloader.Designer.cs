@@ -40,9 +40,6 @@ namespace SPTLauncher
             Description = new RichTextBox();
             lastUpdated = new Label();
             Downloads = new Label();
-            Reviews = new Label();
-            Rating = new Label();
-            Ratings = new Label();
             downloadProgress = new ProgressBar();
             DownloadLabel = new Label();
             SearchBox = new TextBox();
@@ -52,6 +49,8 @@ namespace SPTLauncher
             FilterVersionCheck = new CheckBox();
             FilterAuthorCheck = new CheckBox();
             FilterNameCheck = new CheckBox();
+            Comments = new Label();
+            Ratings = new Label();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
             SuspendLayout();
             // 
@@ -152,33 +151,6 @@ namespace SPTLauncher
             Downloads.TabIndex = 9;
             Downloads.Text = "Downloads: 0";
             // 
-            // Reviews
-            // 
-            Reviews.AutoSize = true;
-            Reviews.Location = new Point(395, 109);
-            Reviews.Name = "Reviews";
-            Reviews.Size = new Size(61, 15);
-            Reviews.TabIndex = 10;
-            Reviews.Text = "Reviews: 0";
-            // 
-            // Rating
-            // 
-            Rating.AutoSize = true;
-            Rating.Location = new Point(395, 124);
-            Rating.Name = "Rating";
-            Rating.Size = new Size(81, 15);
-            Rating.TabIndex = 11;
-            Rating.Text = "Rating: 0 Stars";
-            // 
-            // Ratings
-            // 
-            Ratings.AutoSize = true;
-            Ratings.Location = new Point(395, 139);
-            Ratings.Name = "Ratings";
-            Ratings.Size = new Size(58, 15);
-            Ratings.TabIndex = 12;
-            Ratings.Text = "Ratings: 0";
-            // 
             // downloadProgress
             // 
             downloadProgress.Location = new Point(245, 206);
@@ -267,11 +239,31 @@ namespace SPTLauncher
             FilterNameCheck.UseVisualStyleBackColor = true;
             FilterNameCheck.CheckedChanged += FilterNameCheck_CheckedChanged;
             // 
+            // Comments
+            // 
+            Comments.AutoSize = true;
+            Comments.Location = new Point(395, 109);
+            Comments.Name = "Comments";
+            Comments.Size = new Size(78, 15);
+            Comments.TabIndex = 23;
+            Comments.Text = "Comments: 0";
+            // 
+            // Ratings
+            // 
+            Ratings.AutoSize = true;
+            Ratings.Location = new Point(395, 124);
+            Ratings.Name = "Ratings";
+            Ratings.Size = new Size(58, 15);
+            Ratings.TabIndex = 24;
+            Ratings.Text = "Ratings: 0";
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 420);
+            Controls.Add(Ratings);
+            Controls.Add(Comments);
             Controls.Add(FilterNameCheck);
             Controls.Add(FilterAuthorCheck);
             Controls.Add(FilterVersionCheck);
@@ -281,9 +273,6 @@ namespace SPTLauncher
             Controls.Add(SearchBox);
             Controls.Add(DownloadLabel);
             Controls.Add(downloadProgress);
-            Controls.Add(Ratings);
-            Controls.Add(Rating);
-            Controls.Add(Reviews);
             Controls.Add(Downloads);
             Controls.Add(lastUpdated);
             Controls.Add(Description);
@@ -304,8 +293,6 @@ namespace SPTLauncher
         }
 
         #endregion
-
-        private ListBox modList;
         private Label Author;
         private Label AkiVersion;
         private Button DownloadModButton;
@@ -315,8 +302,6 @@ namespace SPTLauncher
         private RichTextBox Description;
         private Label lastUpdated;
         private Label Downloads;
-        private Label Reviews;
-        private Label Rating;
         private Label Ratings;
         private ProgressBar downloadProgress;
         private Label DownloadLabel;
@@ -327,5 +312,8 @@ namespace SPTLauncher
         private CheckBox FilterVersionCheck;
         private CheckBox FilterAuthorCheck;
         private CheckBox FilterNameCheck;
+        private Label Comments;
+        private Scroll modList;
+        private Label label2;
     }
 }

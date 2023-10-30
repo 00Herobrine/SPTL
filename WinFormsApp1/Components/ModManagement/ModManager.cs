@@ -3,15 +3,15 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using WinFormsApp1;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using SPTLauncher.Forms;
 using SPTLauncher.Components.ModManagement.Downloader;
 using SPTLauncher.Utils;
+using SPTLauncher.Components.ModManagement.Types;
 
 namespace SPTLauncher.Components.ModManagement
 {
-    public enum ModType { CLIENT, PLUGIN }
+    public enum ModType { CLIENT, PLUGIN, BOTH }
 
     internal class ModManager
     {
@@ -53,8 +53,8 @@ namespace SPTLauncher.Components.ModManagement
             int amount = files.Count;
             foreach (string file in files)
             {
-                string fileName = file.Split('\\')[1];
-                if (file.Contains(Paths.pluginsFolder + "\\aki-") || ignoredFiles.Contains(fileName.ToLower())) amount--;
+                string fileName = Path.GetFileName(file);
+                if (fileName.StartsWith("aki-", true) && fileName.EndsWith(".dll", true) || ignoredFiles.Contains(fileName.ToLower())) amount--;
                 else
                 {
                     Mod mod = new(file);
@@ -62,16 +62,19 @@ namespace SPTLauncher.Components.ModManagement
                     mods.Add(mod);
                 }
             }
+            foreach(string file in Directory.GetDirectories($"{Paths.modManagerFolder}/extracted"))
+            {
+                ExtractedMod em = new(file);
+                em.CreateJunction();
+                Debug.WriteLine(em); 
+                
+            }
         }
 
+        private readonly static string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
         public static string FormatByteCount(long bytes)
         {
-            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
-            if (bytes == 0)
-            {
-                return "0" + sizeSuffixes[0];
-            }
-
+            if (bytes == 0) return "0" + sizeSuffixes[0];
             int magnitude = (int)Math.Floor(Math.Log(bytes, 1024));
             double adjustedSize = bytes / Math.Pow(1024, magnitude);
 
@@ -96,54 +99,26 @@ namespace SPTLauncher.Components.ModManagement
         #region Config Shit
         public static void CheckConfig(ModDownload download)
         {
-            Form1.log("Checking config for " + download.id);
+            Form1.log("Checking config for " + download.id + " Exist? " + HasConfig(download));
             if (HasConfig(download))
             {
                 
             }
             else GenerateConfig(download);
         }
-        private static void GenerateConfig(ModDownload download)
+        private readonly static string[] NonVersions = ["Featured", "Outdated"];
+        public static ModConfig GenerateConfig(ModDownload download)
         {
-            config.ModConfigs.Add(new()
+            ModConfig modConfig = new()
             {
-                AkiVersion = download.AkiVersion,
+                AkiVersion = download.formattedVersion,
                 ID = download.id,
                 Name = download.name,
                 URL = download.URL
-            });
+            };
+            config.ModConfigs.Add(modConfig);
             SaveConfig();
-        }
-        public static VersionStatus VersionComparsion(ModDownload download)
-        {
-            ModConfig? modConfig = GetConfig(download);
-            if(modConfig != null)
-            {
-                string localVersion = modConfig?.AkiVersion.Replace("SPT-AKI", "") ?? "0.0.0.0";
-                string onlineVersion = download.AkiVersion.Replace("SPT-AKI", "");
-                return IsVersionBigger(localVersion, onlineVersion);
-            }
-            return VersionStatus.None;
-        }
-        public static VersionStatus IsVersionBigger(string version1, string version2)
-        {
-            string[] parts1 = version1.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase).Trim().Split('.');
-            string[] parts2 = version2.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase).Trim().Split('.');
-
-            if (parts1.Length != 3 || parts2.Length != 3)
-                throw new ArgumentException("Invalid version format");
-
-            int major1 = int.Parse(parts1[0]);
-            int minor1 = int.Parse(parts1[1]);
-            int patch1 = int.Parse(parts1[2]);
-
-            int major2 = int.Parse(parts2[0]);
-            int minor2 = int.Parse(parts2[1]);
-            int patch2 = int.Parse(parts2[2]);
-
-            if (major1 == major2 && minor1 == minor2 && patch1 == patch2) return VersionStatus.Match;
-            if (major1 > major2 || (major1 == major2 && (minor1 > minor2 || (minor1 == minor2 && patch1 > patch2)))) return VersionStatus.Newer;
-            return VersionStatus.Outdated;
+            return modConfig;
         }
         public static Dictionary<int, ModConfig> GetModConfigs() => config.ModConfigs.ToDictionary(entry => entry.ID);
         public static bool HasConfig(ModDownload download) => GetModConfigs().ContainsKey(download.id);
@@ -246,35 +221,31 @@ namespace SPTLauncher.Components.ModManagement
                     mod.totalBytes = byteSize;
                     Form1.log($"Download Size: {FormatByteCount(byteSize)}");
                     mod.bytes = 0;
-                    using (Stream contentStream = await response.Content.ReadAsStreamAsync())
+                    Stream contentStream = await response.Content.ReadAsStreamAsync();
+                    byte[] buffer = new byte[8192];
+                    int bytesRead = 0;
+                    mod.bytes = 0;
+                    DateTime startTime = DateTime.Now;
+                    string fullSavePath = Path.Combine(savePath, filename.Replace("\"", ""));
+                    try
                     {
-                        byte[] buffer = new byte[8192];
-                        int bytesRead = 0;
-                        mod.bytes = 0;
-                        DateTime startTime = DateTime.Now;
-                        string fullSavePath = Path.Combine(savePath, filename.Replace("\"", ""));
-                        try
+                        FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
-                            using (FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                            {
-                                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+                            await fileStream.WriteAsync(buffer, 0, bytesRead);
 
-                                    mod.bytes += bytesRead;
-                                    TimeSpan elapsedTime = DateTime.Now - startTime;
-                                    mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
-                                }
-                            }
-                            mod.downloadSpeed = 0;
-                            Form1.log("File downloaded successfully!");
-                            ModInstaller.Install(new(fullSavePath, mod.name, extension, mod));
+                            mod.bytes += bytesRead;
+                            TimeSpan elapsedTime = DateTime.Now - startTime;
+                            mod.downloadSpeed = mod.bytes / (elapsedTime.TotalMilliseconds / 1000);
                         }
-                        catch (Exception ex)
-                        {
-                            // Log any exceptions that occur during the download process
-                            Form1.log($"Error during download: {ex.Message}");
-                        }
+                        mod.downloadSpeed = 0;
+                        Form1.log("File downloaded successfully!");
+                        ModInstaller.Install(new(fullSavePath, mod.name, extension, mod));
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log any exceptions that occur during the download process
+                        Form1.log($"Error during download: {ex.Message}");
                     }
                     return;
                 }
@@ -389,6 +360,6 @@ namespace SPTLauncher.Components.ModManagement
             if (curDownload != null)
                 if (MessageBox.Show($"Downloading {curDownload.name}, are you sure you want to replace?", "Active Download!", MessageBoxButtons.YesNo) == DialogResult.No) return;
             curDownload = mod;
-        } 
+        }
     }
 }

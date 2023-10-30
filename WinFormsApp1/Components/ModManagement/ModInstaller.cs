@@ -1,5 +1,7 @@
 ﻿using SharpCompress.Archives;
 using SharpCompress.Common;
+using SPTLauncher.Components.ModManagement.Types;
+using SPTLauncher.Utils;
 using System.Diagnostics;
 using WinFormsApp1;
 
@@ -39,24 +41,7 @@ namespace SPTLauncher.Components.ModManagement
             ModManager.CheckConfig(toInstall.toInstall);
             Form1.log(success ? $"Installed {toInstall.name} Successfully!" : $"Error Installing {toInstall.name}.");
         }
-
-        private static bool AlreadyInstalled(DownloadedMod downloaded)
-        {
-            return false;
-        }
-
-        private static bool HasClientFolder(Entry entry)
-        {
-            return false;
-        }
-        private static bool HasBepinex(Entry entry)
-        {
-            return false;
-        }
-        private static bool DirectoryIsBepinex(string dir)
-        {
-            return dir.Contains("/bepinex", StringComparison.OrdinalIgnoreCase);
-        }
+        private static bool DirectoryIsBepinex(string dir) => dir.Contains("/bepinex", StringComparison.OrdinalIgnoreCase);
         private static string GetDestination(string path)
         {
             if (path.Contains("patchers")) return Paths.akiData + "/patchers";
@@ -75,7 +60,7 @@ namespace SPTLauncher.Components.ModManagement
                 List<string> rootFolders = GetRootFolders(archive);
                 List<string> rootFiles = GetRootFiles(archive);
                 bool hasDlls = false;
-                foreach (var file in rootFiles) if (!hasDlls && IsDllFile(file)) { hasDlls = true; break; }
+                foreach (var file in rootFiles) if (!hasDlls && FileManagement.IsDllFile(file)) { hasDlls = true; break; }
                 foreach (IArchiveEntry entry in archive.Entries) HandleModEntry(entry.Key, toInstall);
                 Form1.log("Is Subrooted? " + toInstall.subrooted);
                 foreach (var folder in rootFolders) Form1.log("Folder: " + folder);
@@ -98,7 +83,6 @@ namespace SPTLauncher.Components.ModManagement
             {
                 Form1.log($"An error occurred: {ex.Message}");
             }
-
             return false;
         }
 
@@ -121,10 +105,6 @@ namespace SPTLauncher.Components.ModManagement
                 .ToList();
         }
 
-        private static bool IsDllFile(string entryKey)
-        {
-            return entryKey.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
-        }
 
         private static void HandleModEntry(string entryKey, DownloadedMod toInstall)
         {

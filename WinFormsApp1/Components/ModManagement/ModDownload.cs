@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.VisualBasic;
 using SPTLauncher.Components.ModManagement.Downloader;
-using SPTLauncher.Components.RecipeManagement;
-using SPTLauncher.Utils;
 using System.Diagnostics;
 using System.Text;
 using System.Web;
@@ -19,9 +18,10 @@ namespace SPTLauncher.Components.ModManagement
         public long bytes = 0, totalBytes = 0;
         public double downloadSpeed = 0;
 
+        private readonly static string[] NonVersions = ["Featured", "Outdated"];
+        internal string formattedVersion => NonVersions.Any(nonVersion => nonVersion.Equals(AkiVersion, StringComparison.OrdinalIgnoreCase)) ? LauncherSettings.AkiVersion : AkiVersion.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase);
         public ModDownload(HtmlNode element)
         {
-            //element = element.SelectSingleNode("//div[starts-with(@class, 'filebaseFileCard')]");
             name = DecodeString(element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim());
             description = DecodeString(element.SelectSingleNode(".//div[@class='containerContent filebaseFileTeaser']").InnerText.Trim());
             URL = element.SelectSingleNode(".//a[@class='box128']").Attributes["href"].Value;
@@ -32,7 +32,6 @@ namespace SPTLauncher.Components.ModManagement
             HtmlNode att = element.SelectSingleNode(".//ul[@class='inlineList dotSeparated filebaseFileMetaData']");
             author = att.SelectSingleNode(".//li").InnerText;
             AkiVersion = element.SelectSingleNode(".//span [starts-with(@class, 'badge label')]").InnerText;
-            //Debug.WriteLine(element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectSingleNode(".//li").InnerText);
             HtmlNodeCollection fileStatNodes = element.SelectSingleNode(".//ul[@class='inlineList filebaseFileStats']").SelectNodes(".//li");
             downloads = fileStatNodes[0].InnerText.Trim();
             StringBuilder sb = new();
@@ -42,15 +41,11 @@ namespace SPTLauncher.Components.ModManagement
             HtmlNode? reactionsNode = element.SelectSingleNode(".//span [@class='reactionCount']");
             reactions = reactionsNode == null ? "0" : reactionsNode.InnerText.Trim();
             lastUpdated = att.SelectSingleNode(".//time [@class='datetime']").InnerText;
-            Origin = GetOrigin(URL);
+            Origin = ModManager.GetOrigin(URL);
             if (!File.Exists($"{Paths.iconsCachePath}/{imageName}") && Config.GetImageCaching()) CacheImage();
             ModDownloader.DisplayModDownload(this);
         }
-        public static string DecodeString(string input)
-        {
-            return HttpUtility.HtmlDecode(input);
-        }
-
+        public static string DecodeString(string input) => HttpUtility.HtmlDecode(input);
         private async void CacheImage()
         {
             HttpClient client = new();
@@ -77,20 +72,9 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
-        public override string ToString()
-        {
-            return name;
-        }
+        public override string ToString() => name;
 
-        public static ORIGIN GetOrigin(string url)
-        {
-            ORIGIN origin = ORIGIN.INVALID;
-            foreach (ORIGIN origins in Enum.GetValues(typeof(ORIGIN)))
-                if (url.Contains(origin.GetDescription())) origin = origins;
-            return origin;
-        }
-
-        public VersionStatus VersionComparison => ModManager.VersionComparsion(this);
+        public VersionStatus VersionComparison => this.CompareVersions();
 
         public async Task Download()
         {
@@ -99,10 +83,7 @@ namespace SPTLauncher.Components.ModManagement
                 await ModManager.Download(this);
             });
         }
-        public int CalculatePercentageInt()
-        {
-            return (int)(Math.Round(CalculatePercentage()));
-        }
+        public int CalculatePercentageInt() => (int)Math.Round(CalculatePercentage());
         public double CalculatePercentage()
         {
             if (totalBytes == 0)

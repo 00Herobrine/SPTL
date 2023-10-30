@@ -1,6 +1,4 @@
-﻿using WinFormsApp1;
-
-namespace SPTLauncher.Components.ModManagement
+﻿namespace SPTLauncher.Components.ModManagement
 {
     public class Mod
     {

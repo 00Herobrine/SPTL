@@ -1,4 +1,4 @@
-﻿namespace SPTLauncher.Components.ModManagement
+﻿namespace SPTLauncher.Components.ModManagement.Types
 {
     public class DownloadedMod
     {

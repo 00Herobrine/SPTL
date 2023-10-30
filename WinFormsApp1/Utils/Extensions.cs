@@ -23,7 +23,7 @@ namespace SPTLauncher.Utils
         public static string[] GetMinMax(this Enum value)
         {
             Debug.Write("\nChecking for enum " + value);
-            FieldInfo fi = value.GetType().GetField(value.ToString());
+            FieldInfo? fi = value.GetType().GetField(value.ToString());
             if (fi == null) return null;
             RangeAttribute? rangeAttribute = (RangeAttribute?)fi.GetCustomAttribute(typeof(RangeAttribute), false);
             List<string> values = new List<string>
@@ -33,5 +33,9 @@ namespace SPTLauncher.Utils
             };
             return values.ToArray();
         }
+        public static StringComparison GetComparison(bool ignoreCase = true) => ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        public static bool Contains(this string Text, string value, bool ignoreCase = true) => Text.Contains(value, GetComparison(ignoreCase));
+        public static bool StartsWith(this string Text, string value, bool ignoreCase = true) => Text.StartsWith(value, GetComparison(ignoreCase));
+        public static bool EndsWith(this string Text, string value, bool ignoreCase = true) => Text.EndsWith(value, GetComparison(ignoreCase));
     }
 }

@@ -1,4 +1,4 @@
-﻿using SPTLauncher.Components.ModManagement;
+﻿using SPTLauncher.Components.ModManagement.Types;
 
 namespace SPTLauncher.Forms
 {

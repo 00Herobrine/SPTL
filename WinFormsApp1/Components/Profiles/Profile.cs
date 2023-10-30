@@ -69,6 +69,11 @@ namespace SPTLauncher.Components.Profiles
             BackupManager.CreateProfileBackup(id);
         }
 
+        public void Rename(string name)
+        {
+            AccountManager.ChangeUsername(name);
+        }
+
         #region Ease of Use
         public Dictionary<string, Skill> GetSkills => GetFile().characters.pmc.SkillsNode.Skills.ToDictionary(o => o.name, o => o);
         //public void SetSkill(string name, Skill skill) 

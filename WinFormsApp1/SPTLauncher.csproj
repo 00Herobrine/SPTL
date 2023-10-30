@@ -10,6 +10,8 @@
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <PackageIcon></PackageIcon>
     <ApplicationIcon>HOLE.ico</ApplicationIcon>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -62,10 +64,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\ModManagement\Installer\" />
   </ItemGroup>
 
 </Project>

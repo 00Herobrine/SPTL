@@ -7,7 +7,7 @@
 
         public static void Initialize(bool debug = false)
         {
-            gameFolder = debug ? "F:/SPT" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
+            gameFolder = debug ? "F:/SPT-3.6.1-2" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
             temp = $"{cachePath}/temp";
@@ -39,16 +39,15 @@
             List<string> paths = new List<string>
             {
                 Paths.cachePath,
-                //Paths.itemCache,
                 //Paths.akiData,
                 Paths.gatoPath,
                 Paths.backupsPath,
-                //Paths.modsFolder,
+                Paths.modsFolder,
                 Paths.modManagerFolder,
                 Paths.downloadedPath,
                 Paths.disabledModsPath,
                 Paths.iconsCachePath,
-                //Paths.pluginsFolder
+                Paths.pluginsFolder
             };
             foreach (var path in paths)
             {

@@ -51,7 +51,9 @@ namespace SPTLauncher
             FilterNameCheck = new CheckBox();
             Comments = new Label();
             Ratings = new Label();
+            Favorite = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)ModImage).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)Favorite).BeginInit();
             SuspendLayout();
             // 
             // modList
@@ -63,7 +65,6 @@ namespace SPTLauncher
             modList.Name = "modList";
             modList.Size = new Size(239, 394);
             modList.TabIndex = 0;
-            modList.DrawItem += modList_DrawItem;
             modList.SelectedIndexChanged += modList_SelectedIndexChanged;
             modList.MouseWheel += modList_Scrolled;
             // 
@@ -98,7 +99,7 @@ namespace SPTLauncher
             // linkLabel1
             // 
             linkLabel1.AutoSize = true;
-            linkLabel1.Location = new Point(395, 154);
+            linkLabel1.Location = new Point(433, 139);
             linkLabel1.Name = "linkLabel1";
             linkLabel1.Size = new Size(49, 15);
             linkLabel1.TabIndex = 4;
@@ -257,11 +258,23 @@ namespace SPTLauncher
             Ratings.TabIndex = 24;
             Ratings.Text = "Ratings: 0";
             // 
+            // Favorite
+            // 
+            Favorite.Image = Properties.Resources.starEmpty;
+            Favorite.Location = new Point(395, 142);
+            Favorite.Name = "Favorite";
+            Favorite.Size = new Size(32, 32);
+            Favorite.SizeMode = PictureBoxSizeMode.Zoom;
+            Favorite.TabIndex = 25;
+            Favorite.TabStop = false;
+            Favorite.Click += Favorite_Click;
+            // 
             // ModDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 420);
+            Controls.Add(Favorite);
             Controls.Add(Ratings);
             Controls.Add(Comments);
             Controls.Add(FilterNameCheck);
@@ -288,6 +301,7 @@ namespace SPTLauncher
             FormClosing += ModDownloader_FormClosing;
             Load += ModDownloader_Load;
             ((System.ComponentModel.ISupportInitialize)ModImage).EndInit();
+            ((System.ComponentModel.ISupportInitialize)Favorite).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -315,5 +329,6 @@ namespace SPTLauncher
         private Label Comments;
         private Scroll modList;
         private Label label2;
+        private PictureBox Favorite;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Properties;
 using System.Diagnostics;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
@@ -47,11 +48,9 @@ namespace SPTLauncher
             downloadProgress.Visible = mod.totalBytes != 0;
             downloadProgress.Value = mod.CalculatePercentageInt();
         }
-
         private void ModDownloader_Load(object sender, EventArgs e)
         {
             Check();
-            //listView1.SmallImageList.Images.AddRange(ModManager.GetImageCache().ToArray());
         }
 
         public static void Check()
@@ -76,11 +75,8 @@ namespace SPTLauncher
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
             ModDownload mod = (ModDownload)modList.SelectedItem;
-            ModImage.Image = Properties.Resources.roller144;
-            if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20)
-            {
-                RequestMods();
-            }
+            ModImage.Image = Resources.roller144;
+            if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20) RequestMods();
             updateVars(mod);
             LoadMod(GetSelectedModDownload());
         }
@@ -110,6 +106,7 @@ namespace SPTLauncher
             Author.Text = $"Author: {mod.author}";
             AkiVersion.Text = $"Version: {mod.AkiVersion}";
             LoadImage(mod);
+            Favorite.Image = GetFavoriteImageState();
             Description.Text = mod.description;
             lastUpdated.Text = $"Updated: {mod.lastUpdated}";
             Downloads.Text = $"Downloads: {mod.downloads.Split(" ")[0]}";
@@ -121,10 +118,10 @@ namespace SPTLauncher
         private void LoadImage(ModDownload mod)
         {
             bool allowed = mod.imageURL != null && allowedImageTypes.Contains(mod.imageURL.Split(".")[^1].ToString());
-            if (!allowed) { ModImage.Image = Properties.Resources.NotFound; return; }
+            if (!allowed) { ModImage.Image = Resources.NotFound; return; }
             string imagePath = $"{Paths.iconsCachePath}/{mod.imageName}";
             if (File.Exists(imagePath)) ModImage.ImageLocation = imagePath;
-            else if (string.IsNullOrWhiteSpace(mod.imageURL)) ModImage.Image = Properties.Resources.NotFound;
+            else if (string.IsNullOrWhiteSpace(mod.imageURL)) ModImage.Image = Resources.NotFound;
             else ModImage.ImageLocation = mod.imageURL;
         }
 
@@ -134,16 +131,10 @@ namespace SPTLauncher
             Process.Start("explorer", GetSelectedModDownload().URL);
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            page++;
-            ModManager.WebRequestMods(page);
-        }
-
         private void DownloadModButton_Click(object sender, EventArgs e)
         {
             ModDownload mod = GetSelectedModDownload();
-            
+
             if (mod == null) return;
             Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
@@ -161,11 +152,6 @@ namespace SPTLauncher
                 int progressPercentage = (int)((double)currentDownloadAmount / downloadSize * 100);
                 downloadProgress.Value = progressPercentage;
             }
-        }
-
-        private void modList_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            Debug.WriteLine("drawing mod");
         }
 
         private void ModDownloader_FormClosing(object sender, FormClosingEventArgs e)
@@ -190,7 +176,7 @@ namespace SPTLauncher
         {
             List<ModDownload> filtered = ModManager.downloadableMods;
             if (FilterVersionCheck.Checked) filtered = filtered.FindAll(o => o.AkiVersion.Equals(AkiVersionsBox.Text, StringComparison.OrdinalIgnoreCase));
-            if (string.IsNullOrWhiteSpace(input) || (!FilterDescriptionCheck.Checked && !FilterNameCheck.Checked && !FilterAuthorCheck.Checked)) return filtered;
+            if (string.IsNullOrWhiteSpace(input) && (!FilterDescriptionCheck.Checked && !FilterNameCheck.Checked && !FilterAuthorCheck.Checked)) return filtered;
             else return filtered.FindAll(o =>
             (o.name.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterNameCheck.Checked)
             || (o.author.Contains(input, StringComparison.OrdinalIgnoreCase) && FilterAuthorCheck.Checked)
@@ -201,5 +187,7 @@ namespace SPTLauncher
         private void FilterAuthorCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
         private void FilterNameCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
         private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e) => UpdateWithFilters();
+        private void Favorite_Click(object sender, EventArgs e) => Favorite.Image = GetSelectedModDownload().ToggleFavorite() ? Resources.starFilled : Resources.starEmpty;
+        private Image GetFavoriteImageState() => GetSelectedModDownload().IsFavorited ? Resources.starFilled : Resources.starEmpty;
     }
 }

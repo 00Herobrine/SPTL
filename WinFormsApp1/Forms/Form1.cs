@@ -436,8 +436,9 @@ namespace WinFormsApp1
         public void CreateProfile(string username, string password = "", string edition = "Standard")
         {
             string[] editions = ServerManager.SelectedServer.editions;
-            edition = editions[0];
+            if (!editions.Contains(edition)) { log($"Cannot find '{edition}' as a valid edition."); return; }
             AccountManager.Register(username, password, edition);
+            creatingAccount = -1;
             log($"Created new Profile '{username}' with '{edition}' Edition");
         }
 
@@ -445,7 +446,7 @@ namespace WinFormsApp1
         {
             if (e.KeyCode == Keys.Enter && creatingAccount != -1)
             {
-                CreateProfile(profilesList.Text);
+                CreateProfile(profilesList.Text, "", editionsBox.Text);
                 LoadProfiles();
                 e.Handled = true;
             }
@@ -454,7 +455,6 @@ namespace WinFormsApp1
         private void profilesList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (profilesList.SelectedItem == null) return;
-            ActiveProfile = (Profile)profilesList.SelectedItem;
             if (creatingAccount != -1) // -1 means no selectedProfile Index
             {
                 // remove the account in creation from the profilesList
@@ -468,6 +468,8 @@ namespace WinFormsApp1
                 NewAccountCreation();
                 return;
             }
+            if (profilesList.SelectedItem is not Profile) return;
+            ActiveProfile = (Profile)profilesList.SelectedItem;
             if (ActiveProfile == null) return;
             if (ActiveProfile.Login() == AccountStatus.OK) LoadProfileInfo();
         }
@@ -479,7 +481,7 @@ namespace WinFormsApp1
             AccountInfo account = profile.accountInfo;
             nameLabel.Text = "Name: " + info.Nickname + " (" + info.Side.ToUpper() + ")";
             IDLabel.Text = "ID: " + account.id;
-            editionLabel.Text = "Edition: " + account.edition + (account.wipe ? " (WIPED)" : "");
+            editionLabel.Text = "Edition:                                         " + (account.wipe ? " (WIPED)" : "");
             expLabel.Text = "Level: " + info.Level + " (" + info.CurrentExp + "/" + info.NextLvlExp + ")\nNeeded: " + info.RemainingExp;
             factionImage.ImageLocation = info.SideImage;
             editionsBox.SelectedItem = account.edition;
@@ -595,10 +597,7 @@ namespace WinFormsApp1
             profile.GetEncyclopedia().Show();
         }
 
-        public Profile? GetSelectedProfile()
-        {
-            return (Profile)profilesList.SelectedItem;
-        }
+        public Profile? GetSelectedProfile() => profilesList.SelectedItem is Profile ? (Profile)profilesList.SelectedItem : null;
 
         private void button14_Click(object sender, EventArgs e)
         {

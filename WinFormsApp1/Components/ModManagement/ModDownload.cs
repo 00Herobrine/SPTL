@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Microsoft.VisualBasic;
 using SPTLauncher.Components.ModManagement.Downloader;
 using System.Diagnostics;
 using System.Text;
@@ -20,6 +19,7 @@ namespace SPTLauncher.Components.ModManagement
 
         private readonly static string[] NonVersions = ["Featured", "Outdated"];
         internal string formattedVersion => NonVersions.Any(nonVersion => nonVersion.Equals(AkiVersion, StringComparison.OrdinalIgnoreCase)) ? LauncherSettings.AkiVersion : AkiVersion.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase);
+
         public ModDownload(HtmlNode element)
         {
             name = DecodeString(element.SelectSingleNode(".//h3[@class='filebaseFileSubject']").InnerText.Trim());
@@ -72,6 +72,13 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
+        public bool IsFavorited => ModManager.Favorites.ContainsKey(URL);
+        public bool ToggleFavorite() {
+            if (!IsFavorited) { Favorite(); return true; }
+            else { UnFavorite(); return false; }
+        }
+        public void Favorite() => ModManager.AddToFavorites(this);
+        public void UnFavorite() => ModManager.RemoveFavorite(this);
         public override string ToString() => name;
 
         public VersionStatus VersionComparison => this.CompareVersions();

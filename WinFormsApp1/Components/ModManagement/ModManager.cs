@@ -67,7 +67,6 @@ namespace SPTLauncher.Components.ModManagement
                 ExtractedMod em = new(file);
                 em.CreateJunction();
                 Debug.WriteLine(em); 
-                
             }
         }
 
@@ -95,7 +94,17 @@ namespace SPTLauncher.Components.ModManagement
             return null;
         }
 
-
+        public static Dictionary<string, string> Favorites => config.favorites.ToDictionary(o => o.URL, o => o.name);
+        public static void AddToFavorites(ModDownload download)
+        {
+            config.favorites.Add(new(download.URL, download.name));
+            SaveConfig();
+        }
+        internal static void RemoveFavorite(ModDownload download)
+        {
+            config.favorites.Remove(config.favorites.Where(o => o.URL == download.URL).FirstOrDefault());
+            SaveConfig();
+        }
         #region Config Shit
         public static void CheckConfig(ModDownload download)
         {

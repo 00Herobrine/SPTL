@@ -2,7 +2,6 @@
 using Aki.Launcher.Models.Aki;
 using Aki.Launcher.Models.Launcher;
 using Newtonsoft.Json;
-using SPTLauncher.Components;
 using SPTLauncher.Components.BackupManagement;
 using WinFormsApp1;
 
@@ -75,7 +74,7 @@ namespace SPTLauncher.Components.Profiles
         }
 
         #region Ease of Use
-        public Dictionary<string, Skill> GetSkills => GetFile().characters.pmc.SkillsNode.Skills.ToDictionary(o => o.name, o => o);
+        public Dictionary<string, Skill> GetSkills => GetFile().characters.pmc.SkillsNode?.Skills.ToDictionary(o => o.name, o => o) ?? new();
         //public void SetSkill(string name, Skill skill) 
         public Skill? GetSkillByID(string ID) => GetSkills?[ID];
         #endregion

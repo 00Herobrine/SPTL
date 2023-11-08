@@ -6,7 +6,7 @@ All the quality of life features you would want in one simple location!
 ## Features
 | Module | Descriptor |
 | ------ | ---------- |
-| Mod Manager | Download, Install, and Configure mods with relative ease |
+| Mod Manager | Download, Update, Install and Configure mods with relative ease |
 | Backup Manager | Automatically backup, restore, and delete old profiles |
 | Response Manager | Edit in-game messenger responses for AI deaths/kills, player deaths/kills |
 | Quest Manager | Create, Delete and Import custom quests with ease |

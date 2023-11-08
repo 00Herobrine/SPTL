@@ -1,5 +1,6 @@
 ﻿using Aki.Launcher;
 using SPTLauncher.Components.Profiles;
+using System.Diagnostics;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
 
@@ -21,7 +22,22 @@ namespace SPTLauncher.Components.BackupManagement
         {
             BackupCheck();
         }
-
+        public static List<string> BackupDeletionCheck()
+        {
+            DateTime now = DateTime.Now;
+            List<string> deleted = new();
+            foreach (string backupFile in GetAllBackups())
+            {
+                DateTime? deletionTime = GetBackupDeletionTime(File.GetCreationTime(backupFile));
+                if (deletionTime == null) return new();
+                if (now >= deletionTime)
+                {
+                    File.Delete(backupFile);
+                    deleted.Add(backupFile);
+                }
+            }
+            return deleted;
+        }
         public static void BackupCheck()
         {
             Profile? selectedProfile = Form1.ActiveProfile;
@@ -55,13 +71,19 @@ namespace SPTLauncher.Components.BackupManagement
             logMessage ??= "Backup Created " + Path.GetFileName(filePath);
             Form1.log(logMessage);
         }
+        public static DateTime? GetBackupDeletionTime(DateTime fileDate) => Config.file.BackupDeleteInterval > 0 ? fileDate.AddDays(Config.file.BackupDeleteInterval) : null;
         public static string TodaysPath(string id) => $"{Paths.backupsPath}/{id}/{DateTime.Now:yyyy}/{DateTime.Now:MM}/{DateTime.Now:dd}/";
+        public static List<string> GetAllBackups() => Directory.GetDirectories(Paths.backupsPath).SelectMany(id => GetAllBackups(Path.GetFileName(id))).ToList();
+        public static List<string> GetAllBackups(string id) => GetYearFolders(id)
+                .SelectMany(year => GetMonthFolders(id, int.Parse(year))
+                    .SelectMany(month => GetDayFolders(id, int.Parse(year), int.Parse(month))
+                        .SelectMany(day => GetProfileBackups(id, int.Parse(year), int.Parse(month), int.Parse(day))))).ToList();
         public static List<string> GetTodaysBackups(string id) => GetProfileBackups(id, DateTime.Now);
         public static List<string> GetYearFolders(string id) => Directory.GetDirectories($"{Paths.backupsPath}/{id}/").Select(Path.GetFileName).ToList();
         public static List<string> GetMonthFolders(string id, int Year) => Directory.GetDirectories($"{Paths.backupsPath}/{id}/{Year}/").Select(Path.GetFileName).ToList();
         public static List<string> GetDayFolders(string id, int Year, int Month) => Directory.GetDirectories($"{Paths.backupsPath}/{id}/{Year}/{Month}/").Select(Path.GetFileName).ToList();
         public static List<string> GetProfileBackups() => Directory.GetDirectories($"{Paths.backupsPath}").Select(Path.GetFileName).ToList();
         public static List<string> GetProfileBackups(string id, int year, int month, int day) => GetProfileBackups(id, new(year, month, day));
-        public static List<string> GetProfileBackups(string id, DateTime date) => Directory.GetFiles($"{Paths.backupsPath}/{id}/{date:yyyy}/{date:MM}/{date:dd}/").Select(Path.GetFileName).ToList();
+        public static List<string> GetProfileBackups(string id, DateTime date) => Directory.GetFiles($"{Paths.backupsPath}/{id}/{date:yyyy}/{date:MM}/{date:dd}/").ToList();
     }
 }

@@ -58,6 +58,12 @@
             ResponsesButton = new Button();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
+            groupBox5 = new GroupBox();
+            profileBackupCheckBox = new CheckBox();
+            label12 = new Label();
+            label4 = new Label();
+            label7 = new Label();
+            BackUpInterval = new NumericUpDown();
             label11 = new Label();
             LangBox = new ComboBox();
             ImageCachingCheck = new CheckBox();
@@ -67,10 +73,6 @@
             LoadPresetButton = new Button();
             SavePresetButton = new Button();
             minimizeCheck = new CheckBox();
-            profileBackupCheckBox = new CheckBox();
-            label7 = new Label();
-            label4 = new Label();
-            BackUpInterval = new NumericUpDown();
             checkBox1 = new CheckBox();
             button4 = new Button();
             linkLabel3 = new LinkLabel();
@@ -109,20 +111,24 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
+            numericUpDown1 = new NumericUpDown();
+            label13 = new Label();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
+            groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)donatePicture).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             ((System.ComponentModel.ISupportInitialize)OpenFolderButton).BeginInit();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)SettingsButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             groupBox4.SuspendLayout();
             BackupGroup.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             SuspendLayout();
             // 
             // groupBox1
@@ -424,6 +430,7 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(groupBox5);
             settingsGroup.Controls.Add(label11);
             settingsGroup.Controls.Add(LangBox);
             settingsGroup.Controls.Add(ImageCachingCheck);
@@ -433,10 +440,6 @@
             settingsGroup.Controls.Add(LoadPresetButton);
             settingsGroup.Controls.Add(SavePresetButton);
             settingsGroup.Controls.Add(minimizeCheck);
-            settingsGroup.Controls.Add(profileBackupCheckBox);
-            settingsGroup.Controls.Add(label7);
-            settingsGroup.Controls.Add(label4);
-            settingsGroup.Controls.Add(BackUpInterval);
             settingsGroup.Controls.Add(checkBox1);
             settingsGroup.Controls.Add(button4);
             settingsGroup.Controls.Add(linkLabel3);
@@ -449,10 +452,74 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
+            // groupBox5
+            // 
+            groupBox5.Controls.Add(label13);
+            groupBox5.Controls.Add(numericUpDown1);
+            groupBox5.Controls.Add(profileBackupCheckBox);
+            groupBox5.Controls.Add(label12);
+            groupBox5.Controls.Add(label4);
+            groupBox5.Controls.Add(label7);
+            groupBox5.Controls.Add(BackUpInterval);
+            groupBox5.Location = new Point(41, 107);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(165, 97);
+            groupBox5.TabIndex = 41;
+            groupBox5.TabStop = false;
+            groupBox5.Text = "Profile Backups";
+            // 
+            // profileBackupCheckBox
+            // 
+            profileBackupCheckBox.AutoSize = true;
+            profileBackupCheckBox.Checked = true;
+            profileBackupCheckBox.CheckState = CheckState.Checked;
+            profileBackupCheckBox.Location = new Point(95, -1);
+            profileBackupCheckBox.Name = "profileBackupCheckBox";
+            profileBackupCheckBox.Size = new Size(61, 19);
+            profileBackupCheckBox.TabIndex = 32;
+            profileBackupCheckBox.Text = "Toggle";
+            profileBackupCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(107, 28);
+            label12.Name = "label12";
+            label12.Size = new Size(43, 15);
+            label12.TabIndex = 40;
+            label12.Text = "Delete:";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(9, 28);
+            label4.Name = "label4";
+            label4.Size = new Size(44, 15);
+            label4.TabIndex = 30;
+            label4.Text = "Create:";
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(9, 72);
+            label7.Name = "label7";
+            label7.Size = new Size(41, 15);
+            label7.TabIndex = 31;
+            label7.Text = "Min(s)";
+            // 
+            // BackUpInterval
+            // 
+            BackUpInterval.Location = new Point(6, 46);
+            BackUpInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
+            BackUpInterval.Name = "BackUpInterval";
+            BackUpInterval.Size = new Size(55, 23);
+            BackUpInterval.TabIndex = 29;
+            BackUpInterval.Value = new decimal(new int[] { 1440, 0, 0, 0 });
+            // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(185, 165);
+            label11.Location = new Point(113, 235);
             label11.Name = "label11";
             label11.Size = new Size(62, 15);
             label11.TabIndex = 39;
@@ -461,7 +528,7 @@
             // LangBox
             // 
             LangBox.FormattingEnabled = true;
-            LangBox.Location = new Point(186, 183);
+            LangBox.Location = new Point(181, 232);
             LangBox.Name = "LangBox";
             LangBox.Size = new Size(61, 23);
             LangBox.TabIndex = 31;
@@ -471,7 +538,7 @@
             ImageCachingCheck.AutoSize = true;
             ImageCachingCheck.Checked = true;
             ImageCachingCheck.CheckState = CheckState.Checked;
-            ImageCachingCheck.Location = new Point(113, 233);
+            ImageCachingCheck.Location = new Point(6, 214);
             ImageCachingCheck.Name = "ImageCachingCheck";
             ImageCachingCheck.Size = new Size(106, 19);
             ImageCachingCheck.TabIndex = 38;
@@ -538,45 +605,6 @@
             minimizeCheck.TabIndex = 33;
             minimizeCheck.Text = "Minimize on Launch";
             minimizeCheck.UseVisualStyleBackColor = true;
-            // 
-            // profileBackupCheckBox
-            // 
-            profileBackupCheckBox.AutoSize = true;
-            profileBackupCheckBox.Checked = true;
-            profileBackupCheckBox.CheckState = CheckState.Checked;
-            profileBackupCheckBox.Location = new Point(6, 214);
-            profileBackupCheckBox.Name = "profileBackupCheckBox";
-            profileBackupCheckBox.Size = new Size(107, 19);
-            profileBackupCheckBox.TabIndex = 32;
-            profileBackupCheckBox.Text = "Profile Backups";
-            profileBackupCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Location = new Point(98, 188);
-            label7.Name = "label7";
-            label7.Size = new Size(41, 15);
-            label7.TabIndex = 31;
-            label7.Text = "Min(s)";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(6, 166);
-            label4.Name = "label4";
-            label4.Size = new Size(91, 15);
-            label4.TabIndex = 30;
-            label4.Text = "Backup Interval:";
-            // 
-            // BackUpInterval
-            // 
-            BackUpInterval.Location = new Point(6, 184);
-            BackUpInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
-            BackUpInterval.Name = "BackUpInterval";
-            BackUpInterval.Size = new Size(91, 23);
-            BackUpInterval.TabIndex = 29;
-            BackUpInterval.Value = new decimal(new int[] { 1440, 0, 0, 0 });
             // 
             // checkBox1
             // 
@@ -991,6 +1019,24 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
+            // numericUpDown1
+            // 
+            numericUpDown1.Location = new Point(104, 46);
+            numericUpDown1.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
+            numericUpDown1.Name = "numericUpDown1";
+            numericUpDown1.Size = new Size(55, 23);
+            numericUpDown1.TabIndex = 41;
+            numericUpDown1.Value = new decimal(new int[] { 90, 0, 0, 0 });
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Location = new Point(107, 72);
+            label13.Name = "label13";
+            label13.Size = new Size(40, 15);
+            label13.TabIndex = 42;
+            label13.Text = "Day(s)";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1002,9 +1048,9 @@
             Controls.Add(factionImage);
             Controls.Add(BackupGroup);
             Controls.Add(groupBox4);
-            Controls.Add(serverConsole);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
+            Controls.Add(serverConsole);
             FormBorderStyle = FormBorderStyle.Fixed3D;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
@@ -1020,9 +1066,11 @@
             ((System.ComponentModel.ISupportInitialize)factionImage).EndInit();
             settingsGroup.ResumeLayout(false);
             settingsGroup.PerformLayout();
+            groupBox5.ResumeLayout(false);
+            groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)donatePicture).EndInit();
-            ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             ((System.ComponentModel.ISupportInitialize)OpenFolderButton).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
@@ -1031,6 +1079,7 @@
             groupBox4.ResumeLayout(false);
             BackupGroup.ResumeLayout(false);
             BackupGroup.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ResumeLayout(false);
         }
 
@@ -1117,5 +1166,9 @@
         private ComboBox MonthBox;
         private CheckedListBox ModsListCheckBox;
         private Button ResponsesButton;
+        private Label label12;
+        private GroupBox groupBox5;
+        private Label label13;
+        private NumericUpDown numericUpDown1;
     }
 }

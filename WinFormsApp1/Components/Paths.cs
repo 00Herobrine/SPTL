@@ -7,7 +7,7 @@
 
         public static void Initialize(bool debug = false)
         {
-            gameFolder = debug ? "F:/SPT-3.6.1-2" : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
+            gameFolder = debug ? "F:/SPT-3.6.1-2" : Environment.CurrentDirectory;
             profilesFolder = $"{gameFolder}/user/profiles";
             cachePath = $"{gameFolder}/Launcher-Cache";
             temp = $"{cachePath}/temp";

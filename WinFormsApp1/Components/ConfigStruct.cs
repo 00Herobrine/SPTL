@@ -13,7 +13,8 @@ namespace SPTLauncher.Components
 
         [JsonProperty("BackupInterval")]
         public int BackupInterval { get; set; }
-
+        [JsonProperty("BackupDeleteInterval")]
+        public int BackupDeleteInterval { get; set; }
         [JsonProperty("BackupsEnabled")]
         public bool Backups { get; set; }
         [JsonProperty("MinimizeOnLaunch")]
@@ -37,6 +38,7 @@ namespace SPTLauncher.Components
             LastBackup = DateTime.MinValue;
             DisabledMods = new Dictionary<string, string>();
             BackupInterval = 60;
+            BackupDeleteInterval = 0;
             AutoScroll = true;
             Backups = false;
             Lang = LANG.EN;

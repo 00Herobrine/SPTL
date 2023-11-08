@@ -64,14 +64,14 @@ namespace WinFormsApp1
         public void StartUp()
         {
             debug = Debugger.IsAttached;
-            _ = BindToAkiAsync(); // call this to another thread
+            //_ = BindToAkiAsync(); // call this to another thread
             _ = AutoUpdater.UpdateCheck();
             Paths.Initialize(debug);
-            md = new ModDownloader();
+            //md = new ModDownloader();
             Config.Load();
             LauncherSettings.Load();
             Traders.Initialize();
-            //TarkovCache.Initialize();
+            TarkovCache.Initialize();
             ModManager.LoadMods();
             TarkovCache.Initialize();
             BackupManager.Initialize();
@@ -80,7 +80,9 @@ namespace WinFormsApp1
             UpdateModsButton();
             UpdateSettingsValues();
             LoadToolTips();
+            log(BackupManager.BackupDeletionCheck().Count + " backups deleted."); // Auto-Delete backups after specified interval =< 0 means off
         }
+
 
         public void UpdateSettingsValues()
         {
@@ -109,30 +111,6 @@ namespace WinFormsApp1
             }
         }
 
-        public async Task BindToAkiAsync()
-        {
-            log("Attemping to bind to Aki.");
-            SetState(STATE.BINDING);
-            startServerButton.Enabled = false;
-            Process[] processes = GetServerProcesses();
-            if (processes.Length > 0)
-            {
-                log("Detected active Aki.");
-                killServerButton.Enabled = true;
-                await ServerManager.LoadDefaultServerAsync(LauncherSettingsProvider.Instance.Server.Url);
-                si = ServerManager.SelectedServer;
-                if (ServerManager.PingServer()) SetState(STATE.ONLINE);
-                else SetState(STATE.OFFLINE);
-            }
-            else
-            {
-                log("Active Aki not detected.");
-                if (autoStartCheckBox.Checked) LaunchServer();
-                SetState(STATE.OFFLINE);
-            }
-            if (ServerManager.SelectedServer != null) StoreEditions();
-            EnableStartServerButton();
-        }
         public static Process[] GetServerProcesses()
         {
             return Process.GetProcessesByName("Aki.Server");
@@ -161,6 +139,7 @@ namespace WinFormsApp1
         private void Form1_Load(object sender, EventArgs e)
         {
             StartUp();
+            BackupManager.GetAllBackups().ForEach(log);
             activeGroupBox = groupBox3;
             Text += $" - {LauncherSettings.akiData.akiVersion}";
         }
@@ -362,10 +341,7 @@ namespace WinFormsApp1
             KillServers();
         }
 
-        public static ServerProfileInfo[] GetServerProfileInfos()
-        {
-            return AccountManager.GetExistingProfiles();
-        }
+        public static ServerProfileInfo[] GetServerProfileInfos() => AccountManager.GetExistingProfiles();
 
         public void LoadProfiles()
         {
@@ -519,10 +495,7 @@ namespace WinFormsApp1
             File.WriteAllText(infoPath, newStats.ToString());
         }
 
-        public JObject getParsedJson(string file)
-        {
-            return JObject.Parse(File.ReadAllText(file));
-        }
+        public JObject getParsedJson(string file) => JObject.Parse(File.ReadAllText(file));
 
         private void button12_Click(object sender, EventArgs e)
         {
@@ -652,9 +625,10 @@ namespace WinFormsApp1
             Size = new Size(width, height);
         }
         #region Mod Manager
-        Form md;
+        ModDownloader? md = null;
         private void ModsButton_Click(object sender, EventArgs e)
         {
+            md ??= new ModDownloader();
             md.Show();
             //if (ToggleMods()) LoadMods();
             /*listBox2.Items.Clear();
@@ -803,7 +777,7 @@ namespace WinFormsApp1
             int day = int.Parse(DayBox.Text);
             DateTime backupTime = new(year, month, day);
             BackupsList.Items.Clear();
-            BackupsList.Items.AddRange(BackupManager.GetProfileBackups(id, backupTime).ToArray());
+            BackupsList.Items.AddRange(BackupManager.GetProfileBackups(id, backupTime).Select(Path.GetFileName).ToArray());
         }
 
         #endregion
@@ -878,7 +852,7 @@ namespace WinFormsApp1
         {
             /*nv ??= new NodeViewer();
             nv.Show();*/
-            log(FileManagement.CreateJunction(@$"{Paths.downloadedPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
+            //log(FileManagement.CreateJunction(@$"{Paths.downloadedPath}/AmandsGraphics", @$"{Paths.pluginsFolder}/"));
             //OpenGameFolderCommand();
         }
 

@@ -7,4 +7,12 @@
         Match, // local file is a match
         None // uh doesn't exist
     }
+
+    public enum VersionCompatibility
+    {
+        Certain,
+        Likely,
+        Unlikely,
+        Improbable
+    }
 }

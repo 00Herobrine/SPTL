@@ -134,8 +134,11 @@ namespace SPTLauncher
         private void DownloadModButton_Click(object sender, EventArgs e)
         {
             ModDownload mod = GetSelectedModDownload();
-
             if (mod == null) return;
+            VersionCompatibility compatibility = mod.GetVersion().VersionCompatibilityCheck();
+            if (compatibility != VersionCompatibility.Certain)
+                if (MessageBox.Show($"Mod Compatability is '{compatibility}' 100% functionality is not guaranteed, are you sure you'd like to continue with Download?",
+                    "Compatability Check", MessageBoxButtons.YesNo) == DialogResult.No) return;
             Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
         }

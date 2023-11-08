@@ -13,12 +13,12 @@ namespace SPTLauncher.Components.ModManagement
         public string URL, name, author, description, AkiVersion, lastUpdated, downloads, comments, reactions;
         public Image? image;
         public int id;
-        public float stars;
         public long bytes = 0, totalBytes = 0;
         public double downloadSpeed = 0;
 
         private readonly static string[] NonVersions = ["Featured", "Outdated"];
-        internal string formattedVersion => NonVersions.Any(nonVersion => nonVersion.Equals(AkiVersion, StringComparison.OrdinalIgnoreCase)) ? LauncherSettings.AkiVersion : AkiVersion.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase);
+        internal string formattedVersion => NonVersions.Any(nonVersion => nonVersion.Equals(AkiVersion, StringComparison.OrdinalIgnoreCase))
+            ? AkiVersion.Equals("Outdated", StringComparison.OrdinalIgnoreCase) ? "0.0.0" : LauncherSettings.AkiVersion : AkiVersion.Replace("SPT-AKI", "", StringComparison.OrdinalIgnoreCase);
 
         public ModDownload(HtmlNode element)
         {

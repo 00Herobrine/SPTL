@@ -9,13 +9,11 @@ namespace SPTLauncher.Components
     internal class LauncherSettings
     {
         public static LANG language;
-        public static Config config = new();
         public static AkiData akiData { get; set; }
         private static List<Profile> cachedProfiles = new();
 
         public static void Load()
         {
-            config = new Config();
             akiData = JsonConvert.DeserializeObject<AkiData>(Config.ReadCoreFile());
         }
 

@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace SPTLauncher.Components
 {
-    public class Config
+    public static class Config
     {
         private static DateTime lastBackupTime;
         public static ConfigStruct file;
@@ -51,20 +51,13 @@ namespace SPTLauncher.Components
             }
         }
 
-        public static string ReadCoreFile()
-        {
-            return File.ReadAllText($"{Paths.serverConfigsPath}/core.json");
-        }
-
+        public static string ReadCoreFile() => File.ReadAllText($"{Paths.serverConfigsPath}/core.json");
         public static void SetApiKey(string key, bool saveFile = false)
         {
             file.apiKey = key;
             if (saveFile) save();
         }
-        public static string GetApiKey()
-        {
-            return file.apiKey;
-        }
+        public static string GetApiKey() => file.apiKey;
         public static void SetLastBackUpTime(DateTime time, bool saveFile = false)
         {
             lastBackupTime = time;
@@ -72,25 +65,16 @@ namespace SPTLauncher.Components
             if(saveFile) save();
             //jObject["LastBackup"] = time;
         }
-        public static DateTime GetLastBackupTime()
-        {
-            return lastBackupTime;
-        }
+        public static DateTime GetLastBackupTime() => lastBackupTime;
 
-        public static int GetBackupInterval()
-        {
-            return file.BackupInterval;
-        }
+        public static int GetBackupInterval() => file.BackupInterval;
         public static void SetBackupInterval(int interval, bool saveFile = false)
         {
             file.BackupInterval = interval;
             if (saveFile) save();
         }
 
-        public static void save()
-        {
-            File.WriteAllText(Paths.configPath, JsonConvert.SerializeObject(file, Formatting.Indented));
-        }
+        public static void save() => File.WriteAllText(Paths.configPath, JsonConvert.SerializeObject(file, Formatting.Indented));
 
         public static void DisableMod(Mod mod)
         {
@@ -118,20 +102,9 @@ namespace SPTLauncher.Components
             file.ImageCaching = state;
             save();
         }
-        public static bool GetImageCaching()
-        {
-            return file.ImageCaching;
-        }
-
-        public static bool BackupState()
-        {
-            return file.Backups;
-        }
-
-        public static string GetDisabledModPath(string name)
-        {
-            return file.DisabledMods[name];
-        }
+        public static bool GetImageCaching() => file.ImageCaching;
+        public static bool BackupState() => file.Backups;
+        public static string GetDisabledModPath(string name) => file.DisabledMods[name];
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿ namespace SPTLauncher.Components
 {
-    internal class Paths
+    internal static class Paths
     {
         public static string gameFolder, profilesFolder, modManagerFolder, modManagerConfigPath, configPath, cachePath, itemCache, akiData, productionPath, itemsPath,
             gatoPath, backupsPath, modsFolder, pluginsFolder, temp, downloadedPath, installedPath, disabledModsPath, iconsPath, iconsCachePath, localesFile, databasePath, serverPath, serverConfigsPath;

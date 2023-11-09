@@ -34,8 +34,6 @@ namespace SPTLauncher
             ModDownload mod = (ModDownload)modList.SelectedItem;
             if (mod.totalBytes == 0) return;
             updateVars(mod);
-            // This method will be called every second
-            //Console.WriteLine("Timer ticked at: " + DateTime.Now);
         }
 
         public void updateVars(ModDownload mod)
@@ -135,16 +133,21 @@ namespace SPTLauncher
         {
             ModDownload mod = GetSelectedModDownload();
             if (mod == null) return;
-            VersionCompatibility compatibility = mod.GetVersion().VersionCompatibilityCheck();
-            if (compatibility != VersionCompatibility.Certain)
-                if (MessageBox.Show($"Mod Compatability is '{compatibility}' 100% functionality is not guaranteed, are you sure you'd like to continue with Download?",
-                    "Compatability Check", MessageBoxButtons.YesNo) == DialogResult.No) return;
+            if (Config.file.VersionWarnings) {
+                CompatibilityResult results = mod.GetVersion().CompatibilityCheck();
+                VersionCompatibility compatibility = results.Compatibility;
+                var icon = compatibility switch
+                {
+                    VersionCompatibility.Improbable => MessageBoxIcon.Error,
+                    VersionCompatibility.Unlikely => MessageBoxIcon.Warning,
+                    _ => MessageBoxIcon.Information,
+                };
+                if (compatibility != VersionCompatibility.Certain)
+                    if (MessageBox.Show($"Mod Compatability is '{compatibility}' functionality is not guaranteed, are you sure you'd like to continue with Download?",
+                        "Compatability Check", MessageBoxButtons.YesNo, icon) == DialogResult.No) return;
+            }
             Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
             _ = mod.Download();
-        }
-        public bool WarnIncompatability(string version)
-        {
-            return true;
         }
 
         public void UpdateProgressBar(int currentDownloadAmount, long downloadSize)
@@ -192,5 +195,16 @@ namespace SPTLauncher
         private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e) => UpdateWithFilters();
         private void Favorite_Click(object sender, EventArgs e) => Favorite.Image = GetSelectedModDownload().ToggleFavorite() ? Resources.starFilled : Resources.starEmpty;
         private Image GetFavoriteImageState() => GetSelectedModDownload().IsFavorited ? Resources.starFilled : Resources.starEmpty;
+
+        private void Favorite_MouseEnter(object sender, EventArgs e)
+        {
+            Favorite.Image = Resources.starFilled;
+        }
+
+        private void Favorite_MouseLeave(object sender, EventArgs e)
+        {
+            if (modList.SelectedItem == null) return;
+            if (!GetSelectedModDownload().IsFavorited) Favorite.Image = Resources.starEmpty;
+        }
     }
 }

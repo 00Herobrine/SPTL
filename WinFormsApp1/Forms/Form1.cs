@@ -38,7 +38,6 @@ namespace WinFormsApp1
         public delegate void PingServer(out bool returnValue);
 
         #region Launcher Stuff
-        private Config config;
         //private Encyclopedia encyclopedia;
         private RecipeBuilder recipeBuilder;
         private GroupBox activeGroupBox;
@@ -67,13 +66,12 @@ namespace WinFormsApp1
             //_ = BindToAkiAsync(); // call this to another thread
             _ = AutoUpdater.UpdateCheck();
             Paths.Initialize(debug);
-            //md = new ModDownloader();
+            md = new ModDownloader();
             Config.Load();
             LauncherSettings.Load();
-            Traders.Initialize();
-            TarkovCache.Initialize();
             ModManager.LoadMods();
             TarkovCache.Initialize();
+            Traders.Initialize();
             BackupManager.Initialize();
             RecipeManager.Initialize();
             RenderMods();
@@ -89,26 +87,13 @@ namespace WinFormsApp1
             textBox1.Text = Config.GetApiKey();
             profileBackupCheckBox.Checked = Config.BackupState();
             BackUpInterval.Value = Config.GetBackupInterval();
+            backupDeleteInterval.Value = Config.file.BackupDeleteInterval;
             minimizeCheck.Checked = Config.file.MinimizeOnLaunch;
             ImageCachingCheck.Checked = Config.file.ImageCaching;
+            versionWarningCheck.Checked = Config.file.VersionWarnings;
             LangBox.Items.Clear();
             foreach (LANG lang in Enum.GetValues(typeof(LANG))) LangBox.Items.Add(lang);
             LangBox.SelectedItem = Config.file.Lang;
-        }
-
-        private void EnableStartServerButton()
-        {
-            if (startServerButton.InvokeRequired)
-            {
-                startServerButton.BeginInvoke((MethodInvoker)delegate
-                {
-                    startServerButton.Enabled = true;
-                });
-            }
-            else
-            {
-                startServerButton.Enabled = true;
-            }
         }
 
         public static Process[] GetServerProcesses()
@@ -139,7 +124,6 @@ namespace WinFormsApp1
         private void Form1_Load(object sender, EventArgs e)
         {
             StartUp();
-            BackupManager.GetAllBackups().ForEach(log);
             activeGroupBox = groupBox3;
             Text += $" - {LauncherSettings.akiData.akiVersion}";
         }
@@ -547,14 +531,10 @@ namespace WinFormsApp1
             Config.SetLang((LANG)LangBox.SelectedIndex);
             Config.SetBackupInterval((int)BackUpInterval.Value);
             Config.file.Backups = profileBackupCheckBox.Checked;
+            Config.file.BackupDeleteInterval = (int)backupDeleteInterval.Value;
             Config.file.MinimizeOnLaunch = minimizeCheck.Checked;
+            Config.file.VersionWarnings = versionWarningCheck.Checked;
             Config.save();
-        }
-
-        public Config GetConfig()
-        {
-            config ??= new();
-            return config;
         }
 
         private void dictionaryButton_Click(object sender, EventArgs e)
@@ -896,6 +876,12 @@ namespace WinFormsApp1
         {
             ResponseEditor re = new ResponseEditor();
             re.Show();
+        }
+
+
+        private void LoadPresetButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

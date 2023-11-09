@@ -268,6 +268,8 @@ namespace SPTLauncher
             Favorite.TabIndex = 25;
             Favorite.TabStop = false;
             Favorite.Click += Favorite_Click;
+            Favorite.MouseEnter += Favorite_MouseEnter;
+            Favorite.MouseLeave += Favorite_MouseLeave;
             // 
             // ModDownloader
             // 

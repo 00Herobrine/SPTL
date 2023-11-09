@@ -58,7 +58,10 @@
             ResponsesButton = new Button();
             factionImage = new PictureBox();
             settingsGroup = new GroupBox();
+            versionWarningCheck = new CheckBox();
             groupBox5 = new GroupBox();
+            label13 = new Label();
+            backupDeleteInterval = new NumericUpDown();
             profileBackupCheckBox = new CheckBox();
             label12 = new Label();
             label4 = new Label();
@@ -111,14 +114,13 @@
             RestoreBackupButton = new Button();
             label8 = new Label();
             BackupProfiles = new ComboBox();
-            numericUpDown1 = new NumericUpDown();
-            label13 = new Label();
             groupBox1.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)skillProgressBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)factionImage).BeginInit();
             settingsGroup.SuspendLayout();
             groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)backupDeleteInterval).BeginInit();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).BeginInit();
             ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)donatePicture).BeginInit();
@@ -128,7 +130,6 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             groupBox4.SuspendLayout();
             BackupGroup.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             SuspendLayout();
             // 
             // groupBox1
@@ -430,6 +431,7 @@
             // 
             // settingsGroup
             // 
+            settingsGroup.Controls.Add(versionWarningCheck);
             settingsGroup.Controls.Add(groupBox5);
             settingsGroup.Controls.Add(label11);
             settingsGroup.Controls.Add(LangBox);
@@ -452,21 +454,51 @@
             settingsGroup.Text = "Settings";
             settingsGroup.Visible = false;
             // 
+            // versionWarningCheck
+            // 
+            versionWarningCheck.AutoSize = true;
+            versionWarningCheck.Checked = true;
+            versionWarningCheck.CheckState = CheckState.Checked;
+            versionWarningCheck.Location = new Point(6, 194);
+            versionWarningCheck.Name = "versionWarningCheck";
+            versionWarningCheck.Size = new Size(117, 19);
+            versionWarningCheck.TabIndex = 42;
+            versionWarningCheck.Text = "Version Warnings";
+            versionWarningCheck.UseVisualStyleBackColor = true;
+            // 
             // groupBox5
             // 
             groupBox5.Controls.Add(label13);
-            groupBox5.Controls.Add(numericUpDown1);
+            groupBox5.Controls.Add(backupDeleteInterval);
             groupBox5.Controls.Add(profileBackupCheckBox);
             groupBox5.Controls.Add(label12);
             groupBox5.Controls.Add(label4);
             groupBox5.Controls.Add(label7);
             groupBox5.Controls.Add(BackUpInterval);
-            groupBox5.Location = new Point(41, 107);
+            groupBox5.Location = new Point(6, 66);
             groupBox5.Name = "groupBox5";
             groupBox5.Size = new Size(165, 97);
             groupBox5.TabIndex = 41;
             groupBox5.TabStop = false;
             groupBox5.Text = "Profile Backups";
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Location = new Point(107, 72);
+            label13.Name = "label13";
+            label13.Size = new Size(40, 15);
+            label13.TabIndex = 42;
+            label13.Text = "Day(s)";
+            // 
+            // backupDeleteInterval
+            // 
+            backupDeleteInterval.Location = new Point(104, 46);
+            backupDeleteInterval.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
+            backupDeleteInterval.Name = "backupDeleteInterval";
+            backupDeleteInterval.Size = new Size(55, 23);
+            backupDeleteInterval.TabIndex = 41;
+            backupDeleteInterval.Value = new decimal(new int[] { 90, 0, 0, 0 });
             // 
             // profileBackupCheckBox
             // 
@@ -571,24 +603,25 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(77, 63);
+            label10.Location = new Point(189, 65);
             label10.Name = "label10";
-            label10.Size = new Size(94, 15);
+            label10.Size = new Size(42, 15);
             label10.TabIndex = 36;
-            label10.Text = "Launcher Preset:";
+            label10.Text = "Preset:";
             // 
             // LoadPresetButton
             // 
-            LoadPresetButton.Location = new Point(128, 78);
+            LoadPresetButton.Location = new Point(181, 83);
             LoadPresetButton.Name = "LoadPresetButton";
             LoadPresetButton.Size = new Size(58, 23);
             LoadPresetButton.TabIndex = 35;
             LoadPresetButton.Text = "Load";
             LoadPresetButton.UseVisualStyleBackColor = true;
+            LoadPresetButton.Click += LoadPresetButton_Click;
             // 
             // SavePresetButton
             // 
-            SavePresetButton.Location = new Point(64, 78);
+            SavePresetButton.Location = new Point(181, 112);
             SavePresetButton.Name = "SavePresetButton";
             SavePresetButton.Size = new Size(58, 23);
             SavePresetButton.TabIndex = 34;
@@ -1019,24 +1052,6 @@
             BackupProfiles.TabIndex = 0;
             BackupProfiles.SelectedIndexChanged += BackupProfiles_SelectedIndexChanged;
             // 
-            // numericUpDown1
-            // 
-            numericUpDown1.Location = new Point(104, 46);
-            numericUpDown1.Maximum = new decimal(new int[] { 43800, 0, 0, 0 });
-            numericUpDown1.Name = "numericUpDown1";
-            numericUpDown1.Size = new Size(55, 23);
-            numericUpDown1.TabIndex = 41;
-            numericUpDown1.Value = new decimal(new int[] { 90, 0, 0, 0 });
-            // 
-            // label13
-            // 
-            label13.AutoSize = true;
-            label13.Location = new Point(107, 72);
-            label13.Name = "label13";
-            label13.Size = new Size(40, 15);
-            label13.TabIndex = 42;
-            label13.Text = "Day(s)";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1068,6 +1083,7 @@
             settingsGroup.PerformLayout();
             groupBox5.ResumeLayout(false);
             groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)backupDeleteInterval).EndInit();
             ((System.ComponentModel.ISupportInitialize)BackUpInterval).EndInit();
             ((System.ComponentModel.ISupportInitialize)BugsFeedbackBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)donatePicture).EndInit();
@@ -1079,7 +1095,6 @@
             groupBox4.ResumeLayout(false);
             BackupGroup.ResumeLayout(false);
             BackupGroup.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ResumeLayout(false);
         }
 
@@ -1169,6 +1184,7 @@
         private Label label12;
         private GroupBox groupBox5;
         private Label label13;
-        private NumericUpDown numericUpDown1;
+        private NumericUpDown backupDeleteInterval;
+        private CheckBox versionWarningCheck;
     }
 }

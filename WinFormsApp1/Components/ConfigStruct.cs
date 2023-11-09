@@ -25,6 +25,8 @@ namespace SPTLauncher.Components
         public bool AutoUpdate { get; set; }
         [JsonProperty("AutoScrollConsole")]
         public bool AutoScroll { get; set; }
+        [JsonProperty("IncompatibilityWarnings")]
+        public bool VersionWarnings { get; set; }
         [JsonProperty("Lang")]
         public LANG Lang { get; set; }
         [JsonProperty("DisabledMods")]
@@ -41,6 +43,7 @@ namespace SPTLauncher.Components
             BackupDeleteInterval = 0;
             AutoScroll = true;
             Backups = false;
+            VersionWarnings = true;
             Lang = LANG.EN;
             MinimizeOnLaunch = false;
             ImageCaching = true;

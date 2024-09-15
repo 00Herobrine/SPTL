@@ -1,4 +1,6 @@
-﻿using SPTLauncher.Components.ModManagement.Types;
+﻿using SPTLauncher.Components.ModManagement;
+using SPTLauncher.Components.ModManagement.Types;
+using System.ComponentModel;
 
 namespace SPTLauncher.Forms
 {
@@ -11,11 +13,6 @@ namespace SPTLauncher.Forms
             manager = this;
         }
 
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         private void Manager_Load(object sender, EventArgs e)
         {
 
@@ -26,5 +23,7 @@ namespace SPTLauncher.Forms
             if (manager == null) return;
             manager.DownloadedModsList.Items.Add(downloaded);
         }
+
+
     }
 }

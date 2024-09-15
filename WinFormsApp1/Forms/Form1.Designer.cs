@@ -1,4 +1,6 @@
-﻿namespace WinFormsApp1
+﻿using SPTLauncher.Components;
+
+namespace WinFormsApp1
 {
     partial class Form1
     {
@@ -580,7 +582,7 @@
             // 
             // BugsFeedbackBox
             // 
-            BugsFeedbackBox.Image = SPTLauncher.Properties.Resources.bug;
+            BugsFeedbackBox.Image = Paths.bug;
             BugsFeedbackBox.Location = new Point(44, 251);
             BugsFeedbackBox.Name = "BugsFeedbackBox";
             BugsFeedbackBox.Size = new Size(32, 32);
@@ -591,7 +593,7 @@
             // 
             // donatePicture
             // 
-            donatePicture.Image = SPTLauncher.Properties.Resources.donate;
+            donatePicture.Image = Paths.donate;
             donatePicture.Location = new Point(6, 251);
             donatePicture.Name = "donatePicture";
             donatePicture.Size = new Size(32, 32);
@@ -684,7 +686,7 @@
             // 
             // OpenFolderButton
             // 
-            OpenFolderButton.Image = SPTLauncher.Properties.Resources.folder;
+            OpenFolderButton.Image = Paths.folder;
             OpenFolderButton.Location = new Point(33, 229);
             OpenFolderButton.Name = "OpenFolderButton";
             OpenFolderButton.Size = new Size(32, 32);
@@ -767,7 +769,7 @@
             // 
             // SettingsButton
             // 
-            SettingsButton.Image = SPTLauncher.Properties.Resources.settings;
+            SettingsButton.Image = Paths.settings;
             SettingsButton.Location = new Point(71, 229);
             SettingsButton.Name = "SettingsButton";
             SettingsButton.Size = new Size(32, 32);
@@ -872,7 +874,7 @@
             // 
             // pictureBox1
             // 
-            pictureBox1.Image = SPTLauncher.Properties.Resources.down;
+            pictureBox1.Image = Paths.down;
             pictureBox1.Location = new Point(745, 613);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(32, 32);

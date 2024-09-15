@@ -4,7 +4,7 @@ using WinFormsApp1;
 
 namespace SPTLauncher.Components.Caching
 {
-    public class TarkovCache
+    public static class TarkovCache
     {
         public static Dictionary<CacheType, CacheTab> tabs = new Dictionary<CacheType, CacheTab>
         {
@@ -28,7 +28,6 @@ namespace SPTLauncher.Components.Caching
         { CacheType.MODS, CacheTab.MISC },
         { CacheType.MONEY, CacheTab.MISC }
         };
-        public Dictionary<string, string> TypeReference = new();
         public static Dictionary<string, CacheEntry> ReferenceNodes = new(); // id, ReferenceType
         public static Dictionary<string, CacheEntry> ItemDictionary = new(); // id, Item
         public static Dictionary<string, CacheItem> tarkovCache = new(); // default tarkov items (id, CacheItem)

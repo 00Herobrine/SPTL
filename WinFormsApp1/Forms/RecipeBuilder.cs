@@ -41,7 +41,7 @@ namespace SPTLauncher
 
         public void LoadRecipes()
         {
-            //listBox1.Items.Clear();
+            listBox1.Items.Clear();
             ModuleComboBox.Items.Clear();
             foreach (Module module in acceptableModules) ModuleComboBox.Items.Add(module.GetDescription());
             Dictionary<Recipe, string> recipes = RecipeManager.recipes.ToDictionary(pair => pair.Value, pair => pair.Key);
@@ -77,9 +77,6 @@ namespace SPTLauncher
             productBox.ValueMember = "Key";
         }
 
-        bool startup = true;
-        RequirementType lastType = RequirementType.Item;
-        private readonly RequirementType[] similarTypes = { RequirementType.Tool, RequirementType.Resource, RequirementType.Item };
         private void LoadPossibleRequirements()
         {
             Dictionary<CacheEntry, string> productsDisplay = TarkovCache.ItemDictionary.Values
@@ -131,7 +128,7 @@ namespace SPTLauncher
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBox1.SelectedValue == null) return;
-            Recipe recipe = (Recipe)listBox1.SelectedValue;
+            Recipe recipe = ((KeyValuePair<Recipe, string>)listBox1.SelectedItem).Key;
             string id = recipe.id;
             //Recipe recipe = _recipes[id];
             LoadShit(recipe);

@@ -1,4 +1,5 @@
-﻿using SPTLauncher.UIElements;
+﻿using SPTLauncher.Components;
+using SPTLauncher.UIElements;
 
 namespace SPTLauncher
 {
@@ -260,7 +261,7 @@ namespace SPTLauncher
             // 
             // Favorite
             // 
-            Favorite.Image = Properties.Resources.starEmpty;
+            Favorite.Image = Paths.starEmpty;
             Favorite.Location = new Point(395, 142);
             Favorite.Name = "Favorite";
             Favorite.Size = new Size(32, 32);

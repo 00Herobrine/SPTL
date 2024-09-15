@@ -24,7 +24,6 @@ namespace WinFormsApp1
 {
     public partial class Form1 : Form
     {
-        private bool debug = false;
         private bool console = true, modsTab = true, backupsTab = true; // scaling shit
         private bool logging = true;
         private bool inUse = false;
@@ -62,10 +61,9 @@ namespace WinFormsApp1
 
         public void StartUp()
         {
-            debug = Debugger.IsAttached;
             //_ = BindToAkiAsync(); // call this to another thread
             _ = AutoUpdater.UpdateCheck();
-            Paths.Initialize(debug);
+            Paths.PathCheck();
             md = new ModDownloader();
             Config.Load();
             LauncherSettings.Load();
@@ -135,6 +133,8 @@ namespace WinFormsApp1
         ToolTip folderTip = new();
         ToolTip imageCachingTip = new();
         ToolTip serverButtonTip = new();
+        ToolTip versionWarningTip = new();
+        ToolTip languageTip = new();
         public void LoadToolTips()
         {
             donationTip.SetToolTip(donatePicture, "Donation!");
@@ -143,6 +143,8 @@ namespace WinFormsApp1
             folderTip.SetToolTip(OpenFolderButton, "Open Game Folder");
             imageCachingTip.SetToolTip(ImageCachingCheck, "Toggles Mod Manager Image Caching");
             serverButtonTip.SetToolTip(startServerButton, "Start Server");
+            versionWarningTip.SetToolTip(versionWarningCheck, "Toggles the Version Compatibility check for Mod Downloads");
+            languageTip.SetToolTip(LangBox, "Loads the selected Tarkov localization");
         }
         #endregion
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

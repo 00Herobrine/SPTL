@@ -1,6 +1,5 @@
 ﻿using SPTLauncher.Components;
 using SPTLauncher.Components.ModManagement;
-using SPTLauncher.Properties;
 using System.Diagnostics;
 using WinFormsApp1;
 using Timer = System.Windows.Forms.Timer;
@@ -15,7 +14,7 @@ namespace SPTLauncher
         private static int page = 1;
         public Timer Timer;
 
-        public ModDownload GetSelectedModDownload() => (ModDownload)modList.SelectedItem;
+        public ModDownloadStruct? GetSelectedModDownload() => modList.SelectedItem == null ? null : (ModDownloadStruct)modList.SelectedItem;
         public ModDownloader()
         {
             InitializeComponent();
@@ -31,9 +30,9 @@ namespace SPTLauncher
         private void TimerTick(object sender, EventArgs e)
         {
             if (modList.SelectedItem == null) return;
-            ModDownload mod = (ModDownload)modList.SelectedItem;
-            if (mod.totalBytes == 0) return;
-            updateVars(mod);
+            //ModDownload mod = (ModDownload)modList.SelectedItem;
+            //if (mod.totalBytes == 0) return;
+           // updateVars(mod);
         }
 
         public void updateVars(ModDownload mod)
@@ -49,6 +48,7 @@ namespace SPTLauncher
         private void ModDownloader_Load(object sender, EventArgs e)
         {
             Check();
+            SetDataSource();
         }
 
         public static void Check()
@@ -68,15 +68,22 @@ namespace SPTLauncher
                 if (form.AkiVersionsBox.SelectedItem == null) form.AkiVersionsBox.SelectedIndex = 0;
             }
         }
+        public static void SetDataSource()
+        {
+            if (form == null) return;
+            form.modList.Items.Clear();
+            foreach (var mod in ModManager.QueryMods().mods) form.modList.Items.Add(mod);
+        }
 
         static bool loadingMods = false;
         private void modList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ModDownload mod = (ModDownload)modList.SelectedItem;
-            ModImage.Image = Resources.roller144;
+            if (GetSelectedModDownload() == null) return;
+            ModDownloadStruct mod = (ModDownloadStruct)modList.SelectedItem;
+            ModImage.Image = Paths.Roller;
             if ((SearchBox.Text == "" || SearchBox.Text == null) && !loadingMods && modList.SelectedIndex >= modList.Items.Count - 20) RequestMods();
-            updateVars(mod);
-            LoadMod(GetSelectedModDownload());
+            //updateVars(mod);
+            LoadMod(mod);
         }
         public static void RequestMods()
         {
@@ -97,13 +104,12 @@ namespace SPTLauncher
                 if (lastIndexVisible >= totalItems - threshold) RequestMods();
         }
 
-        public void LoadMod(ModDownload mod)
+        public void LoadMod(ModDownloadStruct mod)
         {
-            if (mod == null) return;
             ModName.Text = mod.name;
             Author.Text = $"Author: {mod.author}";
             AkiVersion.Text = $"Version: {mod.AkiVersion}";
-            LoadImage(mod);
+            ModImage.Image = mod.GetImage();
             Favorite.Image = GetFavoriteImageState();
             Description.Text = mod.description;
             lastUpdated.Text = $"Updated: {mod.lastUpdated}";
@@ -112,27 +118,27 @@ namespace SPTLauncher
             Comments.Text = $"Comments: {mod.comments}";
         }
 
-        public static readonly string[] allowedImageTypes = ["png", "jpg", "jpeg", "gif"];
-        private void LoadImage(ModDownload mod)
+        
+/*        private void LoadImage(ModDownload mod)
         {
             bool allowed = mod.imageURL != null && allowedImageTypes.Contains(mod.imageURL.Split(".")[^1].ToString());
-            if (!allowed) { ModImage.Image = Resources.NotFound; return; }
+            if (!allowed) { ModImage.Image = Paths.NotFound; return; }
             string imagePath = $"{Paths.iconsCachePath}/{mod.imageName}";
             if (File.Exists(imagePath)) ModImage.ImageLocation = imagePath;
-            else if (string.IsNullOrWhiteSpace(mod.imageURL)) ModImage.Image = Resources.NotFound;
+            else if (string.IsNullOrWhiteSpace(mod.imageURL)) ModImage.Image = Paths.NotFound;
             else ModImage.ImageLocation = mod.imageURL;
-        }
+        }*/
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (GetSelectedModDownload() == null) return;
-            Process.Start("explorer", GetSelectedModDownload().URL);
+            Process.Start("explorer", ((ModDownloadStruct)GetSelectedModDownload()!).URL);
         }
 
         private void DownloadModButton_Click(object sender, EventArgs e)
         {
-            ModDownload mod = GetSelectedModDownload();
-            if (mod == null) return;
+            if (GetSelectedModDownload() == null) return;
+            ModDownloadStruct mod = (ModDownloadStruct)GetSelectedModDownload()!;
             if (Config.file.VersionWarnings) {
                 CompatibilityResult results = mod.GetVersion().CompatibilityCheck();
                 VersionCompatibility compatibility = results.Compatibility;
@@ -147,7 +153,7 @@ namespace SPTLauncher
                         "Compatability Check", MessageBoxButtons.YesNo, icon) == DialogResult.No) return;
             }
             Form1.log($"Downloading mod {mod.name} URL: {mod.URL}");
-            _ = mod.Download();
+            //_ = mod.Download();
         }
 
         public void UpdateProgressBar(int currentDownloadAmount, long downloadSize)
@@ -193,18 +199,18 @@ namespace SPTLauncher
         private void FilterAuthorCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
         private void FilterNameCheck_CheckedChanged(object sender, EventArgs e) => UpdateWithFilters();
         private void AkiVersionsBox_SelectedIndexChanged(object sender, EventArgs e) => UpdateWithFilters();
-        private void Favorite_Click(object sender, EventArgs e) => Favorite.Image = GetSelectedModDownload().ToggleFavorite() ? Resources.starFilled : Resources.starEmpty;
-        private Image GetFavoriteImageState() => GetSelectedModDownload().IsFavorited ? Resources.starFilled : Resources.starEmpty;
+        private void Favorite_Click(object sender, EventArgs e) => Favorite.Image = /*GetSelectedModDownload().ToggleFavorite() ? Paths.starFilled :*/ Paths.starEmpty;
+        private Image GetFavoriteImageState() => /*GetSelectedModDownload().IsFavorited*/ false ? Paths.starFilled : Paths.starEmpty;
 
         private void Favorite_MouseEnter(object sender, EventArgs e)
         {
-            Favorite.Image = Resources.starFilled;
+            Favorite.Image = Paths.starFilled;
         }
 
         private void Favorite_MouseLeave(object sender, EventArgs e)
         {
             if (modList.SelectedItem == null) return;
-            if (!GetSelectedModDownload().IsFavorited) Favorite.Image = Resources.starEmpty;
+            if (!/*GetSelectedModDownload().IsFavorited*/ false) Favorite.Image = Paths.starEmpty;
         }
     }
 }

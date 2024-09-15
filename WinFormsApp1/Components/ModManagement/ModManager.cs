@@ -19,14 +19,19 @@ namespace SPTLauncher.Components.ModManagement
         public static List<ModDownload> downloadableMods = new();
         public static List<Mod> mods = new();
         const string baseURL = "https://hub.sp-tarkov.com/files/";
+        private static string modsURL = "http://spt.minekov.net/mods";
         public static int disabledAmount = 0;
         public static ModManagerConfigStruct config;
+        public static readonly string[] allowedImageTypes = ["png", "jpg", "jpeg", "gif"];
 
         public static void Initialize()
         {
             LoadConfig();
-            WebRequestMods();
-            WebRequestMods(2);
+            ModQuery query = QueryMods();
+            Form1.log($"{query.mods.Count} mods queried.");
+            //Manager.AddDownloadedMod(downloadedMod); 
+/*            WebRequestMods();
+            WebRequestMods(2);*/
         }
 
         private static string[] ignoredFiles = { "order.json", "spt" };
@@ -232,13 +237,13 @@ namespace SPTLauncher.Components.ModManagement
                     mod.bytes = 0;
                     Stream contentStream = await response.Content.ReadAsStreamAsync();
                     byte[] buffer = new byte[8192];
-                    int bytesRead = 0;
                     mod.bytes = 0;
                     DateTime startTime = DateTime.Now;
                     string fullSavePath = Path.Combine(savePath, filename.Replace("\"", ""));
                     try
                     {
                         FileStream fileStream = new FileStream(fullSavePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                        int bytesRead;
                         while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
                             await fileStream.WriteAsync(buffer, 0, bytesRead);
@@ -323,7 +328,7 @@ namespace SPTLauncher.Components.ModManagement
             }
         }
 
-        public static List<Image> GetImageCache()
+/*        public static List<Image> GetImageCache()
         {
             //Directory.GetFiles(Paths.iconsCachePath).Where(fileName => ModDownloader.allowedImageTypes.Contains(fileName.Split(".")[1])).Select(Image.FromFile).ToList();
             List<Image> images = new List<Image>();
@@ -335,12 +340,20 @@ namespace SPTLauncher.Components.ModManagement
                 images.Add(Image.FromFile(fileName));
             }
             return images;
-        }
+        }*/
         private static bool FileAlreadyDownloaded(string name)
         {
             return File.Exists($"{Paths.downloadedPath}/{name}");
         }
 
+        public static ModQuery QueryMods()
+        {
+            HttpClient client = new();
+            HttpResponseMessage response = client.GetAsync(modsURL).Result;
+            string json = response.Content.ReadAsStringAsync().Result;
+            File.WriteAllText(Paths.gameFolder + "/mods.json", json);
+            return JsonConvert.DeserializeObject<ModQuery>(json);
+        }
         public async static void WebRequestMods(int page = 1)
         {
             string url = $"https://hub.sp-tarkov.com/files/?pageNo={page}&sortField=time&sortOrder=DESC";
